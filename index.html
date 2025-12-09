@@ -224,7 +224,8 @@
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             display: block; 
-            padding: 0 10px 100px 10px; /* Отступ под меню */
+            /* 🔥 УВЕЛИЧИЛ ОТСТУП СНИЗУ ДО 160px 🔥 */
+            padding: 0 10px 160px 10px; 
             height: 100%;
         }
 
@@ -235,45 +236,42 @@
 
         .split-view { 
             flex-direction: column;
-            gap: 12px; /* Меньше зазор между панелями */
+            gap: 12px; 
             height: auto;
         }
 
-        /* --- ПАНЕЛИ: Делаем компактнее --- */
         .panel-left, .panel-right { 
             width: 100%; 
             height: auto; 
             overflow: visible;
             flex-shrink: 0;
-            padding: 15px; /* Уменьшаем padding (было 20) */
+            padding: 15px;
         }
         
         .panel-right { min-height: auto; }
 
-        /* Уменьшаем шрифты заголовков для экономии места */
         h3 { font-size: 16px; margin-bottom: 15px; }
         
-        /* Ввод данных компактнее */
         input, select { padding: 12px; font-size: 14px; }
         .qty-wrapper { height: 42px; }
         .qty-btn { width: 40px; height: 100%; }
         .qty-input { font-size: 16px; }
 
-        /* Блок ИТОГО компактнее */
         #txtTotal { font-size: 26px !important; }
         .btn { padding: 14px; margin-top: 15px; font-size: 15px; }
 
-        /* Таблица компактнее */
         .table-header { padding: 12px 15px; }
         th, td { padding: 10px 12px; font-size: 12px; }
+        
+        /* Кнопки в таблице компактнее */
+        .btn-table { margin-left: 2px; padding: 6px 8px; font-size: 10px; }
 
-        /* Графики в одну колонку */
         .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
         .charts-grid { grid-template-columns: 1fr; gap: 12px; }
         .kpi-card { padding: 15px; }
         .kpi-val { font-size: 22px; }
 
-        /* --- НИЖНЕЕ МЕНЮ: РАЗДЕЛЬНЫЕ КНОПКИ --- */
+        /* --- НИЖНЕЕ МЕНЮ --- */
         .nav {
             position: fixed;
             bottom: 0;
@@ -281,34 +279,31 @@
             right: 0;
             margin: 0;
             border: none;
-            background: transparent; /* Фона всей панели НЕТ */
+            background: transparent; 
             box-shadow: none;
             z-index: 1000;
             justify-content: center;
-            gap: 12px; /* Расстояние между кнопками */
+            gap: 12px; 
             padding: 10px 15px;
             padding-bottom: env(safe-area-inset-bottom, 20px);
-            pointer-events: none; /* Пропускаем клики сквозь пустое место */
+            pointer-events: none; 
         }
         
         .nav-btn {
-            pointer-events: auto; /* Кнопки кликабельны */
+            pointer-events: auto; 
             flex: 1;
-            max-width: 100px; /* Ограничиваем ширину чтобы не были огромными */
-            border-radius: 16px; /* Более круглые */
-            font-size: 9px; /* Текст мельче */
+            max-width: 100px;
+            border-radius: 16px;
+            font-size: 9px;
             padding: 8px 4px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            
-            /* Эффект матового стекла на каждой кнопке */
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* Легкая тень */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
             color: var(--text-sub);
             gap: 4px;
             transition: transform 0.1s;
@@ -325,8 +320,8 @@
         
         .nav-btn.active {
             color: var(--accent);
-            background: rgba(255, 255, 255, 0.95); /* Активная ярче */
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.25); /* Цветная тень активной */
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.25);
         }
         [data-theme="dark"] .nav-btn.active {
             background: rgba(40, 50, 70, 0.95);
