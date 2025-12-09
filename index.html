@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-      /* --- ВАШИ ОРИГИНАЛЬНЫЕ СТИЛИ --- */
       :root { 
         --bg-app: #F2F2F7;
         --bg-panel: linear-gradient(180deg, #FFFFFF 0%, #F5F7FA 100%);      
@@ -58,10 +57,16 @@
       ::view-transition-new(root) { z-index: 9999; }
       
       body { 
-          margin: 0; padding: 20px; 
+          margin: 0;
+          padding: 20px; 
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-          background-color: var(--bg-app); color: var(--text-main); 
-          height: 100vh; box-sizing: border-box; overflow: hidden; 
+          background-color: var(--bg-app); 
+          color: var(--text-main); 
+          /* ИСПРАВЛЕНИЕ: dvh для iOS Safari */
+          height: 100vh;
+          height: 100dvh; 
+          box-sizing: border-box; 
+          overflow: hidden; 
           display:flex; flex-direction:column;
           transition: background 0.3s; 
           -webkit-font-smoothing: antialiased;
@@ -103,8 +108,6 @@
       .panel-left { width: 360px; padding: 30px; flex-shrink: 0; overflow-y: auto; }
       .panel-right { flex: 1; }
       
-      @media (max-width: 900px) { .split-view { flex-direction: column; overflow-y: auto; } .panel-left { width: auto; flex-shrink: 0; } .panel-right { height: 600px; flex-shrink: 0; } }
-
       h3 { margin-top: 0; font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 20px; }
       label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; display: block; letter-spacing: 0.02em; }
       
@@ -195,15 +198,105 @@
       @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       .loader { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.01); z-index:50; display:none; }
       .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 3000; font-size: 14px; font-weight: 500; box-shadow: 0 10px 20px -3px rgba(0,0,0,0.2); }
-      .toast.show { opacity: 1; bottom: 50px; }
+      .toast.show { opacity: 1; bottom: 100px; } /* Чуть выше из-за нижнего меню */
       .toast.success { background: var(--success); }
       .toast.error { background: var(--danger); }
       
+      /* --- МОБИЛЬНАЯ ВЕРСИЯ (IPHONE FIX & BOTTOM NAV) --- */
       @media (max-width: 768px) {
-        body { padding: 10px; height: auto; min-height: 100vh; overflow: auto; }
-        .kpi-grid { grid-template-columns: 1fr 1fr; }
-        .charts-grid { grid-template-columns: 1fr; }
-        .content-area, .tab-page { overflow: visible; height: auto; }
+        body { 
+            padding: 0;
+            overflow: hidden; 
+        }
+
+        .header {
+            padding: 15px 20px 0 20px;
+            margin-bottom: 15px;
+        }
+
+        /* Основной контейнер скроллится */
+        .content-area { 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            display: block; 
+            padding: 0 15px 100px 15px; /* Отступ под меню */
+            height: 100%;
+        }
+
+        .tab-page {
+            height: auto;
+            overflow: visible;
+        }
+
+        .split-view { 
+            flex-direction: column;
+            gap: 15px;
+            height: auto;
+        }
+
+        .panel-left, .panel-right { 
+            width: 100%; 
+            height: auto; 
+            overflow: visible;
+            flex-shrink: 0;
+            padding: 20px;
+        }
+
+        .panel-right {
+            min-height: auto;
+        }
+        
+        /* Графики в одну колонку */
+        .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .charts-grid { grid-template-columns: 1fr; gap: 15px; }
+
+        /* --- НИЖНЕЕ МЕНЮ (TAB BAR) --- */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: 0;
+            border-radius: 0;
+            background: rgba(255, 255, 255, 0.85); /* Полупрозрачность */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            border-left: none; border-right: none; border-bottom: none;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            z-index: 1000;
+            justify-content: space-around;
+            padding: 8px 10px;
+            padding-bottom: env(safe-area-inset-bottom, 20px); /* IPhone X+ Fix */
+        }
+        
+        [data-theme="dark"] .nav {
+            background: rgba(30, 41, 59, 0.85);
+        }
+
+        .nav-btn {
+            border-radius: 12px;
+            font-size: 11px;
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            box-shadow: none;
+            color: var(--text-sub);
+        }
+        
+        .nav-btn.active {
+            color: var(--accent);
+            background: rgba(var(--accent), 0.1);
+            box-shadow: none;
+        }
+        
+        [data-theme="dark"] .nav-btn.active {
+             background: rgba(255,255,255,0.05);
+        }
       }
     </style>
 </head>
@@ -245,7 +338,7 @@
 
     <div class="content-area">
         <div id="splitTab" class="tab-page active">
-           <div class="split-view">
+            <div class="split-view">
                 <div class="panel panel-left">
                     <h3 id="formTitle">Добавить запись</h3>
                     <div class="search-wrap">
@@ -284,7 +377,7 @@
                         <button class="btn-refresh" onclick="refreshTable(true)">Обновить</button>
                     </div>
                     <div class="grid-wrapper">
-                       <table id="mainTable">
+                        <table id="mainTable">
                             <thead>
                                 <tr>
                                     <th>Дата</th>
@@ -318,7 +411,7 @@
                         <div class="kpi-title">РАСХОДЫ</div>
                         <div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div>
                         <div id="trendExp"></div>
-                     </div>
+                    </div>
                     <div class="kpi-card">
                         <div class="kpi-title">ПРИБЫЛЬ</div>
                         <div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div>
@@ -332,7 +425,7 @@
                 </div>
 
                 <div class="charts-grid">
-                    <div class="chart-box">
+                     <div class="chart-box">
                         <div class="chart-head">Финансовый Пульс</div>
                         <div class="chart-canv"><canvas id="chartPulse"></canvas></div>
                      </div>
@@ -342,7 +435,7 @@
                      </div>
                 </div>
 
-                <div class="charts-grid">
+                 <div class="charts-grid">
                      <div class="chart-box">
                         <div class="chart-head">Посещаемость</div>
                         <div class="chart-canv"><canvas id="chartAttendance"></canvas></div>
@@ -391,7 +484,6 @@
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
         let currTab = 'income', dataCache = { income: null, expense: null }, config = { incomeItems: [], expenseItems: [] }, charts = {};
         
-        // --- ЛОГИКА ЗАГРУЗКИ ---
         let stopAnimationRequest = false, activeRequests = 0, deleteTargetId = null, isAnalyticsLoaded = false, analyticsNeedsRefresh = true; 
 
         // 🔥 УНИВЕРСАЛЬНЫЙ МОСТ 🔥
@@ -438,12 +530,10 @@
                 showToast("Error: " + e, true);
                 setLoading(false);
             });
-            
             const v = document.getElementById('venus');
             v.addEventListener('animationiteration', () => { if (stopAnimationRequest) { v.classList.remove('spinning'); stopAnimationRequest = false; } });
             calcTotal();
         };
-
         function setLoading(active) {
             const v = document.getElementById('venus');
             if (active) { activeRequests++; stopAnimationRequest = false; v.classList.add('spinning'); } 
@@ -484,7 +574,8 @@
             document.getElementById('formTitle').innerText = isInc ? 'Добавить Мастер Класс' : 'Добавить Расход';
             document.getElementById('lblSearch').innerText = isInc ? 'Название МК' : 'Наименование';
             document.getElementById('tableTitle').innerText = isInc ? 'Доходы (Последние записи)' : 'Расходы (Последние записи)';
-            document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
+            document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1;
+            calcTotal();
         }
 
         function renderTableFromCache(data) {
@@ -520,15 +611,12 @@
             const isNew = !list.includes(name);
             if(isNew) list.push(name);
             const payload = { type: currTab, name: name, price: price, qty: qty, total: total, isNew: isNew };
-
-            // ОПТИМИСТИЧНЫЙ UI
             const tbody = document.getElementById('tableBody');
             document.getElementById('emptyMsg').style.display = 'none';
             const tempId = 'temp-' + Date.now();
             tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${new Date().toLocaleDateString('ru-RU')}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">Сохранение...</span></td></tr>`);
             document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
             const btn = document.getElementById('btnAdd'); btn.disabled = true; setLoading(true);
-
             runBackend('saveTransaction', payload).then(res => {
                 btn.disabled = false; setLoading(false);
                 if(res.success) { showToast('Успешно добавлено'); refreshTable(true, true); analyticsNeedsRefresh = true; loadAnalytics(true); } 
@@ -537,14 +625,16 @@
         }
 
         function openEdit(row) {
-            document.getElementById('editId').value = row.rowId; document.getElementById('editName').value = row.name; document.getElementById('editPrice').value = row.price; document.getElementById('editQty').value = row.qty; document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editId').value = row.rowId;
+            document.getElementById('editName').value = row.name; document.getElementById('editPrice').value = row.price; document.getElementById('editQty').value = row.qty; document.getElementById('editModal').style.display = 'flex';
         }
         function saveEdit() {
             const id = document.getElementById('editId').value, name = document.getElementById('editName').value, price = parseFloat(document.getElementById('editPrice').value), qty = parseFloat(document.getElementById('editQty').value);
             const payload = { rowId: id, type: currTab, name: name, price: price, qty: qty };
             document.getElementById('editModal').style.display = 'none';
             const row = document.getElementById('row-' + id);
-            if(row) { row.cells[1].innerText = name; row.cells[2].innerText = (price * qty).toLocaleString(); row.style.transition = 'background 0.3s'; row.style.background = 'rgba(var(--accent), 0.1)'; setTimeout(() => row.style.background = 'transparent', 1000); }
+            if(row) { row.cells[1].innerText = name; row.cells[2].innerText = (price * qty).toLocaleString(); row.style.transition = 'background 0.3s';
+            row.style.background = 'rgba(var(--accent), 0.1)'; setTimeout(() => row.style.background = 'transparent', 1000); }
             setLoading(true);
             runBackend('editTransaction', payload).then(res => {
                 setLoading(false);
@@ -556,7 +646,8 @@
             if(!deleteTargetId) return;
             document.getElementById('deleteModal').style.display = 'none';
             const rowElement = document.getElementById('row-' + deleteTargetId);
-            if (rowElement) { rowElement.style.transition = 'opacity 0.3s'; rowElement.style.opacity = '0'; setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
+            if (rowElement) { rowElement.style.transition = 'opacity 0.3s'; rowElement.style.opacity = '0';
+            setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
             setLoading(true);
             runBackend('deleteTransaction', {rowId: deleteTargetId, type: currTab}).then(res => {
                 setLoading(false);
@@ -572,34 +663,47 @@
                 renderKPI('kpiInc', d.current.income, d.growth.income, '₽', 'trend-up'); renderKPI('kpiExp', d.current.expense, d.growth.expense, '₽', 'trend-down'); renderKPI('kpiProf', d.current.profit, d.growth.profit, '₽', 'trend-up'); renderKPI('kpiVis', d.current.visitors, d.growth.visitors, 'чел', 'trend-up');
                 renderAreaChart('chartPulse', d.pulse.labels, [{ label:'Доход', data:d.pulse.income, borderColor:'#34C759', bg:'rgba(52, 199, 89, 0.1)' }, { label:'Расход', data:d.pulse.expense, borderColor:'#FF3B30', bg:'rgba(255, 59, 48, 0.1)' }]);
                 renderAreaChart('chartAttendance', d.attendance.labels, [{ label:'Посетители', data:d.attendance.data, borderColor:'#AF52DE', bg:'rgba(175, 82, 222, 0.1)' }]);
-                renderProgressList('listInc', d.pieIncome.labels, d.pieIncome.data, '#34C759'); renderProgressList('listExp', d.pieExpense.labels, d.pieExpense.data, '#FF3B30');
+                renderProgressList('listInc', d.pieIncome.labels, d.pieIncome.data, '#34C759');
+                renderProgressList('listExp', d.pieExpense.labels, d.pieExpense.data, '#FF3B30');
             });
         }
         function renderKPI(id, val, growth, suff, colorCls) {
-            document.getElementById(id).innerText = val.toLocaleString() + ' ' + suff; const el = document.getElementById(id.replace('kpi','trend'));
-            if(el) { const arr = growth>=0?'↗':'↘'; const cls = (growth>=0 && colorCls==='trend-up') || (growth<0 && colorCls==='trend-down') ? 'trend-up' : 'trend-down'; let finalCls = cls; if(id==='kpiExp') finalCls = (growth > 0) ? 'trend-down' : 'trend-up'; el.className = `kpi-trend ${finalCls}`; el.innerText = `${arr} ${Math.abs(growth)}%`; }
+            document.getElementById(id).innerText = val.toLocaleString() + ' ' + suff;
+            const el = document.getElementById(id.replace('kpi','trend'));
+            if(el) { const arr = growth>=0?'↗':'↘'; const cls = (growth>=0 && colorCls==='trend-up') ||
+            (growth<0 && colorCls==='trend-down') ? 'trend-up' : 'trend-down'; let finalCls = cls; if(id==='kpiExp') finalCls = (growth > 0) ? 'trend-down' : 'trend-up'; el.className = `kpi-trend ${finalCls}`; el.innerText = `${arr} ${Math.abs(growth)}%`; }
         }
         function renderAreaChart(id, labels, datasets) {
-            if(charts[id]) charts[id].destroy(); const ctx = document.getElementById(id).getContext('2d');
+            if(charts[id]) charts[id].destroy();
+            const ctx = document.getElementById(id).getContext('2d');
             const ds = datasets.map(d => ({ label: d.label, data: d.data, borderColor: d.borderColor, backgroundColor: d.bg, borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }));
             charts[id] = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: ds }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1C1C1E', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 8, padding: 10 } }, scales: { x: { grid: { display: false }, ticks: { color: '#8E8E93', font:{size:10} } }, y: { display: false } } } });
         }
         function renderProgressList(id, labels, data, color) {
-            const el = document.getElementById(id); el.innerHTML = ''; if(!data.length) { el.innerHTML='<div style="color:var(--text-sub); font-size:13px">Нет данных</div>'; return; }
-            const max = Math.max(...data); labels.forEach((lbl, i) => { const val = data[i]; const pct = (val / max) * 100; const html = `<div class="prog-item"><div class="prog-info"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%; background:${color}"></div></div></div>`; el.insertAdjacentHTML('beforeend', html); });
+            const el = document.getElementById(id);
+            el.innerHTML = ''; if(!data.length) { el.innerHTML='<div style="color:var(--text-sub); font-size:13px">Нет данных</div>'; return; }
+            const max = Math.max(...data);
+            labels.forEach((lbl, i) => { const val = data[i]; const pct = (val / max) * 100; const html = `<div class="prog-item"><div class="prog-info"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%; background:${color}"></div></div></div>`; el.insertAdjacentHTML('beforeend', html); });
         }
         function showSearch(e) {
-            const val = e.target.value.toLowerCase(); const box = document.getElementById('searchRes'); box.innerHTML = ''; if(!val) { box.style.display='none'; return; }
-            const src = currTab==='income' ? config.incomeItems : config.expenseItems; const res = src.filter(s => s.toLowerCase().includes(val)).slice(0,5);
+            const val = e.target.value.toLowerCase();
+            const box = document.getElementById('searchRes'); box.innerHTML = ''; if(!val) { box.style.display='none'; return; }
+            const src = currTab==='income' ? config.incomeItems : config.expenseItems;
+            const res = src.filter(s => s.toLowerCase().includes(val)).slice(0,5);
             if(res.length) { box.style.display='block'; res.forEach(r => { const d = document.createElement('div'); d.className='res-item'; d.innerText=r; d.onclick=()=>{ document.getElementById('inpName').value=r; box.style.display='none'; calcTotal(); }; box.appendChild(d); }); } else box.style.display='none';
         }
-        function modVal(id, d) { const el = document.getElementById(id); let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal(); }
+        function modVal(id, d) { const el = document.getElementById(id);
+            let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal();
+        }
         function calcTotal() {
-            const priceVal = document.getElementById('inpPrice').value, nameVal = document.getElementById('inpName').value.trim(); const p = parseFloat(priceVal); const q = parseFloat(document.getElementById('inpQty').value);
+            const priceVal = document.getElementById('inpPrice').value, nameVal = document.getElementById('inpName').value.trim();
+            const p = parseFloat(priceVal); const q = parseFloat(document.getElementById('inpQty').value);
             document.getElementById('txtTotal').innerText = ((p*q)||0).toLocaleString() + ' ₽'; const btn = document.getElementById('btnAdd');
             if (!nameVal) { btn.innerText = "Укажите название"; btn.style.opacity = "0.6"; } else if (!priceVal || isNaN(p) || p === 0) { btn.innerText = "Укажите цену"; btn.style.opacity = "0.6"; } else { btn.innerText = "Добавить запись"; btn.style.opacity = "1"; }
         }
-        function showToast(m, err) { const t = document.getElementById('toast'); t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000); }
+        function showToast(m, err) { const t = document.getElementById('toast');
+            t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000);
+        }
     </script>
 </body>
 </html>
