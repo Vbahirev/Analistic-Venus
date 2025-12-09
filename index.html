@@ -49,9 +49,10 @@
         --scroll-thumb: #475569;
       }
       
+      /* Убираем синюю подсветку при клике на мобилках */
       * { -webkit-tap-highlight-color: transparent; }
       
-      /* --- АНИМАЦИЯ ТЕМЫ --- */
+      /* --- АНИМАЦИЯ ТЕМЫ (ЛОГИКА СЛОЕВ) --- */
       ::view-transition-old(root),
       ::view-transition-new(root) {
           animation: none;
@@ -60,11 +61,11 @@
           width: 100%; height: 100%; top: 0; left: 0;
       }
 
-      /* По умолчанию: Новая тема поверх старой (для расширения) */
+      /* СТАНДАРТ (Светлая -> Темная): Новая тема растет поверх старой */
       ::view-transition-new(root) { z-index: 9999; }
       ::view-transition-old(root) { z-index: 1; }
 
-      /* Когда "сужаем" тему (обратный эффект): Старая тема поверх новой */
+      /* ОБРАТНО (Темная -> Светлая): Старая тема (темная) лежит сверху и СЖИМАЕТСЯ */
       html.reverse-transition ::view-transition-old(root) { z-index: 9999; }
       html.reverse-transition ::view-transition-new(root) { z-index: 1; }
       
@@ -147,42 +148,43 @@
       .btn-refresh { padding: 8px 16px; background-color: transparent; border: 1px solid var(--border-strong); border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-main); font-size: 12px; transition: 0.2s; }
       .btn-refresh:hover { background-color: var(--input-bg); border-color: var(--accent); color: var(--accent); }
 
-      .grid-wrapper { flex: 1; overflow-y: auto; padding: 0 10px; }
-      
-      /* --- ТАБЛИЦА (Уплотненная) --- */
-      table { width: 100%; border-collapse: separate; border-spacing: 0 8px; table-layout: fixed; /* Фикс ширины */ }
-      
-      th { position: sticky; top: 0; background: var(--bg-panel); color: var(--text-sub); font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px 10px; font-weight: 700; z-index: 10; }
-      td { 
-          padding: 16px 8px; /* Уменьшил боковые отступы */
-          background: var(--input-bg); border: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; font-weight: 500; 
-          white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Обрезка длинного текста */
+      /* --- ТАБЛИЦА (С ГОРИЗОНТАЛЬНЫМ СКРОЛЛОМ) --- */
+      .grid-wrapper { 
+          flex: 1; 
+          overflow-y: auto; 
+          overflow-x: auto; /* Включаем горизонтальный скролл */
+          padding: 0 10px; 
       }
       
-      /* Стилизация скруглений */
-      tr td:first-child { border-top-left-radius: 14px; border-bottom-left-radius: 14px; border-right: none; padding-left: 12px; }
-      tr td:last-child { border-top-right-radius: 14px; border-bottom-right-radius: 14px; text-align: right; border-left: none; padding-right: 12px; overflow: visible; }
+      table { 
+          width: 100%; 
+          border-collapse: separate; 
+          border-spacing: 0 8px; 
+          /* 🔥 ВАЖНО: Минимальная ширина, чтобы текст не жался */
+          min-width: 500px; 
+          table-layout: auto; 
+      }
+      
+      th { position: sticky; top: 0; background: var(--bg-panel); color: var(--text-sub); font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px 15px; font-weight: 700; z-index: 10; }
+      
+      td { 
+          padding: 16px 10px; 
+          background: var(--input-bg); border: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; font-weight: 500; 
+          white-space: normal; 
+      }
+      
+      tr td:first-child { border-top-left-radius: 14px; border-bottom-left-radius: 14px; border-right: none; }
+      tr td:last-child { border-top-right-radius: 14px; border-bottom-right-radius: 14px; text-align: right; border-left: none; }
       tr td:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
       
-      /* РАЗМЕРЫ КОЛОНОК (Точная настройка под S23) */
-      th:nth-child(1) { width: 65px; } /* Дата */
-      th:nth-child(2) { width: auto; } /* Название - занимает всё место */
-      th:nth-child(3) { width: 75px; text-align: right; } /* Сумма - прижата вправо */
-      th:nth-child(4) { width: 85px; text-align: right; } /* Действия */
+      /* Настройка ширины колонок */
+      th:nth-child(1) { width: 70px; } /* Дата */
+      th:nth-child(2) { width: auto; } /* Название (тянется) */
+      th:nth-child(3) { width: 90px; text-align: right; } /* Сумма */
+      th:nth-child(4) { width: 90px; text-align: right; } /* Действия */
 
-      /* Стиль текста названия */
-      td:nth-child(2) { 
-          white-space: normal; /* Разрешаем перенос */
-          line-height: 1.2; 
-          font-weight: 600;
-          padding-right: 2px;
-      }
       /* Стиль суммы */
-      td:nth-child(3) { 
-          font-weight: 700; 
-          text-align: right;
-          padding-right: 4px; /* Прижимаем ближе к действиям */
-      }
+      td:nth-child(3) { font-weight: 700; text-align: right; }
 
       /* КНОПКИ ДЕЙСТВИЙ (Иконки) */
       .btn-table { 
@@ -249,12 +251,14 @@
         .header { padding: 5px 15px 0 15px; margin-bottom: 5px; height: 40px; }
         .venus-icon { width: 32px; height: 32px; }
         .title { font-size: 18px; }
+        
         .content-area { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; display: block; padding: 0 5px 120px 5px; height: 100%; }
         .tab-page { height: auto; overflow: visible; }
         .split-view { flex-direction: column; gap: 15px; height: auto; }
         .panel { border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .panel-left, .panel-right { width: 100%; height: auto; overflow: visible; flex-shrink: 0; padding: 20px; box-sizing: border-box; }
         .panel-right { min-height: auto; }
+        
         h3 { font-size: 15px; margin-bottom: 10px; }
         label { margin-bottom: 4px; font-size: 11px; }
         input, select, .custom-select-trigger { padding: 10px; font-size: 13px; height: 40px; }
@@ -265,9 +269,7 @@
         .btn { padding: 12px; margin-top: 10px; font-size: 14px; }
         .search-wrap { margin-bottom: 10px; }
         
-        .table-header { padding: 15px 20px; }
-        th { padding: 12px 6px; font-size: 10px; } /* Уже заголовки */
-        td { padding: 16px 6px; font-size: 13px; } /* Уже ячейки */
+        .grid-wrapper { padding: 0; } /* Убираем боковые отступы для скролла */
         
         .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
         .charts-grid { grid-template-columns: 1fr; gap: 15px; }
@@ -449,7 +451,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyVm07bh9JDGZYiEXaEk1zzDK-5tJ2eIoYjmXZU133xjlGfdVro4JxW0dUIQik8h5aX/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyYNfICYCp7i_yERUKwJS7gs8l1C7MzWjGzsU1HialG2x3qvSsMuz6z5Xw6sURDWpIz/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -523,14 +525,15 @@
             
             if (!document.startViewTransition) { setTheme(newTheme); return; }
 
+            // Координаты центра логотипа (всегда в одном месте)
             const rect = event.currentTarget.getBoundingClientRect();
-            // Всегда анимация от логотипа
             const x = rect.left + rect.width / 2;
             const y = rect.top + rect.height / 2;
             
+            // Радиус, чтобы покрыть весь экран
             const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
 
-            // Если включаем светлую тему, мы хотим "сузить" темную в логотип
+            // Добавляем класс для "обратной" логики слоев
             if (newTheme === 'light') {
                 document.documentElement.classList.add('reverse-transition');
             } else {
@@ -542,30 +545,39 @@
             });
 
             transition.ready.then(() => {
-                // Если включаем светлую (сужаем темную), то анимируем Old (темный) слой, уменьшая его
+                // ЛОГИКА АНИМАЦИИ
                 if (newTheme === 'light') {
+                    // ТЕМНАЯ -> СВЕТЛАЯ:
+                    // Анимируем ::view-transition-old (Темный слой), он лежит сверху.
+                    // Сжимаем его от полного экрана (endRadius) в точку (0px).
                     document.documentElement.animate(
-                        [
-                            { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` }, // Полный экран
-                            { clipPath: `circle(0px at ${x}px ${y}px)` } // Сужение в логотип
-                        ],
+                        { 
+                            clipPath: [ 
+                                `circle(${endRadius}px at ${x}px ${y}px)`, 
+                                `circle(0px at ${x}px ${y}px)` 
+                            ] 
+                        },
                         {
                             duration: 700,
                             easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
-                            pseudoElement: '::view-transition-old(root)' // Старая тема сверху
+                            pseudoElement: '::view-transition-old(root)' // <-- Важно: анимируем старый слой
                         }
                     );
                 } else {
-                    // Если включаем темную (расширяем), анимируем New (темный) слой
+                    // СВЕТЛАЯ -> ТЕМНАЯ:
+                    // Анимируем ::view-transition-new (Темный слой), он лежит сверху.
+                    // Расширяем его из точки (0px) до полного экрана.
                     document.documentElement.animate(
-                        [
-                            { clipPath: `circle(0px at ${x}px ${y}px)` },
-                            { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` }
-                        ],
+                        { 
+                            clipPath: [ 
+                                `circle(0px at ${x}px ${y}px)`, 
+                                `circle(${endRadius}px at ${x}px ${y}px)` 
+                            ] 
+                        },
                         {
                             duration: 700,
                             easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
-                            pseudoElement: '::view-transition-new(root)' // Новая тема сверху
+                            pseudoElement: '::view-transition-new(root)' // <-- Важно: анимируем новый слой
                         }
                     );
                 }
