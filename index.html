@@ -29,6 +29,8 @@
         --shadow-card: 0 4px 12px rgba(0,0,0,0.06);
         --radius: 20px;
         --scroll-thumb: #C7C7CC;
+        
+        --nav-height: 70px; /* Высота меню */
       }
       
       [data-theme="dark"] { 
@@ -69,47 +71,41 @@
           font-weight: 500;
       }
       
+      /* --- HEADER --- */
       .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
       .brand-box { display: flex; align-items: center; gap: 12px; }
       .title { margin: 0; font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
       
-      .venus-icon { width: 42px; height: 42px; cursor: pointer; transition: transform 0.5s ease; }
-      .venus-icon:hover { transform: rotate(120deg) scale(1.1); }
+      /* Планета теперь кликабельная (Кнопка темы) */
+      .venus-icon { width: 42px; height: 42px; cursor: pointer; transition: transform 0.5s ease; -webkit-tap-highlight-color: transparent; }
+      .venus-icon:active { transform: scale(0.9); }
       .venus-icon.spinning { animation: spinInfinite 1.5s linear infinite; }
       @keyframes spinInfinite { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-      .theme-toggle-btn {
-          width: 44px; height: 44px; border-radius: 50%; background: var(--bg-panel); 
-          cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden;
-          box-shadow: var(--shadow-card); position: relative; border: 1px solid var(--border);
-      }
-      .theme-icon { position: absolute; font-size: 22px; transition: 0.5s cubic-bezier(0.68,-0.55,0.27,1.55); user-select: none; }
-      [data-theme="light"] .icon-sun { transform: rotate(0) scale(1); opacity:1; }
-      [data-theme="light"] .icon-moon { transform: rotate(90deg) scale(0); opacity:0; }
-      [data-theme="dark"] .icon-sun { transform: rotate(-90deg) scale(0); opacity:0; }
-      [data-theme="dark"] .icon-moon { transform: rotate(0) scale(1); opacity:1; }
 
-      /* --- НАВИГАЦИЯ (ПК) --- */
-      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); }
-      .nav-btn { 
-          flex: 1; padding: 10px; border: none; background: transparent; 
-          color: var(--text-sub); border-radius: 10px; cursor: pointer; 
-          font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px;
-          display: flex; align-items: center; justify-content: center; gap: 8px;
-      }
-      .nav-btn svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; }
+      /* --- NAV (Desktop) --- */
+      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; }
+      .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; gap:8px;}
       .nav-btn:hover { color: var(--text-main); }
-      .nav-btn.active { background: var(--bg-app); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+      .nav-btn.active { color: var(--text-main); }
+      .nav-btn svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; }
       .nav-btn.active svg { opacity: 1; color: var(--accent); fill: var(--accent); }
+      
+      /* Индикатор для ПК (простой) */
+      .nav-indicator { display: none; }
+      .nav-btn.active { background: var(--bg-app); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
       [data-theme="dark"] .nav-btn.active { background: #334155; box-shadow: none; }
 
 
+      /* --- CONTENT --- */
       .content-area { flex: 1; position: relative; overflow: hidden; border-radius: var(--radius); display: flex; }
       .tab-page { display: none; width: 100%; height: 100%; }
       .tab-page.active { display: block; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
       
       .split-view { display: flex; height: 100%; gap: 20px; }
       .panel { background: var(--bg-panel); border-radius: var(--radius); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); }
+      
+      /* Исправлено: ширина на ПК фиксированная, на мобилке будет 100% */
       .panel-left { width: 360px; padding: 30px; flex-shrink: 0; overflow-y: auto; }
       .panel-right { flex: 1; }
       
@@ -207,7 +203,7 @@
       .toast.success { background: var(--success); }
       .toast.error { background: var(--danger); }
       
-      /* --- МОБИЛЬНАЯ ВЕРСИЯ (КОМПАКТ + FIX) --- */
+      /* --- МОБИЛЬНАЯ ВЕРСИЯ (Samsung S23 FIX + LIQUID MENU) --- */
       @media (max-width: 768px) {
         body { 
             padding: 0;
@@ -215,131 +211,98 @@
         }
 
         .header {
-            padding: 5px 15px 0 15px; /* Минимальный отступ сверху */
-            margin-bottom: 5px;
-            height: 40px; /* Фиксируем высоту шапки */
+            padding: 10px 15px 0 15px;
+            margin-bottom: 10px;
         }
-        
-        /* Логотип меньше */
-        .venus-icon { width: 32px; height: 32px; }
-        .title { font-size: 18px; }
-        .theme-toggle-btn { width: 32px; height: 32px; }
-        .theme-icon { font-size: 16px; }
 
         .content-area { 
             overflow-y: auto; 
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             display: block; 
-            /* 🔥 ОГРОМНЫЙ ОТСТУП СНИЗУ, ЧТОБЫ СКРОЛЛИТЬ ЗА МЕНЮ 🔥 */
-            padding: 0 10px 200px 10px; 
+            /* 🔥 МИНИМАЛЬНЫЙ ОТСТУП ПО БОКАМ (5px) - ЧТОБЫ ВЛЕЗАЛО ВСЁ 🔥 */
+            padding: 0 5px 120px 5px; 
             height: 100%;
         }
 
-        .tab-page {
-            height: auto;
-            overflow: visible;
+        .tab-page { height: auto; overflow: visible; }
+        .split-view { flex-direction: column; gap: 15px; height: auto; }
+
+        .panel { 
+            /* Восстанавливаем красивые скругления */
+            border-radius: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
-        .split-view { 
-            flex-direction: column;
-            gap: 10px; /* Ужали расстояние между блоками */
-            height: auto;
-        }
-
+        /* 🔥 КЛЮЧЕВОЙ ФИКС: ШИРИНА 100% ВМЕСТО 360px 🔥 */
         .panel-left, .panel-right { 
-            width: 100%; 
+            width: 100%; /* Растягиваем на всю доступную ширину */
             height: auto; 
             overflow: visible;
             flex-shrink: 0;
-            padding: 12px; /* Уменьшили внутренние отступы панели */
+            padding: 20px; /* Красивые отступы внутри */
+            box-sizing: border-box; /* Важно, чтобы padding не увеличивал ширину */
         }
         
         .panel-right { min-height: auto; }
 
-        h3 { font-size: 15px; margin-bottom: 10px; }
-        label { margin-bottom: 4px; font-size: 11px; }
+        /* Таблица компактнее для телефона */
+        .table-header { padding: 15px 20px; }
+        th, td { padding: 12px 10px; font-size: 12px; }
         
-        /* Сжимаем поля ввода */
-        input, select { padding: 10px; font-size: 13px; height: 40px; }
-        .qty-wrapper { height: 36px; }
-        .qty-btn { width: 36px; height: 100%; font-size: 16px; }
-        .qty-input { font-size: 15px; }
+        /* Кнопки в таблице - только текст, если не влазит */
+        .btn-table { margin-left: 2px; padding: 6px 8px; font-size: 10px; }
 
-        /* Блок ИТОГО совсем компактный */
-        #txtTotal { font-size: 20px !important; margin-top: 0; }
-        .btn { padding: 12px; margin-top: 10px; font-size: 14px; }
-        
-        .search-wrap { margin-bottom: 10px; }
+        .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .charts-grid { grid-template-columns: 1fr; gap: 15px; }
 
-        .table-header { padding: 10px 12px; }
-        th, td { padding: 8px 8px; font-size: 11px; } /* Ячейки таблицы меньше */
-        
-        /* Кнопки в таблице маленькие и только иконки (текст скроем если надо, но пока просто уменьшим) */
-        .btn-table { margin-left: 2px; padding: 4px 6px; font-size: 10px; }
-
-        .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-        .charts-grid { grid-template-columns: 1fr; gap: 12px; }
-        .kpi-card { padding: 15px; }
-        .kpi-val { font-size: 22px; }
-
-        /* --- НИЖНЕЕ МЕНЮ --- */
+        /* --- ЖИДКОЕ МЕНЮ (LIQUID TAB BAR) --- */
         .nav {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 20px; /* Висит над низом экрана */
+            left: 20px; right: 20px;
             margin: 0;
-            border: none;
-            background: transparent; 
-            box-shadow: none;
+            border-radius: 20px; /* Капсула */
+            background: var(--bg-panel);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); /* Сильная тень */
             z-index: 1000;
-            justify-content: center;
-            gap: 12px; 
-            padding: 10px 15px;
-            padding-bottom: env(safe-area-inset-bottom, 20px);
-            pointer-events: none; 
+            justify-content: space-between;
+            padding: 5px;
+            height: 60px;
+            border: 1px solid var(--border);
         }
+
+        /* Скользящая плашка */
+        .nav-indicator {
+            display: block;
+            position: absolute;
+            top: 5px; left: 5px;
+            height: calc(100% - 10px);
+            width: 33.33%; /* Треть ширины */
+            background: var(--bg-app);
+            border-radius: 16px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Эффект пружины */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 1;
+        }
+        
+        /* Цвета индикатора для темной темы */
+        [data-theme="dark"] .nav-indicator { background: #334155; }
         
         .nav-btn {
-            pointer-events: auto; 
-            flex: 1;
-            max-width: 100px;
-            border-radius: 16px;
-            font-size: 9px;
-            padding: 8px 4px;
-            display: flex;
+            background: transparent !important; /* Убираем фон кнопок */
+            box-shadow: none !important;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
-            color: var(--text-sub);
             gap: 4px;
-            transition: transform 0.1s;
+            font-size: 10px;
+            color: var(--text-sub);
+            transition: color 0.2s;
         }
         
-        .nav-btn:active { transform: scale(0.95); }
-
-        [data-theme="dark"] .nav-btn {
-            background: rgba(30, 41, 59, 0.9);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
+        .nav-btn svg { width: 22px; height: 22px; margin-bottom: 2px; transition: transform 0.2s; }
         
-        .nav-btn svg { width: 22px; height: 22px; opacity: 0.5; transition: 0.2s; }
-        
-        .nav-btn.active {
-            color: var(--accent);
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.25);
-        }
-        [data-theme="dark"] .nav-btn.active {
-            background: rgba(40, 50, 70, 0.95);
-        }
-        
-        .nav-btn.active svg { opacity: 1; transform: scale(1.1); fill: var(--accent); }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn.active svg { transform: translateY(-2px); fill: var(--accent); }
       }
     </style>
 </head>
@@ -350,7 +313,7 @@
 
     <div class="header">
         <div class="brand-box">
-            <svg id="venus" class="venus-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg id="venus" onclick="toggleTheme(event)" class="venus-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="48" fill="url(#venusGrad)" />
                 <path d="M10 50C10 50 30 40 50 40C70 40 90 50 90 50" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
                 <path d="M15 30C15 30 35 25 50 25C65 25 85 30 85 30" stroke="rgba(255,255,255,0.2)" stroke-width="3"/>
@@ -366,23 +329,18 @@
             </svg>
             <div class="title">Мастерская Венера</div>
         </div>
-        
-        <div class="theme-toggle-btn" onclick="toggleTheme(event)">
-            <div class="theme-icon icon-sun">☀️</div>
-            <div class="theme-icon icon-moon">🌑</div>
         </div>
-    </div>
 
     <div class="nav">
-        <button class="nav-btn active" onclick="switchTab('income')">
+        <div class="nav-indicator" id="navInd"></div> <button class="nav-btn active" onclick="switchTab('income', 0)">
             <svg viewBox="0 0 24 24"><path d="M21 18V19C21 20.1 20.1 21 19 21H5C3.89 21 3 20.1 3 19V5C3 3.9 3.89 3 5 3H19C20.1 3 21 3.9 21 5V6H12C10.89 6 10 6.9 10 8V16C10 17.1 10.89 18 12 18H21ZM12 16H22V8H12V16ZM16 13.5C15.17 13.5 14.5 12.83 14.5 12C14.5 11.17 15.17 10.5 16 10.5C16.83 10.5 17.5 11.17 17.5 12C17.5 12.83 16.83 13.5 16 13.5Z"/></svg>
             МК
         </button>
-        <button class="nav-btn" onclick="switchTab('expense')">
+        <button class="nav-btn" onclick="switchTab('expense', 1)">
             <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
             Расход
         </button>
-        <button class="nav-btn" onclick="switchTab('analytics')">
+        <button class="nav-btn" onclick="switchTab('analytics', 2)">
             <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg>
             Инфо
         </button>
@@ -398,7 +356,7 @@
                         <input type="text" id="inpName" placeholder="Поиск или новое..." autocomplete="off" oninput="showSearch(event); calcTotal()">
                         <div class="search-res" id="searchRes"></div>
                     </div>
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <div style="display:flex; gap:15px; margin-bottom:25px;">
                         <div style="flex:1">
                            <label>Цена</label>
                            <div class="qty-wrapper">
@@ -416,9 +374,9 @@
                            </div>
                         </div>
                     </div>
-                    <div style="text-align:center; margin-top:auto; margin-bottom:5px; padding: 10px; background: var(--input-bg); border-radius: 16px; border: 1px solid var(--border);">
-                        <span style="font-size:9px; color:var(--text-sub); text-transform:uppercase; font-weight:700; display:block; margin-bottom:2px;">Итого к записи</span>
-                        <div id="txtTotal" style="font-size:24px; font-weight:800; color:var(--text-main)">0 ₽</div>
+                    <div style="text-align:center; margin-top:auto; margin-bottom:15px; padding: 20px; background: var(--input-bg); border-radius: 16px; border: 1px solid var(--border);">
+                        <span style="font-size:12px; color:var(--text-sub); text-transform:uppercase; font-weight:700; display:block; margin-bottom:5px;">Итого к записи</span>
+                        <div id="txtTotal" style="font-size:32px; font-weight:800; color:var(--text-main)">0 ₽</div>
                     </div>
                     <button id="btnAdd" class="btn" onclick="submitEntry()">Добавить запись</button>
                 </div>
@@ -530,7 +488,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ ПОСЛЕ ДЕПЛОЯ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxJigBCLkuWHBhmTmvpA9ZIauoHcGGrsTeg4OzLRXXwdH4XtwRWjDysTaYLxhf8ijMK/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbx3db0r-fMxW23uyrxZGtLSBB-iXS6znOUs3eioFdPVg-186Tk-uE00zZsWovNQYBRm/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -595,6 +553,8 @@
         function toggleTheme(event) {
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
+            
+            // Запуск анимации смены темы
             if (!document.startViewTransition) { setTheme(newTheme); return; }
             const rect = event.currentTarget.getBoundingClientRect();
             const x = rect.left + rect.width / 2, y = rect.top + rect.height / 2;
@@ -607,9 +567,16 @@
         }
         function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
 
-        function switchTab(t) {
+        function switchTab(t, idx) {
             currTab = t;
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
+            // Анимация индикатора
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(b => b.classList.remove('active')); 
+            btns[idx || 0].classList.add('active'); // idx передается из html
+            
+            const ind = document.getElementById('navInd');
+            ind.style.transform = `translateX(${idx * 100}%)`;
+
             document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
             if(t === 'analytics') {
                 document.getElementById('analyticsTab').classList.add('active');
@@ -637,7 +604,7 @@
              let html = '';
              data.forEach(row => {
                  const rowJson = JSON.stringify(row).replace(/"/g, '&quot;');
-                 html += `<tr id="row-${row.rowId}"><td style="color:var(--text-sub);">${row.dateStr}</td><td style="font-weight:600;">${row.name}</td><td style="font-weight:700;">${row.total.toLocaleString()}</td><td class="action-cell"><button class="btn-table btn-edit" onclick="openEdit(${rowJson})">Редактировать</button><button class="btn-table btn-del" onclick="openDelete(${rowJson})">Удалить</button></td></tr>`;
+                 html += `<tr id="row-${row.rowId}"><td style="color:var(--text-sub);">${row.dateStr}</td><td style="font-weight:600;">${row.name}</td><td style="font-weight:700;">${row.total.toLocaleString()}</td><td class="action-cell"><button class="btn-table btn-edit" onclick="openEdit(${rowJson})">Ред.</button><button class="btn-table btn-del" onclick="openDelete(${rowJson})">Уд.</button></td></tr>`;
              });
              tbody.innerHTML = html;
         }
@@ -666,7 +633,7 @@
             const tbody = document.getElementById('tableBody');
             document.getElementById('emptyMsg').style.display = 'none';
             const tempId = 'temp-' + Date.now();
-            tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${new Date().toLocaleDateString('ru-RU')}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">Сохранение...</span></td></tr>`);
+            tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${new Date().toLocaleDateString('ru-RU')}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">...</span></td></tr>`);
             document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
             const btn = document.getElementById('btnAdd'); btn.disabled = true; setLoading(true);
             runBackend('saveTransaction', payload).then(res => {
