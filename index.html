@@ -29,8 +29,6 @@
         --shadow-card: 0 4px 12px rgba(0,0,0,0.06);
         --radius: 20px;
         --scroll-thumb: #C7C7CC;
-        
-        --nav-height: 70px; /* Высота меню */
       }
       
       [data-theme="dark"] { 
@@ -51,18 +49,19 @@
         --scroll-thumb: #475569;
       }
       
+      /* Убираем синюю подсветку при клике на мобилках */
+      * { -webkit-tap-highlight-color: transparent; }
+      
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background-color: var(--scroll-thumb); border-radius: 10px; }
       
       body { 
-          margin: 0;
-          padding: 20px; 
+          margin: 0; padding: 20px; 
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
           background-color: var(--bg-app); 
           color: var(--text-main); 
-          height: 100vh;
-          height: 100dvh; 
+          height: 100vh; height: 100dvh; 
           box-sizing: border-box; 
           overflow: hidden; 
           display:flex; flex-direction:column;
@@ -76,8 +75,7 @@
       .brand-box { display: flex; align-items: center; gap: 12px; }
       .title { margin: 0; font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
       
-      /* Планета теперь кликабельная (Кнопка темы) */
-      .venus-icon { width: 42px; height: 42px; cursor: pointer; transition: transform 0.5s ease; -webkit-tap-highlight-color: transparent; }
+      .venus-icon { width: 42px; height: 42px; cursor: pointer; transition: transform 0.5s ease; }
       .venus-icon:active { transform: scale(0.9); }
       .venus-icon.spinning { animation: spinInfinite 1.5s linear infinite; }
       @keyframes spinInfinite { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -87,14 +85,11 @@
       .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; }
       .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; gap:8px;}
       .nav-btn:hover { color: var(--text-main); }
-      .nav-btn.active { color: var(--text-main); }
+      .nav-btn.active { color: var(--text-main); background: var(--bg-app); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+      [data-theme="dark"] .nav-btn.active { background: #334155; box-shadow: none; }
       .nav-btn svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; }
       .nav-btn.active svg { opacity: 1; color: var(--accent); fill: var(--accent); }
-      
-      /* Индикатор для ПК (простой) */
-      .nav-indicator { display: none; }
-      .nav-btn.active { background: var(--bg-app); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-      [data-theme="dark"] .nav-btn.active { background: #334155; box-shadow: none; }
+      .nav-indicator { display: none; } /* Скрыт на ПК */
 
 
       /* --- CONTENT --- */
@@ -104,8 +99,6 @@
       
       .split-view { display: flex; height: 100%; gap: 20px; }
       .panel { background: var(--bg-panel); border-radius: var(--radius); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); }
-      
-      /* Исправлено: ширина на ПК фиксированная, на мобилке будет 100% */
       .panel-left { width: 360px; padding: 30px; flex-shrink: 0; overflow-y: auto; }
       .panel-right { flex: 1; }
       
@@ -115,7 +108,7 @@
       input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
       input[type=number] { -moz-appearance: textfield; }
 
-      input, select { 
+      input, select, .custom-select-trigger { 
           width: 100%; padding: 14px; 
           border-radius: 12px; border: 1px solid var(--border-strong); 
           background-color: var(--input-bg); color: var(--text-main); 
@@ -123,16 +116,12 @@
           font-weight: 600; font-family: 'Inter', sans-serif;
       }
       
-      select {
-          appearance: none;
-          background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238E8E93%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-          background-repeat: no-repeat;
-          background-position: right 15px top 50%;
-          background-size: 10px auto;
-          cursor: pointer;
-      }
+      /* --- Custom Select Styles --- */
+      .custom-select-wrapper { position: relative; width: 100%; cursor: pointer; }
+      .custom-select-trigger { display: flex; justify-content: space-between; align-items: center; }
+      .custom-select-trigger::after { content: '▼'; font-size: 10px; color: var(--text-sub); margin-left: 10px; }
       
-      input:focus, select:focus { border-color: var(--accent); background: var(--bg-panel); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+      input:focus, .custom-select-trigger:active { border-color: var(--accent); background: var(--bg-panel); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
       
       .qty-wrapper { display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--border-strong); border-radius: 12px; overflow: hidden; padding: 2px; }
       .qty-btn { width: 44px; height: 44px; background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; border-radius: 10px; transition: 0.2s; font-weight: 600; }
@@ -150,16 +139,11 @@
       .grid-wrapper { flex: 1; overflow-y: auto; padding: 0 10px; }
       table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
       th { position: sticky; top: 0; background: var(--bg-panel); color: var(--text-sub); font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px 20px; font-weight: 700; z-index: 10; }
-      
       td { padding: 16px 20px; background: var(--input-bg); border: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; font-weight: 500; }
       tr td:first-child { border-top-left-radius: 14px; border-bottom-left-radius: 14px; border-right: none; }
       tr td:last-child { border-top-right-radius: 14px; border-bottom-right-radius: 14px; text-align: right; border-left: none; }
       tr td:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
-      
-      th:nth-child(1) { width: 90px; } 
-      th:nth-child(2) { width: auto; }   
-      th:nth-child(3) { width: 100px; text-align: right; } 
-      th:nth-child(4) { width: 220px; text-align: right; }
+      th:nth-child(1) { width: 90px; } th:nth-child(2) { width: auto; } th:nth-child(3) { width: 100px; text-align: right; } th:nth-child(4) { width: 220px; text-align: right; }
 
       .btn-table { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-strong); background: transparent; color: var(--text-sub); margin-left: 6px; display: inline-block; transition: 0.2s; }
       .btn-edit:hover { border-color: var(--accent); background-color: var(--accent); color: white; }
@@ -167,7 +151,7 @@
 
       .analytics-container { padding: 0 10px 20px 10px; overflow-y: auto; height: 100%; width: 100%; box-sizing: border-box; }
       .filters-row { display: flex; gap: 15px; margin-bottom: 25px; }
-      .filters-row select { flex: 1; width: 50%; padding: 14px; cursor: pointer; }
+      .filters-row .custom-select-wrapper { flex: 1; }
       
       .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
       .kpi-card { background: var(--bg-panel); padding: 25px; border-radius: 24px; box-shadow: var(--shadow-card); position: relative; border: 1px solid var(--border); }
@@ -193,104 +177,95 @@
       .res-item { padding: 14px 20px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--text-main); font-weight: 600; }
       .res-item:hover { background: var(--hover-bg); color: var(--accent); }
 
+      /* --- МОДАЛКИ (Включая кастомный селект) --- */
       .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
       .modal-box { background: var(--bg-panel); padding: 25px; border-radius: 20px; width: 340px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.3); transform: scale(0.95); animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      
+      /* Sheet Modal для селекта */
+      .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
+      .sheet-box { width: 100%; background: var(--bg-panel); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; max-height: 60vh; overflow-y: auto; }
+      .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+      .sheet-title { font-weight: 700; font-size: 16px; color: var(--text-main); }
+      .sheet-close { color: var(--accent); font-weight: 600; cursor: pointer; padding: 5px; }
+      .sheet-item { padding: 16px; border-bottom: 1px solid var(--border); font-size: 16px; color: var(--text-main); font-weight: 500; cursor: pointer; text-align: center; }
+      .sheet-item:last-child { border-bottom: none; }
+      .sheet-item.selected { color: var(--accent); font-weight: 700; }
+
       @keyframes popIn { to { transform: scale(1); } }
+      @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
       @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       .loader { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.01); z-index:50; display:none; }
-      .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 3000; font-size: 14px; font-weight: 500; box-shadow: 0 10px 20px -3px rgba(0,0,0,0.2); }
+      .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 3000; font-size: 14px; font-weight: 500; box-shadow: 0 10px 20px -3px rgba(0,0,0,0.2); pointer-events: none; }
       .toast.show { opacity: 1; bottom: 100px; }
       .toast.success { background: var(--success); }
       .toast.error { background: var(--danger); }
       
-      /* --- МОБИЛЬНАЯ ВЕРСИЯ (Samsung S23 FIX + LIQUID MENU) --- */
+      /* --- МОБИЛЬНАЯ ВЕРСИЯ (ФИНАЛ) --- */
       @media (max-width: 768px) {
-        body { 
-            padding: 0;
-            overflow: hidden; 
-        }
+        body { padding: 0; overflow: hidden; }
 
-        .header {
-            padding: 10px 15px 0 15px;
-            margin-bottom: 10px;
-        }
+        .header { padding: 5px 15px 0 15px; margin-bottom: 5px; height: 40px; }
+        .venus-icon { width: 32px; height: 32px; }
+        .title { font-size: 18px; }
 
         .content-area { 
-            overflow-y: auto; 
-            overflow-x: hidden;
+            overflow-y: auto; overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             display: block; 
-            /* 🔥 МИНИМАЛЬНЫЙ ОТСТУП ПО БОКАМ (5px) - ЧТОБЫ ВЛЕЗАЛО ВСЁ 🔥 */
-            padding: 0 5px 120px 5px; 
+            padding: 0 5px 120px 5px; /* Большой отступ снизу */
             height: 100%;
         }
 
         .tab-page { height: auto; overflow: visible; }
         .split-view { flex-direction: column; gap: 15px; height: auto; }
-
-        .panel { 
-            /* Восстанавливаем красивые скругления */
-            border-radius: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        /* 🔥 КЛЮЧЕВОЙ ФИКС: ШИРИНА 100% ВМЕСТО 360px 🔥 */
-        .panel-left, .panel-right { 
-            width: 100%; /* Растягиваем на всю доступную ширину */
-            height: auto; 
-            overflow: visible;
-            flex-shrink: 0;
-            padding: 20px; /* Красивые отступы внутри */
-            box-sizing: border-box; /* Важно, чтобы padding не увеличивал ширину */
-        }
-        
+        .panel { border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .panel-left, .panel-right { width: 100%; height: auto; overflow: visible; flex-shrink: 0; padding: 20px; box-sizing: border-box; }
         .panel-right { min-height: auto; }
 
-        /* Таблица компактнее для телефона */
+        h3 { font-size: 15px; margin-bottom: 10px; }
+        label { margin-bottom: 4px; font-size: 11px; }
+        
+        input, select, .custom-select-trigger { padding: 10px; font-size: 13px; height: 40px; }
+        .qty-wrapper { height: 36px; }
+        .qty-btn { width: 36px; height: 100%; font-size: 16px; }
+        .qty-input { font-size: 15px; }
+
+        #txtTotal { font-size: 20px !important; margin-top: 0; }
+        .btn { padding: 12px; margin-top: 10px; font-size: 14px; }
+        .search-wrap { margin-bottom: 10px; }
         .table-header { padding: 15px 20px; }
         th, td { padding: 12px 10px; font-size: 12px; }
-        
-        /* Кнопки в таблице - только текст, если не влазит */
         .btn-table { margin-left: 2px; padding: 6px 8px; font-size: 10px; }
 
         .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
         .charts-grid { grid-template-columns: 1fr; gap: 15px; }
 
-        /* --- ЖИДКОЕ МЕНЮ (ИСПРАВЛЕННАЯ ВЕРСИЯ) --- */
+        /* --- ЖИДКОЕ МЕНЮ (ГРИД) --- */
         .nav {
             position: fixed;
-            bottom: 20px;
-            left: 20px; right: 20px;
-            margin: 0;
-            border-radius: 20px;
+            bottom: 20px; left: 20px; right: 20px;
+            margin: 0; border-radius: 20px;
             background: var(--bg-panel);
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             z-index: 1000;
-            /* Изменили display на grid для идеального разделения на 3 части */
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            padding: 5px;
-            height: 60px;
+            padding: 5px; height: 60px;
             border: 1px solid var(--border);
-            /* Важно: relative для позиционирования индикатора */
-            position: fixed; 
         }
 
-        /* Скользящая плашка */
+        /* Индикатор под кнопками */
         .nav-indicator {
-            display: block;
-            position: absolute;
-            top: 5px; 
-            left: 5px; /* Начальная позиция */
+            display: block; position: absolute;
+            top: 5px; left: 5px;
             height: calc(100% - 10px);
-            /* Ширина рассчитывается динамически: (100% ширины меню - 10px паддинга) / 3 */
-            width: calc((100% - 10px) / 3); 
+            width: calc((100% - 10px) / 3);
             background: var(--bg-app);
             border-radius: 16px;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            z-index: 1; /* Индикатор внизу */
-            pointer-events: none; /* ПРОПУСКАЕМ КЛИКИ СКВОЗЬ ИНДИКАТОР */
+            z-index: 1; 
+            pointer-events: none; /* Пропускаем клик сквозь индикатор */
         }
         
         [data-theme="dark"] .nav-indicator { background: #334155; }
@@ -298,18 +273,17 @@
         .nav-btn {
             background: transparent !important;
             box-shadow: none !important;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            font-size: 10px;
-            color: var(--text-sub);
+            flex-direction: column; gap: 4px;
+            font-size: 10px; color: var(--text-sub);
             transition: color 0.2s;
-            z-index: 2; /* КНОПКИ ВЫШЕ ИНДИКАТОРА */
-            width: 100%; /* Растягиваем на всю ячейку грида */
-            padding: 0; /* Убираем лишние отступы */
+            z-index: 10; /* Кнопки выше индикатора */
+            width: 100%;
         }
+        
+        .nav-btn svg { width: 22px; height: 22px; margin-bottom: 2px; transition: transform 0.2s; }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn.active svg { transform: translateY(-2px); fill: var(--accent); }
+      }
     </style>
 </head>
 <body data-theme="light">
@@ -335,10 +309,11 @@
             </svg>
             <div class="title">Мастерская Венера</div>
         </div>
-        </div>
+    </div>
 
     <div class="nav">
-        <div class="nav-indicator" id="navInd"></div> <button class="nav-btn active" onclick="switchTab('income', 0)">
+        <div class="nav-indicator" id="navInd"></div>
+        <button class="nav-btn active" onclick="switchTab('income', 0)">
             <svg viewBox="0 0 24 24"><path d="M21 18V19C21 20.1 20.1 21 19 21H5C3.89 21 3 20.1 3 19V5C3 3.9 3.89 3 5 3H19C20.1 3 21 3.9 21 5V6H12C10.89 6 10 6.9 10 8V16C10 17.1 10.89 18 12 18H21ZM12 16H22V8H12V16ZM16 13.5C15.17 13.5 14.5 12.83 14.5 12C14.5 11.17 15.17 10.5 16 10.5C16.83 10.5 17.5 11.17 17.5 12C17.5 12.83 16.83 13.5 16 13.5Z"/></svg>
             МК
         </button>
@@ -362,7 +337,7 @@
                         <input type="text" id="inpName" placeholder="Поиск или новое..." autocomplete="off" oninput="showSearch(event); calcTotal()">
                         <div class="search-res" id="searchRes"></div>
                     </div>
-                    <div style="display:flex; gap:15px; margin-bottom:25px;">
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
                         <div style="flex:1">
                            <label>Цена</label>
                            <div class="qty-wrapper">
@@ -380,9 +355,9 @@
                            </div>
                         </div>
                     </div>
-                    <div style="text-align:center; margin-top:auto; margin-bottom:15px; padding: 20px; background: var(--input-bg); border-radius: 16px; border: 1px solid var(--border);">
-                        <span style="font-size:12px; color:var(--text-sub); text-transform:uppercase; font-weight:700; display:block; margin-bottom:5px;">Итого к записи</span>
-                        <div id="txtTotal" style="font-size:32px; font-weight:800; color:var(--text-main)">0 ₽</div>
+                    <div style="text-align:center; margin-top:auto; margin-bottom:5px; padding: 10px; background: var(--input-bg); border-radius: 16px; border: 1px solid var(--border);">
+                        <span style="font-size:9px; color:var(--text-sub); text-transform:uppercase; font-weight:700; display:block; margin-bottom:2px;">Итого к записи</span>
+                        <div id="txtTotal" style="font-size:24px; font-weight:800; color:var(--text-main)">0 ₽</div>
                     </div>
                     <button id="btnAdd" class="btn" onclick="submitEntry()">Добавить запись</button>
                 </div>
@@ -413,53 +388,28 @@
         <div id="analyticsTab" class="tab-page">
             <div class="analytics-container">
                 <div class="filters-row">
-                    <select id="anYear" onchange="loadAnalytics()"></select>
-                    <select id="anMonth" onchange="loadAnalytics()"></select>
+                    <div class="custom-select-wrapper" onclick="openSheet('year')">
+                        <div class="custom-select-trigger"><span id="txtYear">Год</span></div>
+                    </div>
+                    <div class="custom-select-wrapper" onclick="openSheet('month')">
+                        <div class="custom-select-trigger"><span id="txtMonth">Месяц</span></div>
+                    </div>
                 </div>
 
                 <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-title">ВЫРУЧКА</div>
-                        <div class="kpi-val" style="color:var(--color-inc)" id="kpiInc">0</div>
-                        <div id="trendInc"></div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">РАСХОДЫ</div>
-                        <div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div>
-                        <div id="trendExp"></div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">ПРИБЫЛЬ</div>
-                        <div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div>
-                        <div id="trendProf"></div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">ПОСЕТИТЕЛИ</div>
-                        <div class="kpi-val" style="color:var(--color-vis)" id="kpiVis">0</div>
-                        <div id="trendVis"></div>
-                    </div>
+                    <div class="kpi-card"><div class="kpi-title">ВЫРУЧКА</div><div class="kpi-val" style="color:var(--color-inc)" id="kpiInc">0</div><div id="trendInc"></div></div>
+                    <div class="kpi-card"><div class="kpi-title">РАСХОДЫ</div><div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div><div id="trendExp"></div></div>
+                    <div class="kpi-card"><div class="kpi-title">ПРИБЫЛЬ</div><div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div><div id="trendProf"></div></div>
+                    <div class="kpi-card"><div class="kpi-title">ПОСЕТИТЕЛИ</div><div class="kpi-val" style="color:var(--color-vis)" id="kpiVis">0</div><div id="trendVis"></div></div>
                 </div>
 
                 <div class="charts-grid">
-                     <div class="chart-box">
-                        <div class="chart-head">Финансовый Пульс</div>
-                        <div class="chart-canv"><canvas id="chartPulse"></canvas></div>
-                     </div>
-                     <div class="chart-box" style="min-height:300px">
-                        <div class="chart-head">Топ Доходов</div>
-                        <div id="listInc" class="prog-list"></div>
-                     </div>
+                     <div class="chart-box"><div class="chart-head">Финансовый Пульс</div><div class="chart-canv"><canvas id="chartPulse"></canvas></div></div>
+                     <div class="chart-box" style="min-height:300px"><div class="chart-head">Топ Доходов</div><div id="listInc" class="prog-list"></div></div>
                 </div>
-
-                 <div class="charts-grid">
-                     <div class="chart-box">
-                        <div class="chart-head">Посещаемость</div>
-                        <div class="chart-canv"><canvas id="chartAttendance"></canvas></div>
-                     </div>
-                     <div class="chart-box" style="min-height:300px">
-                        <div class="chart-head">Топ Расходов</div>
-                        <div id="listExp" class="prog-list"></div>
-                     </div>
+                <div class="charts-grid">
+                     <div class="chart-box"><div class="chart-head">Посещаемость</div><div class="chart-canv"><canvas id="chartAttendance"></canvas></div></div>
+                     <div class="chart-box" style="min-height:300px"><div class="chart-head">Топ Расходов</div><div id="listExp" class="prog-list"></div></div>
                 </div>
             </div>
         </div>
@@ -480,7 +430,6 @@
             </div>
         </div>
     </div>
-
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-bottom:15px; color:var(--text-main)">Удаление</h3>
@@ -492,15 +441,31 @@
         </div>
     </div>
 
+    <div id="sheetModal" class="sheet-overlay" onclick="closeSheet(event)">
+        <div class="sheet-box" id="sheetContent">
+            <div class="sheet-header">
+                <span class="sheet-title" id="sheetTitle">Выбор</span>
+                <span class="sheet-close" onclick="document.getElementById('sheetModal').style.display='none'">Готово</span>
+            </div>
+            <div id="sheetList"></div>
+        </div>
+    </div>
+
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ ПОСЛЕ ДЕПЛОЯ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxYK0Rs8syUZE9_nrowIshS2FzRHZZrkTloDu5h5xEtdF7CJ9QA-ameaRr7ccIPEWmn/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyxf7vaHSHh9clOSH_jMeWckVEKmVC_TI6ztDYzEWHIrQgyCKYuvcLJJ7DGJIg7cZKv/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
         let currTab = 'income', dataCache = { income: null, expense: null }, config = { incomeItems: [], expenseItems: [] }, charts = {};
         
         let stopAnimationRequest = false, activeRequests = 0, deleteTargetId = null, isAnalyticsLoaded = false, analyticsNeedsRefresh = true; 
+        
+        // State for analytics filters
+        let selYear = new Date().getFullYear();
+        let selMonth = new Date().getMonth(); // 0-11, or 'all'
+        let availableYears = [];
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
         // 🔥 УНИВЕРСАЛЬНЫЙ МОСТ 🔥
         async function runBackend(action, payload = {}) {
@@ -537,8 +502,11 @@
             
             runBackend('getInitialConfig').then(res => {
                 config = res;
-                const ySel = document.getElementById('anYear'); ySel.innerHTML=''; res.years.forEach(y=>ySel.add(new Option(y,y)));
-                const mSel = document.getElementById('anMonth'); mSel.innerHTML=''; mSel.add(new Option('Весь год','all')); res.months.forEach((m,i)=>mSel.add(new Option(m,i))); mSel.value=new Date().getMonth();
+                availableYears = res.years;
+                
+                // Init Filters
+                updateFilterUI();
+
                 refreshTable(true);
                 loadAnalytics(true);
                 setLoading(false);
@@ -550,6 +518,7 @@
             v.addEventListener('animationiteration', () => { if (stopAnimationRequest) { v.classList.remove('spinning'); stopAnimationRequest = false; } });
             calcTotal();
         };
+
         function setLoading(active) {
             const v = document.getElementById('venus');
             if (active) { activeRequests++; stopAnimationRequest = false; v.classList.add('spinning'); } 
@@ -559,8 +528,6 @@
         function toggleTheme(event) {
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
-            
-            // Запуск анимации смены темы
             if (!document.startViewTransition) { setTheme(newTheme); return; }
             const rect = event.currentTarget.getBoundingClientRect();
             const x = rect.left + rect.width / 2, y = rect.top + rect.height / 2;
@@ -575,27 +542,17 @@
 
         function switchTab(t, idx) {
             currTab = t;
-            
-            // Визуальное переключение кнопок
+            // Visual Toggle
             const btns = document.querySelectorAll('.nav-btn');
             btns.forEach(b => b.classList.remove('active')); 
-            
-            // Если idx не передан (например, при загрузке), находим кнопку по onclick
-            if (typeof idx === 'undefined') {
-                if (t === 'income') idx = 0;
-                else if (t === 'expense') idx = 1;
-                else idx = 2;
+            if(typeof idx === 'undefined') {
+                if(t==='income') idx=0; else if(t==='expense') idx=1; else idx=2;
             }
-            
             if(btns[idx]) btns[idx].classList.add('active');
             
-            // Двигаем индикатор
+            // Move Indicator
             const ind = document.getElementById('navInd');
-            if(ind) {
-                // Используем проценты, так как ширина индикатора теперь calc((100% - 10px) / 3)
-                // Сдвигаем на 100% ширины индикатора * индекс
-                ind.style.transform = `translateX(${idx * 100}%)`;
-            }
+            if(ind) ind.style.transform = `translateX(${idx * 100}%)`;
 
             document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
             if(t === 'analytics') {
@@ -615,6 +572,49 @@
             document.getElementById('tableTitle').innerText = isInc ? 'Доходы (Последние записи)' : 'Расходы (Последние записи)';
             document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1;
             calcTotal();
+        }
+
+        // --- Custom Sheet Logic ---
+        function updateFilterUI() {
+            document.getElementById('txtYear').innerText = selYear;
+            document.getElementById('txtMonth').innerText = (selMonth === 'all') ? 'Весь год' : monthNames[selMonth];
+        }
+
+        function openSheet(type) {
+            const sheet = document.getElementById('sheetModal');
+            const list = document.getElementById('sheetList');
+            const title = document.getElementById('sheetTitle');
+            list.innerHTML = '';
+            sheet.style.display = 'flex';
+
+            if (type === 'year') {
+                title.innerText = 'Выберите год';
+                availableYears.forEach(y => {
+                    const div = document.createElement('div');
+                    div.className = `sheet-item ${y == selYear ? 'selected' : ''}`;
+                    div.innerText = y;
+                    div.onclick = () => { selYear = y; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                    list.appendChild(div);
+                });
+            } else {
+                title.innerText = 'Выберите месяц';
+                const divAll = document.createElement('div');
+                divAll.className = `sheet-item ${selMonth === 'all' ? 'selected' : ''}`;
+                divAll.innerText = 'Весь год';
+                divAll.onclick = () => { selMonth = 'all'; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                list.appendChild(divAll);
+
+                monthNames.forEach((m, i) => {
+                    const div = document.createElement('div');
+                    div.className = `sheet-item ${i === selMonth ? 'selected' : ''}`;
+                    div.innerText = m;
+                    div.onclick = () => { selMonth = i; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                    list.appendChild(div);
+                });
+            }
+        }
+        function closeSheet(e) {
+            if (e.target.id === 'sheetModal') document.getElementById('sheetModal').style.display = 'none';
         }
 
         function renderTableFromCache(data) {
@@ -695,9 +695,8 @@
         }
 
         function loadAnalytics(isSilent = false) {
-            const y=document.getElementById('anYear').value, m=document.getElementById('anMonth').value;
             setLoading(true);
-            runBackend('getAnalyticsData', {year: y, monthIdx: m}).then(d => {
+            runBackend('getAnalyticsData', {year: selYear, monthIdx: selMonth}).then(d => {
                 setLoading(false); isAnalyticsLoaded = true; analyticsNeedsRefresh = false;
                 renderKPI('kpiInc', d.current.income, d.growth.income, '₽', 'trend-up'); renderKPI('kpiExp', d.current.expense, d.growth.expense, '₽', 'trend-down'); renderKPI('kpiProf', d.current.profit, d.growth.profit, '₽', 'trend-up'); renderKPI('kpiVis', d.current.visitors, d.growth.visitors, 'чел', 'trend-up');
                 renderAreaChart('chartPulse', d.pulse.labels, [{ label:'Доход', data:d.pulse.income, borderColor:'#34C759', bg:'rgba(52, 199, 89, 0.1)' }, { label:'Расход', data:d.pulse.expense, borderColor:'#FF3B30', bg:'rgba(255, 59, 48, 0.1)' }]);
