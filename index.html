@@ -49,7 +49,6 @@
         --scroll-thumb: #475569;
       }
       
-      /* Убираем синюю подсветку при клике на мобилках */
       * { -webkit-tap-highlight-color: transparent; }
       
       /* --- АНИМАЦИЯ ТЕМЫ (ЛОГИКА СЛОЕВ) --- */
@@ -61,11 +60,11 @@
           width: 100%; height: 100%; top: 0; left: 0;
       }
 
-      /* СТАНДАРТ (Светлая -> Темная): Новая тема растет поверх старой */
+      /* СТАНДАРТ (Расширение): Новая тема (темная) растет поверх старой (светлой) */
       ::view-transition-new(root) { z-index: 9999; }
       ::view-transition-old(root) { z-index: 1; }
 
-      /* ОБРАТНО (Темная -> Светлая): Старая тема (темная) лежит сверху и СЖИМАЕТСЯ */
+      /* ОБРАТНО (Сужение): Старая тема (темная) лежит сверху и СЖИМАЕТСЯ, открывая новую (светлую) */
       html.reverse-transition ::view-transition-old(root) { z-index: 9999; }
       html.reverse-transition ::view-transition-new(root) { z-index: 1; }
       
@@ -251,14 +250,12 @@
         .header { padding: 5px 15px 0 15px; margin-bottom: 5px; height: 40px; }
         .venus-icon { width: 32px; height: 32px; }
         .title { font-size: 18px; }
-        
         .content-area { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; display: block; padding: 0 5px 120px 5px; height: 100%; }
         .tab-page { height: auto; overflow: visible; }
         .split-view { flex-direction: column; gap: 15px; height: auto; }
         .panel { border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .panel-left, .panel-right { width: 100%; height: auto; overflow: visible; flex-shrink: 0; padding: 20px; box-sizing: border-box; }
         .panel-right { min-height: auto; }
-        
         h3 { font-size: 15px; margin-bottom: 10px; }
         label { margin-bottom: 4px; font-size: 11px; }
         input, select, .custom-select-trigger { padding: 10px; font-size: 13px; height: 40px; }
@@ -451,7 +448,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyYNfICYCp7i_yERUKwJS7gs8l1C7MzWjGzsU1HialG2x3qvSsMuz6z5Xw6sURDWpIz/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyheTjJYh8ru1cavkpQNpRhb_W85kH_tcB-dH5YT1eEG32W7yj1-kyFLv0UAVYSc9tT/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -525,16 +522,17 @@
             
             if (!document.startViewTransition) { setTheme(newTheme); return; }
 
-            // Координаты центра логотипа (всегда в одном месте)
-            const rect = event.currentTarget.getBoundingClientRect();
+            // Координаты центра логотипа
+            const rect = document.getElementById('venus').getBoundingClientRect();
             const x = rect.left + rect.width / 2;
             const y = rect.top + rect.height / 2;
             
-            // Радиус, чтобы покрыть весь экран
             const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
 
-            // Добавляем класс для "обратной" логики слоев
-            if (newTheme === 'light') {
+            // Если включаем светлую (значит сейчас темная), мы хотим сжать темный слой
+            const isReverse = newTheme === 'light';
+
+            if (isReverse) {
                 document.documentElement.classList.add('reverse-transition');
             } else {
                 document.documentElement.classList.remove('reverse-transition');
@@ -545,11 +543,8 @@
             });
 
             transition.ready.then(() => {
-                // ЛОГИКА АНИМАЦИИ
-                if (newTheme === 'light') {
-                    // ТЕМНАЯ -> СВЕТЛАЯ:
-                    // Анимируем ::view-transition-old (Темный слой), он лежит сверху.
-                    // Сжимаем его от полного экрана (endRadius) в точку (0px).
+                if (isReverse) {
+                    // ТЕМНАЯ -> СВЕТЛАЯ: Старый (темный) слой сжимается в логотип
                     document.documentElement.animate(
                         { 
                             clipPath: [ 
@@ -560,13 +555,11 @@
                         {
                             duration: 700,
                             easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
-                            pseudoElement: '::view-transition-old(root)' // <-- Важно: анимируем старый слой
+                            pseudoElement: '::view-transition-old(root)'
                         }
                     );
                 } else {
-                    // СВЕТЛАЯ -> ТЕМНАЯ:
-                    // Анимируем ::view-transition-new (Темный слой), он лежит сверху.
-                    // Расширяем его из точки (0px) до полного экрана.
+                    // СВЕТЛАЯ -> ТЕМНАЯ: Новый (темный) слой расширяется из логотипа
                     document.documentElement.animate(
                         { 
                             clipPath: [ 
@@ -577,7 +570,7 @@
                         {
                             duration: 700,
                             easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
-                            pseudoElement: '::view-transition-new(root)' // <-- Важно: анимируем новый слой
+                            pseudoElement: '::view-transition-new(root)'
                         }
                     );
                 }
