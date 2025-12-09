@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+      /* --- ВАШИ ОРИГИНАЛЬНЫЕ СТИЛИ --- */
       :root { 
         --bg-app: #F2F2F7;
         --bg-panel: linear-gradient(180deg, #FFFFFF 0%, #F5F7FA 100%);      
@@ -57,8 +58,7 @@
       ::view-transition-new(root) { z-index: 9999; }
       
       body { 
-          margin: 0;
-          padding: 20px; 
+          margin: 0; padding: 20px; 
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
           background-color: var(--bg-app); color: var(--text-main); 
           height: 100vh; box-sizing: border-box; overflow: hidden; 
@@ -88,76 +88,8 @@
       [data-theme="dark"] .icon-sun { transform: rotate(-90deg) scale(0); opacity:0; }
       [data-theme="dark"] .icon-moon { transform: rotate(0) scale(1); opacity:1; }
 
-      //.nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0;
-      /* --- НОВАЯ НИЖНЯЯ НАВИГАЦИЯ --- */
-
-/* Скрываем старую навигацию, если она осталась */
-.nav { display: none !important; } 
-
-/* Отступ для контента, чтобы нижняя панель не перекрывала таблицу */
-.content-area {
-    padding-bottom: 80px; /* Высота меню + отступ */
-}
-
-/* Контейнер нижнего меню */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 65px; /* Стандартная высота таб-бара */
-    background: var(--bg-panel);
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom); /* Для iPhone без кнопки */
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
-    backdrop-filter: blur(10px); /* Эффект размытия как в iOS */
-}
-
-/* Кнопка навигации */
-.nav-item {
-    background: none;
-    border: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    color: var(--text-sub);
-    font-size: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-    transition: 0.2s;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Состояние активной кнопки */
-.nav-item.active {
-    color: var(--accent);
-}
-
-.nav-item.active svg {
-    stroke: var(--accent);
-    /* Если иконки заливные, используйте fill: var(--accent); */
-}
-
-/* Иконки */
-.nav-icon {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-    stroke-width: 2;
-    fill: none;
-    transition: 0.2s;
-}
-             box-shadow: var(--shadow-card); border: 1px solid var(--border); }
-      .nav-btn { flex: 1; padding: 10px; border: none;
-                 background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; }
+      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); }
+      .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; }
       .nav-btn:hover { color: var(--text-main); }
       .nav-btn.active { background: var(--bg-app); color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
       [data-theme="dark"] .nav-btn.active { background: #334155; box-shadow: none; }
@@ -171,6 +103,8 @@
       .panel-left { width: 360px; padding: 30px; flex-shrink: 0; overflow-y: auto; }
       .panel-right { flex: 1; }
       
+      @media (max-width: 900px) { .split-view { flex-direction: column; overflow-y: auto; } .panel-left { width: auto; flex-shrink: 0; } .panel-right { height: 600px; flex-shrink: 0; } }
+
       h3 { margin-top: 0; font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 20px; }
       label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; display: block; letter-spacing: 0.02em; }
       
@@ -265,88 +199,11 @@
       .toast.success { background: var(--success); }
       .toast.error { background: var(--danger); }
       
-      /* --- АДАПТАЦИЯ ПОД МОБИЛЬНЫЕ --- */
       @media (max-width: 768px) {
-        body { 
-            padding: 15px;
-            /* Включаем вертикальный скролл всей страницы */
-            height: auto; 
-            min-height: 100vh; 
-            overflow-y: auto; 
-            overflow-x: hidden;
-            /* Отступ снизу, чтобы контент не перекрывался меню */
-            padding-bottom: 100px; 
-        }
-
-        .header {
-            margin-bottom: 15px;
-        }
-
-        /* Меню переезжает вниз */
-        .nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            margin: 0;
-            border-radius: 20px 20px 0 0; /* Круглые углы только сверху */
-            z-index: 1000;
-            border-bottom: none;
-            border-left: none;
-            border-right: none;
-            box-shadow: 0 -5px 25px rgba(0,0,0,0.1);
-            /* Учет безопасной зоны iPhone (полоска снизу) */
-            padding-bottom: env(safe-area-inset-bottom, 20px);
-            padding-top: 10px;
-            padding-left: 10px;
-            padding-right: 10px;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
-        
-        [data-theme="dark"] .nav {
-            background: rgba(30, 41, 59, 0.95);
-        }
-
-        .nav-btn {
-            padding: 12px;
-            font-size: 11px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        body { padding: 10px; height: auto; min-height: 100vh; overflow: auto; }
+        .kpi-grid { grid-template-columns: 1fr 1fr; }
         .charts-grid { grid-template-columns: 1fr; }
-        
-        .content-area, .tab-page { 
-            overflow: visible; 
-            height: auto; 
-            display: block; 
-        }
-        
-        .split-view {
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .panel-left, .panel-right {
-            width: 100%;
-            height: auto;
-            overflow: visible;
-        }
-
-        /* Горизонтальный скролл для таблиц */
-        .grid-wrapper, .chart-box {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        table {
-            min-width: 500px;
-        }
+        .content-area, .tab-page { overflow: visible; height: auto; }
       }
     </style>
 </head>
@@ -427,7 +284,7 @@
                         <button class="btn-refresh" onclick="refreshTable(true)">Обновить</button>
                     </div>
                     <div class="grid-wrapper">
-                        <table id="mainTable">
+                       <table id="mainTable">
                             <thead>
                                 <tr>
                                     <th>Дата</th>
@@ -461,7 +318,7 @@
                         <div class="kpi-title">РАСХОДЫ</div>
                         <div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div>
                         <div id="trendExp"></div>
-                    </div>
+                     </div>
                     <div class="kpi-card">
                         <div class="kpi-title">ПРИБЫЛЬ</div>
                         <div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div>
@@ -475,7 +332,7 @@
                 </div>
 
                 <div class="charts-grid">
-                     <div class="chart-box">
+                    <div class="chart-box">
                         <div class="chart-head">Финансовый Пульс</div>
                         <div class="chart-canv"><canvas id="chartPulse"></canvas></div>
                      </div>
@@ -515,51 +372,30 @@
         </div>
     </div>
 
-    <div class="bottom-nav">
-    <button class="nav-item active" onclick="switchTab('income')">
-        <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-        </svg>
-        <span>МК</span>
-    </button>
-
-    <button class="nav-item" onclick="switchTab('expense')">
-        <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="21" r="1"></circle>
-            <circle cx="20" cy="21" r="1"></circle>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
-        <span>Расход</span>
-    </button>
-
-    <button class="nav-item" onclick="switchTab('analytics')">
-        <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 20V10M12 20V4M6 20v-6" />
-        </svg>
-        <span>Аналитика</span>
-    </button>
-</div>
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-bottom:15px; color:var(--text-main)">Удаление</h3>
+            <p style="color:var(--text-sub); margin-bottom:25px; font-size:14px; line-height:1.5;">Вы уверены, что хотите удалить эту запись? Это действие нельзя будет отменить.</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" style="background:var(--danger); color:white; margin-top:0;" onclick="confirmDelete()">Удалить</button>
+                <button class="btn" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-strong); margin-top:0;" onclick="document.getElementById('deleteModal').style.display='none'">Отмена</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ ПОСЛЕ ДЕПЛОЯ
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyTCtWngbPnKPoE17pazxxDfXs9oudeCK3liDpDgXEDs8ha0jrH3VVJWQL3hQSq0uBs/exec';
         // 👆👆👆
-        
-        // 👇 СПИСОК РАЗРЕШЕННЫХ ID (Дублируем на клиенте)
-        const ALLOWED_IDS = [1248292955, 1271410534]; 
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
         let currTab = 'income', dataCache = { income: null, expense: null }, config = { incomeItems: [], expenseItems: [] }, charts = {};
         
+        // --- ЛОГИКА ЗАГРУЗКИ ---
         let stopAnimationRequest = false, activeRequests = 0, deleteTargetId = null, isAnalyticsLoaded = false, analyticsNeedsRefresh = true; 
 
         // 🔥 УНИВЕРСАЛЬНЫЙ МОСТ 🔥
         async function runBackend(action, payload = {}) {
-            // Берем ID из Telegram и добавляем к запросу
-            const user = window.Telegram.WebApp.initDataUnsafe?.user;
-            const userId = user ? user.id : 0;
-            payload.userId = userId;
-
             if (IS_GOOGLE) {
                 return new Promise((resolve, reject) => {
                     if(action === 'getInitialConfig') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getInitialConfig();
@@ -586,24 +422,7 @@
         }
 
         window.onload = function() {
-            if(window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.expand();
-                // 👇 КЛИЕНТСКАЯ ПРОВЕРКА ID
-                const user = window.Telegram.WebApp.initDataUnsafe?.user;
-                const uid = user ? user.id : 0;
-                // Разрешаем uid=0 для отладки в браузере, в проде блокируем всех чужих
-                if (uid !== 0 && !ALLOWED_IDS.includes(uid)) {
-                    document.body.innerHTML = `
-                        <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; text-align:center; padding:20px;">
-                            <div style="font-size:50px;">⛔️</div>
-                            <h2 style="color:var(--text-main)">Доступ запрещен</h2>
-                            <p style="color:var(--text-sub)">Ваш ID: <b>${uid}</b><br>не найден в списке разрешенных.</p>
-                        </div>
-                    `;
-                    return; 
-                }
-            }
-            
+            if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.expand();
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
             setLoading(true);
@@ -619,11 +438,12 @@
                 showToast("Error: " + e, true);
                 setLoading(false);
             });
+            
             const v = document.getElementById('venus');
             v.addEventListener('animationiteration', () => { if (stopAnimationRequest) { v.classList.remove('spinning'); stopAnimationRequest = false; } });
             calcTotal();
         };
-        
+
         function setLoading(active) {
             const v = document.getElementById('venus');
             if (active) { activeRequests++; stopAnimationRequest = false; v.classList.add('spinning'); } 
@@ -646,19 +466,9 @@
         function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
 
         function switchTab(t) {
-    currTab = t;
-    
-    // ОБНОВЛЕНИЕ: Ищем .nav-item вместо .nav-btn
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    
-    // currentTarget ссылается на саму кнопку, даже если кликнули по иконке внутри
-    event.currentTarget.classList.add('active'); 
-
-    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-    
-    // ... остальной код функции без изменений ...
-    if(t === 'analytics') {
-       // ...
+            currTab = t;
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
+            document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
             if(t === 'analytics') {
                 document.getElementById('analyticsTab').classList.add('active');
                 if(analyticsNeedsRefresh || !isAnalyticsLoaded) loadAnalytics();
@@ -674,8 +484,7 @@
             document.getElementById('formTitle').innerText = isInc ? 'Добавить Мастер Класс' : 'Добавить Расход';
             document.getElementById('lblSearch').innerText = isInc ? 'Название МК' : 'Наименование';
             document.getElementById('tableTitle').innerText = isInc ? 'Доходы (Последние записи)' : 'Расходы (Последние записи)';
-            document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1;
-            calcTotal();
+            document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
         }
 
         function renderTableFromCache(data) {
@@ -696,7 +505,7 @@
             setLoading(true);
             if (!isSilent) { tbody.innerHTML = ''; msg.style.display = 'block'; msg.innerText = 'Загрузка...'; }
             runBackend('getTableData', {type: currTab}).then(data => {
-                 dataCache[currTab] = data; setLoading(false); renderTableFromCache(data); 
+                dataCache[currTab] = data; setLoading(false); renderTableFromCache(data); 
             });
         }
 
@@ -711,6 +520,7 @@
             const isNew = !list.includes(name);
             if(isNew) list.push(name);
             const payload = { type: currTab, name: name, price: price, qty: qty, total: total, isNew: isNew };
+
             // ОПТИМИСТИЧНЫЙ UI
             const tbody = document.getElementById('tableBody');
             document.getElementById('emptyMsg').style.display = 'none';
@@ -718,6 +528,7 @@
             tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${new Date().toLocaleDateString('ru-RU')}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">Сохранение...</span></td></tr>`);
             document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
             const btn = document.getElementById('btnAdd'); btn.disabled = true; setLoading(true);
+
             runBackend('saveTransaction', payload).then(res => {
                 btn.disabled = false; setLoading(false);
                 if(res.success) { showToast('Успешно добавлено'); refreshTable(true, true); analyticsNeedsRefresh = true; loadAnalytics(true); } 
@@ -726,16 +537,14 @@
         }
 
         function openEdit(row) {
-            document.getElementById('editId').value = row.rowId;
-            document.getElementById('editName').value = row.name; document.getElementById('editPrice').value = row.price; document.getElementById('editQty').value = row.qty; document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editId').value = row.rowId; document.getElementById('editName').value = row.name; document.getElementById('editPrice').value = row.price; document.getElementById('editQty').value = row.qty; document.getElementById('editModal').style.display = 'flex';
         }
         function saveEdit() {
             const id = document.getElementById('editId').value, name = document.getElementById('editName').value, price = parseFloat(document.getElementById('editPrice').value), qty = parseFloat(document.getElementById('editQty').value);
             const payload = { rowId: id, type: currTab, name: name, price: price, qty: qty };
             document.getElementById('editModal').style.display = 'none';
             const row = document.getElementById('row-' + id);
-            if(row) { row.cells[1].innerText = name; row.cells[2].innerText = (price * qty).toLocaleString(); row.style.transition = 'background 0.3s';
-            row.style.background = 'rgba(var(--accent), 0.1)'; setTimeout(() => row.style.background = 'transparent', 1000); }
+            if(row) { row.cells[1].innerText = name; row.cells[2].innerText = (price * qty).toLocaleString(); row.style.transition = 'background 0.3s'; row.style.background = 'rgba(var(--accent), 0.1)'; setTimeout(() => row.style.background = 'transparent', 1000); }
             setLoading(true);
             runBackend('editTransaction', payload).then(res => {
                 setLoading(false);
@@ -747,8 +556,7 @@
             if(!deleteTargetId) return;
             document.getElementById('deleteModal').style.display = 'none';
             const rowElement = document.getElementById('row-' + deleteTargetId);
-            if (rowElement) { rowElement.style.transition = 'opacity 0.3s'; rowElement.style.opacity = '0';
-            setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
+            if (rowElement) { rowElement.style.transition = 'opacity 0.3s'; rowElement.style.opacity = '0'; setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
             setLoading(true);
             runBackend('deleteTransaction', {rowId: deleteTargetId, type: currTab}).then(res => {
                 setLoading(false);
@@ -764,47 +572,34 @@
                 renderKPI('kpiInc', d.current.income, d.growth.income, '₽', 'trend-up'); renderKPI('kpiExp', d.current.expense, d.growth.expense, '₽', 'trend-down'); renderKPI('kpiProf', d.current.profit, d.growth.profit, '₽', 'trend-up'); renderKPI('kpiVis', d.current.visitors, d.growth.visitors, 'чел', 'trend-up');
                 renderAreaChart('chartPulse', d.pulse.labels, [{ label:'Доход', data:d.pulse.income, borderColor:'#34C759', bg:'rgba(52, 199, 89, 0.1)' }, { label:'Расход', data:d.pulse.expense, borderColor:'#FF3B30', bg:'rgba(255, 59, 48, 0.1)' }]);
                 renderAreaChart('chartAttendance', d.attendance.labels, [{ label:'Посетители', data:d.attendance.data, borderColor:'#AF52DE', bg:'rgba(175, 82, 222, 0.1)' }]);
-                renderProgressList('listInc', d.pieIncome.labels, d.pieIncome.data, '#34C759');
-                renderProgressList('listExp', d.pieExpense.labels, d.pieExpense.data, '#FF3B30');
+                renderProgressList('listInc', d.pieIncome.labels, d.pieIncome.data, '#34C759'); renderProgressList('listExp', d.pieExpense.labels, d.pieExpense.data, '#FF3B30');
             });
         }
         function renderKPI(id, val, growth, suff, colorCls) {
-            document.getElementById(id).innerText = val.toLocaleString() + ' ' + suff;
-            const el = document.getElementById(id.replace('kpi','trend'));
+            document.getElementById(id).innerText = val.toLocaleString() + ' ' + suff; const el = document.getElementById(id.replace('kpi','trend'));
             if(el) { const arr = growth>=0?'↗':'↘'; const cls = (growth>=0 && colorCls==='trend-up') || (growth<0 && colorCls==='trend-down') ? 'trend-up' : 'trend-down'; let finalCls = cls; if(id==='kpiExp') finalCls = (growth > 0) ? 'trend-down' : 'trend-up'; el.className = `kpi-trend ${finalCls}`; el.innerText = `${arr} ${Math.abs(growth)}%`; }
         }
         function renderAreaChart(id, labels, datasets) {
-            if(charts[id]) charts[id].destroy();
-            const ctx = document.getElementById(id).getContext('2d');
+            if(charts[id]) charts[id].destroy(); const ctx = document.getElementById(id).getContext('2d');
             const ds = datasets.map(d => ({ label: d.label, data: d.data, borderColor: d.borderColor, backgroundColor: d.bg, borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }));
             charts[id] = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: ds }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1C1C1E', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 8, padding: 10 } }, scales: { x: { grid: { display: false }, ticks: { color: '#8E8E93', font:{size:10} } }, y: { display: false } } } });
         }
         function renderProgressList(id, labels, data, color) {
-            const el = document.getElementById(id);
-            el.innerHTML = ''; if(!data.length) { el.innerHTML='<div style="color:var(--text-sub); font-size:13px">Нет данных</div>'; return; }
-            const max = Math.max(...data);
-            labels.forEach((lbl, i) => { const val = data[i]; const pct = (val / max) * 100; const html = `<div class="prog-item"><div class="prog-info"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%; background:${color}"></div></div></div>`; el.insertAdjacentHTML('beforeend', html); });
+            const el = document.getElementById(id); el.innerHTML = ''; if(!data.length) { el.innerHTML='<div style="color:var(--text-sub); font-size:13px">Нет данных</div>'; return; }
+            const max = Math.max(...data); labels.forEach((lbl, i) => { const val = data[i]; const pct = (val / max) * 100; const html = `<div class="prog-item"><div class="prog-info"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%; background:${color}"></div></div></div>`; el.insertAdjacentHTML('beforeend', html); });
         }
         function showSearch(e) {
-            const val = e.target.value.toLowerCase();
-            const box = document.getElementById('searchRes'); box.innerHTML = ''; if(!val) { box.style.display='none'; return; }
-            const src = currTab==='income' ? config.incomeItems : config.expenseItems;
-            const res = src.filter(s => s.toLowerCase().includes(val)).slice(0,5);
-            if(res.length) { box.style.display='block'; res.forEach(r => { const d = document.createElement('div'); d.className='res-item'; d.innerText=r; d.onclick=()=>{ document.getElementById('inpName').value=r; box.style.display='none'; calcTotal(); }; box.appendChild(d); });
-            } else box.style.display='none';
+            const val = e.target.value.toLowerCase(); const box = document.getElementById('searchRes'); box.innerHTML = ''; if(!val) { box.style.display='none'; return; }
+            const src = currTab==='income' ? config.incomeItems : config.expenseItems; const res = src.filter(s => s.toLowerCase().includes(val)).slice(0,5);
+            if(res.length) { box.style.display='block'; res.forEach(r => { const d = document.createElement('div'); d.className='res-item'; d.innerText=r; d.onclick=()=>{ document.getElementById('inpName').value=r; box.style.display='none'; calcTotal(); }; box.appendChild(d); }); } else box.style.display='none';
         }
-        function modVal(id, d) { const el = document.getElementById(id);
-            let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal();
-        }
+        function modVal(id, d) { const el = document.getElementById(id); let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal(); }
         function calcTotal() {
-            const priceVal = document.getElementById('inpPrice').value, nameVal = document.getElementById('inpName').value.trim();
-            const p = parseFloat(priceVal); const q = parseFloat(document.getElementById('inpQty').value);
+            const priceVal = document.getElementById('inpPrice').value, nameVal = document.getElementById('inpName').value.trim(); const p = parseFloat(priceVal); const q = parseFloat(document.getElementById('inpQty').value);
             document.getElementById('txtTotal').innerText = ((p*q)||0).toLocaleString() + ' ₽'; const btn = document.getElementById('btnAdd');
             if (!nameVal) { btn.innerText = "Укажите название"; btn.style.opacity = "0.6"; } else if (!priceVal || isNaN(p) || p === 0) { btn.innerText = "Укажите цену"; btn.style.opacity = "0.6"; } else { btn.innerText = "Добавить запись"; btn.style.opacity = "1"; }
         }
-        function showToast(m, err) { const t = document.getElementById('toast');
-            t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000);
-        }
+        function showToast(m, err) { const t = document.getElementById('toast'); t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000); }
     </script>
 </body>
 </html>
