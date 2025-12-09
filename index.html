@@ -88,7 +88,73 @@
       [data-theme="dark"] .icon-sun { transform: rotate(-90deg) scale(0); opacity:0; }
       [data-theme="dark"] .icon-moon { transform: rotate(0) scale(1); opacity:1; }
 
-      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0;
+      //.nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0;
+      /* --- НОВАЯ НИЖНЯЯ НАВИГАЦИЯ --- */
+
+/* Скрываем старую навигацию, если она осталась */
+.nav { display: none !important; } 
+
+/* Отступ для контента, чтобы нижняя панель не перекрывала таблицу */
+.content-area {
+    padding-bottom: 80px; /* Высота меню + отступ */
+}
+
+/* Контейнер нижнего меню */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65px; /* Стандартная высота таб-бара */
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom); /* Для iPhone без кнопки */
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
+    backdrop-filter: blur(10px); /* Эффект размытия как в iOS */
+}
+
+/* Кнопка навигации */
+.nav-item {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--text-sub);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    transition: 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Состояние активной кнопки */
+.nav-item.active {
+    color: var(--accent);
+}
+
+.nav-item.active svg {
+    stroke: var(--accent);
+    /* Если иконки заливные, используйте fill: var(--accent); */
+}
+
+/* Иконки */
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    transition: 0.2s;
+}
              box-shadow: var(--shadow-card); border: 1px solid var(--border); }
       .nav-btn { flex: 1; padding: 10px; border: none;
                  background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; }
@@ -449,16 +515,30 @@
         </div>
     </div>
 
-    <div id="deleteModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin-bottom:15px; color:var(--text-main)">Удаление</h3>
-            <p style="color:var(--text-sub); margin-bottom:25px; font-size:14px; line-height:1.5;">Вы уверены, что хотите удалить эту запись? Это действие нельзя будет отменить.</p>
-            <div style="display:flex; gap:10px;">
-                <button class="btn" style="background:var(--danger); color:white; margin-top:0;" onclick="confirmDelete()">Удалить</button>
-                <button class="btn" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-strong); margin-top:0;" onclick="document.getElementById('deleteModal').style.display='none'">Отмена</button>
-            </div>
-        </div>
-    </div>
+    <div class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('income')">
+        <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+        <span>МК</span>
+    </button>
+
+    <button class="nav-item" onclick="switchTab('expense')">
+        <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span>Расход</span>
+    </button>
+
+    <button class="nav-item" onclick="switchTab('analytics')">
+        <svg class="nav-icon" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 20V10M12 20V4M6 20v-6" />
+        </svg>
+        <span>Аналитика</span>
+    </button>
+</div>
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ ПОСЛЕ ДЕПЛОЯ
@@ -566,9 +646,19 @@
         function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
 
         function switchTab(t) {
-            currTab = t;
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active');
-            document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    currTab = t;
+    
+    // ОБНОВЛЕНИЕ: Ищем .nav-item вместо .nav-btn
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    
+    // currentTarget ссылается на саму кнопку, даже если кликнули по иконке внутри
+    event.currentTarget.classList.add('active'); 
+
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    
+    // ... остальной код функции без изменений ...
+    if(t === 'analytics') {
+       // ...
             if(t === 'analytics') {
                 document.getElementById('analyticsTab').classList.add('active');
                 if(analyticsNeedsRefresh || !isAnalyticsLoaded) loadAnalytics();
