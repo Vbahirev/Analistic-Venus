@@ -53,9 +53,6 @@
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background-color: var(--scroll-thumb); border-radius: 10px; }
       
-      ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-      ::view-transition-new(root) { z-index: 9999; }
-      
       body { 
           margin: 0;
           padding: 20px; 
@@ -92,13 +89,13 @@
       [data-theme="dark"] .icon-sun { transform: rotate(-90deg) scale(0); opacity:0; }
       [data-theme="dark"] .icon-moon { transform: rotate(0) scale(1); opacity:1; }
 
-      /* --- СТИЛИ НАВИГАЦИИ (DEKSTOP) --- */
+      /* --- НАВИГАЦИЯ (ПК) --- */
       .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); }
       .nav-btn { 
           flex: 1; padding: 10px; border: none; background: transparent; 
           color: var(--text-sub); border-radius: 10px; cursor: pointer; 
           font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px;
-          display: flex; align-items: center; justify-content: center; gap: 8px; /* Иконка рядом с текстом */
+          display: flex; align-items: center; justify-content: center; gap: 8px;
       }
       .nav-btn svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; }
       .nav-btn:hover { color: var(--text-main); }
@@ -206,11 +203,11 @@
       @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       .loader { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.01); z-index:50; display:none; }
       .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 3000; font-size: 14px; font-weight: 500; box-shadow: 0 10px 20px -3px rgba(0,0,0,0.2); }
-      .toast.show { opacity: 1; bottom: 100px; } /* Чуть выше из-за нижнего меню */
+      .toast.show { opacity: 1; bottom: 100px; }
       .toast.success { background: var(--success); }
       .toast.error { background: var(--danger); }
       
-      /* --- МОБИЛЬНАЯ ВЕРСИЯ (IPHONE FIX & BOTTOM NAV) --- */
+      /* --- МОБИЛЬНАЯ ВЕРСИЯ (IPHONE & COMPACT FIT) --- */
       @media (max-width: 768px) {
         body { 
             padding: 0;
@@ -218,17 +215,16 @@
         }
 
         .header {
-            padding: 15px 20px 0 20px;
-            margin-bottom: 15px;
+            padding: 10px 15px 0 15px; /* Меньше отступ сверху */
+            margin-bottom: 10px;
         }
 
-        /* Основной контейнер скроллится */
         .content-area { 
             overflow-y: auto; 
             overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             display: block; 
-            padding: 0 15px 110px 15px; /* БОЛЬШОЙ ОТСТУП ДЛЯ МЕНЮ */
+            padding: 0 10px 100px 10px; /* Отступ под меню */
             height: 100%;
         }
 
@@ -239,69 +235,101 @@
 
         .split-view { 
             flex-direction: column;
-            gap: 15px;
+            gap: 12px; /* Меньше зазор между панелями */
             height: auto;
         }
 
+        /* --- ПАНЕЛИ: Делаем компактнее --- */
         .panel-left, .panel-right { 
             width: 100%; 
             height: auto; 
             overflow: visible;
             flex-shrink: 0;
-            padding: 20px;
-        }
-
-        .panel-right {
-            min-height: auto;
+            padding: 15px; /* Уменьшаем padding (было 20) */
         }
         
-        .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-        .charts-grid { grid-template-columns: 1fr; gap: 15px; }
+        .panel-right { min-height: auto; }
 
-        /* --- НИЖНЕЕ МЕНЮ (TAB BAR) --- */
+        /* Уменьшаем шрифты заголовков для экономии места */
+        h3 { font-size: 16px; margin-bottom: 15px; }
+        
+        /* Ввод данных компактнее */
+        input, select { padding: 12px; font-size: 14px; }
+        .qty-wrapper { height: 42px; }
+        .qty-btn { width: 40px; height: 100%; }
+        .qty-input { font-size: 16px; }
+
+        /* Блок ИТОГО компактнее */
+        #txtTotal { font-size: 26px !important; }
+        .btn { padding: 14px; margin-top: 15px; font-size: 15px; }
+
+        /* Таблица компактнее */
+        .table-header { padding: 12px 15px; }
+        th, td { padding: 10px 12px; font-size: 12px; }
+
+        /* Графики в одну колонку */
+        .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .charts-grid { grid-template-columns: 1fr; gap: 12px; }
+        .kpi-card { padding: 15px; }
+        .kpi-val { font-size: 22px; }
+
+        /* --- НИЖНЕЕ МЕНЮ: РАЗДЕЛЬНЫЕ КНОПКИ --- */
         .nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             margin: 0;
-            border-radius: 0;
-            background: rgba(255, 255, 255, 0.90); /* Сильное размытие */
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid var(--border);
-            border-left: none; border-right: none; border-bottom: none;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            border: none;
+            background: transparent; /* Фона всей панели НЕТ */
+            box-shadow: none;
             z-index: 1000;
-            justify-content: space-around;
-            padding: 8px 10px;
-            padding-bottom: env(safe-area-inset-bottom, 20px); /* Учет челки/полоски iPhone */
+            justify-content: center;
+            gap: 12px; /* Расстояние между кнопками */
+            padding: 10px 15px;
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            pointer-events: none; /* Пропускаем клики сквозь пустое место */
         }
         
-        [data-theme="dark"] .nav {
-            background: rgba(30, 41, 59, 0.90);
-        }
-
         .nav-btn {
-            border-radius: 12px;
-            font-size: 10px; /* Текст мельче */
-            padding: 6px 4px;
+            pointer-events: auto; /* Кнопки кликабельны */
+            flex: 1;
+            max-width: 100px; /* Ограничиваем ширину чтобы не были огромными */
+            border-radius: 16px; /* Более круглые */
+            font-size: 9px; /* Текст мельче */
+            padding: 8px 4px;
             display: flex;
-            flex-direction: column; /* Иконка сверху, текст снизу */
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: transparent;
-            box-shadow: none;
+            
+            /* Эффект матового стекла на каждой кнопке */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); /* Легкая тень */
             color: var(--text-sub);
             gap: 4px;
+            transition: transform 0.1s;
         }
         
-        .nav-btn svg { width: 24px; height: 24px; opacity: 0.5; transition: 0.2s; }
+        .nav-btn:active { transform: scale(0.95); }
+
+        [data-theme="dark"] .nav-btn {
+            background: rgba(30, 41, 59, 0.85);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        
+        .nav-btn svg { width: 22px; height: 22px; opacity: 0.5; transition: 0.2s; }
         
         .nav-btn.active {
             color: var(--accent);
-            background: transparent; /* Убираем фон кнопки, оставляем цвет текста */
-            box-shadow: none;
+            background: rgba(255, 255, 255, 0.95); /* Активная ярче */
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.25); /* Цветная тень активной */
+        }
+        [data-theme="dark"] .nav-btn.active {
+            background: rgba(40, 50, 70, 0.95);
         }
         
         .nav-btn.active svg { opacity: 1; transform: scale(1.1); fill: var(--accent); }
@@ -341,15 +369,15 @@
     <div class="nav">
         <button class="nav-btn active" onclick="switchTab('income')">
             <svg viewBox="0 0 24 24"><path d="M21 18V19C21 20.1 20.1 21 19 21H5C3.89 21 3 20.1 3 19V5C3 3.9 3.89 3 5 3H19C20.1 3 21 3.9 21 5V6H12C10.89 6 10 6.9 10 8V16C10 17.1 10.89 18 12 18H21ZM12 16H22V8H12V16ZM16 13.5C15.17 13.5 14.5 12.83 14.5 12C14.5 11.17 15.17 10.5 16 10.5C16.83 10.5 17.5 11.17 17.5 12C17.5 12.83 16.83 13.5 16 13.5Z"/></svg>
-            Мастер Классы
+            МК
         </button>
         <button class="nav-btn" onclick="switchTab('expense')">
-            <svg viewBox="0 0 24 24"><path d="M7 18C7 19.1 7.9 20 9 20H15C16.1 20 17 19.1 17 18V6H7V18ZM19 3H15.5L14.5 2H9.5L8.5 3H5V5H19V3Z"/></svg>
-            Расходники
+            <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            Расход
         </button>
         <button class="nav-btn" onclick="switchTab('analytics')">
             <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg>
-            Аналитика
+            Инфо
         </button>
     </div>
 
@@ -363,7 +391,7 @@
                         <input type="text" id="inpName" placeholder="Поиск или новое..." autocomplete="off" oninput="showSearch(event); calcTotal()">
                         <div class="search-res" id="searchRes"></div>
                     </div>
-                    <div style="display:flex; gap:15px; margin-bottom:25px;">
+                    <div style="display:flex; gap:15px; margin-bottom:15px;">
                         <div style="flex:1">
                            <label>Цена</label>
                            <div class="qty-wrapper">
@@ -381,8 +409,8 @@
                            </div>
                         </div>
                     </div>
-                    <div style="text-align:center; margin-top:auto; margin-bottom:15px; padding: 20px; background: var(--input-bg); border-radius: 16px; border: 1px solid var(--border);">
-                        <span style="font-size:12px; color:var(--text-sub); text-transform:uppercase; font-weight:700; display:block; margin-bottom:5px;">Итого к записи</span>
+                    <div style="text-align:center; margin-top:auto; margin-bottom:10px; padding: 15px; background: var(--input-bg); border-radius: 16px; border: 1px solid var(--border);">
+                        <span style="font-size:10px; color:var(--text-sub); text-transform:uppercase; font-weight:700; display:block; margin-bottom:5px;">Итого к записи</span>
                         <div id="txtTotal" style="font-size:32px; font-weight:800; color:var(--text-main)">0 ₽</div>
                     </div>
                     <button id="btnAdd" class="btn" onclick="submitEntry()">Добавить запись</button>
@@ -495,7 +523,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ ПОСЛЕ ДЕПЛОЯ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzjMu0NO_pR3BC0vgrQQ0vyZEXc9B7Yd4dQQ9WmRVDTKF7Pv9_ukN-zjqVU8fFmXmAP/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyMl1An2me6XiWHq6snWEwWXENHYdnno8g4TxjasL5ZdCBJDri7J_7q8-_nt4T4XkKi/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
