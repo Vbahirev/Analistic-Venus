@@ -256,54 +256,60 @@
         .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
         .charts-grid { grid-template-columns: 1fr; gap: 15px; }
 
-        /* --- ЖИДКОЕ МЕНЮ (LIQUID TAB BAR) --- */
+        /* --- ЖИДКОЕ МЕНЮ (ИСПРАВЛЕННАЯ ВЕРСИЯ) --- */
         .nav {
             position: fixed;
-            bottom: 20px; /* Висит над низом экрана */
+            bottom: 20px;
             left: 20px; right: 20px;
             margin: 0;
-            border-radius: 20px; /* Капсула */
+            border-radius: 20px;
             background: var(--bg-panel);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); /* Сильная тень */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             z-index: 1000;
-            justify-content: space-between;
+            /* Изменили display на grid для идеального разделения на 3 части */
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             padding: 5px;
             height: 60px;
             border: 1px solid var(--border);
+            /* Важно: relative для позиционирования индикатора */
+            position: fixed; 
         }
 
         /* Скользящая плашка */
         .nav-indicator {
             display: block;
             position: absolute;
-            top: 5px; left: 5px;
+            top: 5px; 
+            left: 5px; /* Начальная позиция */
             height: calc(100% - 10px);
-            width: 33.33%; /* Треть ширины */
+            /* Ширина рассчитывается динамически: (100% ширины меню - 10px паддинга) / 3 */
+            width: calc((100% - 10px) / 3); 
             background: var(--bg-app);
             border-radius: 16px;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Эффект пружины */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            z-index: 1;
+            z-index: 1; /* Индикатор внизу */
+            pointer-events: none; /* ПРОПУСКАЕМ КЛИКИ СКВОЗЬ ИНДИКАТОР */
         }
         
-        /* Цвета индикатора для темной темы */
         [data-theme="dark"] .nav-indicator { background: #334155; }
         
         .nav-btn {
-            background: transparent !important; /* Убираем фон кнопок */
+            background: transparent !important;
             box-shadow: none !important;
+            display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
             gap: 4px;
             font-size: 10px;
             color: var(--text-sub);
             transition: color 0.2s;
+            z-index: 2; /* КНОПКИ ВЫШЕ ИНДИКАТОРА */
+            width: 100%; /* Растягиваем на всю ячейку грида */
+            padding: 0; /* Убираем лишние отступы */
         }
-        
-        .nav-btn svg { width: 22px; height: 22px; margin-bottom: 2px; transition: transform 0.2s; }
-        
-        .nav-btn.active { color: var(--accent); }
-        .nav-btn.active svg { transform: translateY(-2px); fill: var(--accent); }
-      }
     </style>
 </head>
 <body data-theme="light">
@@ -488,7 +494,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ ПОСЛЕ ДЕПЛОЯ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbx3db0r-fMxW23uyrxZGtLSBB-iXS6znOUs3eioFdPVg-186Tk-uE00zZsWovNQYBRm/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxYK0Rs8syUZE9_nrowIshS2FzRHZZrkTloDu5h5xEtdF7CJ9QA-ameaRr7ccIPEWmn/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -569,13 +575,27 @@
 
         function switchTab(t, idx) {
             currTab = t;
-            // Анимация индикатора
+            
+            // Визуальное переключение кнопок
             const btns = document.querySelectorAll('.nav-btn');
             btns.forEach(b => b.classList.remove('active')); 
-            btns[idx || 0].classList.add('active'); // idx передается из html
             
+            // Если idx не передан (например, при загрузке), находим кнопку по onclick
+            if (typeof idx === 'undefined') {
+                if (t === 'income') idx = 0;
+                else if (t === 'expense') idx = 1;
+                else idx = 2;
+            }
+            
+            if(btns[idx]) btns[idx].classList.add('active');
+            
+            // Двигаем индикатор
             const ind = document.getElementById('navInd');
-            ind.style.transform = `translateX(${idx * 100}%)`;
+            if(ind) {
+                // Используем проценты, так как ширина индикатора теперь calc((100% - 10px) / 3)
+                // Сдвигаем на 100% ширины индикатора * индекс
+                ind.style.transform = `translateX(${idx * 100}%)`;
+            }
 
             document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
             if(t === 'analytics') {
