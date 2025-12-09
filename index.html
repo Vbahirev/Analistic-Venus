@@ -52,6 +52,20 @@
       /* Убираем синюю подсветку при клике на мобилках */
       * { -webkit-tap-highlight-color: transparent; }
       
+      /* --- НАСТРОЙКИ АНИМАЦИИ ТЕМЫ --- */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+          animation: none;
+          mix-blend-mode: normal;
+          position: absolute;
+          width: 100%; height: 100%;
+          top: 0; left: 0;
+      }
+      /* Старая тема лежит снизу и ждет пока ее перекроют */
+      ::view-transition-old(root) { z-index: 1; }
+      /* Новая тема лежит сверху и раскрывается через clip-path */
+      ::view-transition-new(root) { z-index: 9999; }
+      
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: transparent; }
       ::-webkit-scrollbar-thumb { background-color: var(--scroll-thumb); border-radius: 10px; }
@@ -65,12 +79,11 @@
           box-sizing: border-box; 
           overflow: hidden; 
           display:flex; flex-direction:column;
-          transition: background 0.3s; 
+          transition: background 0.3s; /* Плавный цвет фона */
           -webkit-font-smoothing: antialiased;
           font-weight: 500;
       }
       
-      /* --- HEADER --- */
       .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
       .brand-box { display: flex; align-items: center; gap: 12px; }
       .title { margin: 0; font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
@@ -80,7 +93,6 @@
       .venus-icon.spinning { animation: spinInfinite 1.5s linear infinite; }
       @keyframes spinInfinite { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-
       /* --- NAV (Desktop) --- */
       .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; }
       .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; gap:8px;}
@@ -89,8 +101,7 @@
       [data-theme="dark"] .nav-btn.active { background: #334155; box-shadow: none; }
       .nav-btn svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; }
       .nav-btn.active svg { opacity: 1; color: var(--accent); fill: var(--accent); }
-      .nav-indicator { display: none; } /* Скрыт на ПК */
-
+      .nav-indicator { display: none; }
 
       /* --- CONTENT --- */
       .content-area { flex: 1; position: relative; overflow: hidden; border-radius: var(--radius); display: flex; }
@@ -116,7 +127,6 @@
           font-weight: 600; font-family: 'Inter', sans-serif;
       }
       
-      /* --- Custom Select Styles --- */
       .custom-select-wrapper { position: relative; width: 100%; cursor: pointer; }
       .custom-select-trigger { display: flex; justify-content: space-between; align-items: center; }
       .custom-select-trigger::after { content: '▼'; font-size: 10px; color: var(--text-sub); margin-left: 10px; }
@@ -138,14 +148,34 @@
 
       .grid-wrapper { flex: 1; overflow-y: auto; padding: 0 10px; }
       table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-      th { position: sticky; top: 0; background: var(--bg-panel); color: var(--text-sub); font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px 20px; font-weight: 700; z-index: 10; }
-      td { padding: 16px 20px; background: var(--input-bg); border: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; font-weight: 500; }
+      
+      /* --- ТАБЛИЦА (Optimized for Mobile) --- */
+      th { position: sticky; top: 0; background: var(--bg-panel); color: var(--text-sub); font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px 15px; font-weight: 700; z-index: 10; }
+      
+      td { 
+          padding: 18px 15px; /* Строки выше */
+          background: var(--input-bg); border: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; font-weight: 500; 
+      }
+      
       tr td:first-child { border-top-left-radius: 14px; border-bottom-left-radius: 14px; border-right: none; }
       tr td:last-child { border-top-right-radius: 14px; border-bottom-right-radius: 14px; text-align: right; border-left: none; }
       tr td:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
-      th:nth-child(1) { width: 90px; } th:nth-child(2) { width: auto; } th:nth-child(3) { width: 100px; text-align: right; } th:nth-child(4) { width: 220px; text-align: right; }
+      
+      /* Колонки */
+      th:nth-child(1) { width: 65px; } /* Дата уже */
+      th:nth-child(2) { width: auto; } /* Имя тянется */
+      th:nth-child(3) { width: 80px; text-align: right; } /* Сумма */
+      th:nth-child(4) { width: 85px; text-align: right; } /* Действия */
 
-      .btn-table { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-strong); background: transparent; color: var(--text-sub); margin-left: 6px; display: inline-block; transition: 0.2s; }
+      /* Кнопки действий (Иконки вместо текста) */
+      .btn-table { 
+          padding: 10px; /* Большой хитбокс */
+          border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; 
+          border: 1px solid var(--border-strong); background: transparent; color: var(--text-sub); 
+          margin-left: 4px; display: inline-flex; align-items: center; justify-content: center;
+          width: 34px; height: 34px; /* Квадратные */
+          transition: 0.2s;
+      }
       .btn-edit:hover { border-color: var(--accent); background-color: var(--accent); color: white; }
       .btn-del:hover { border-color: var(--danger); background-color: var(--danger); color: white; }
 
@@ -177,11 +207,8 @@
       .res-item { padding: 14px 20px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--text-main); font-weight: 600; }
       .res-item:hover { background: var(--hover-bg); color: var(--accent); }
 
-      /* --- МОДАЛКИ (Включая кастомный селект) --- */
       .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
       .modal-box { background: var(--bg-panel); padding: 25px; border-radius: 20px; width: 340px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.3); transform: scale(0.95); animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-      
-      /* Sheet Modal для селекта */
       .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
       .sheet-box { width: 100%; background: var(--bg-panel); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; max-height: 60vh; overflow-y: auto; }
       .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
@@ -200,86 +227,39 @@
       .toast.success { background: var(--success); }
       .toast.error { background: var(--danger); }
       
-      /* --- МОБИЛЬНАЯ ВЕРСИЯ (ФИНАЛ) --- */
       @media (max-width: 768px) {
         body { padding: 0; overflow: hidden; }
-
         .header { padding: 5px 15px 0 15px; margin-bottom: 5px; height: 40px; }
         .venus-icon { width: 32px; height: 32px; }
         .title { font-size: 18px; }
-
-        .content-area { 
-            overflow-y: auto; overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            display: block; 
-            padding: 0 5px 120px 5px; /* Большой отступ снизу */
-            height: 100%;
-        }
-
+        .content-area { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; display: block; padding: 0 5px 120px 5px; height: 100%; }
         .tab-page { height: auto; overflow: visible; }
         .split-view { flex-direction: column; gap: 15px; height: auto; }
         .panel { border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .panel-left, .panel-right { width: 100%; height: auto; overflow: visible; flex-shrink: 0; padding: 20px; box-sizing: border-box; }
         .panel-right { min-height: auto; }
-
         h3 { font-size: 15px; margin-bottom: 10px; }
         label { margin-bottom: 4px; font-size: 11px; }
-        
         input, select, .custom-select-trigger { padding: 10px; font-size: 13px; height: 40px; }
         .qty-wrapper { height: 36px; }
         .qty-btn { width: 36px; height: 100%; font-size: 16px; }
         .qty-input { font-size: 15px; }
-
         #txtTotal { font-size: 20px !important; margin-top: 0; }
         .btn { padding: 12px; margin-top: 10px; font-size: 14px; }
         .search-wrap { margin-bottom: 10px; }
+        
         .table-header { padding: 15px 20px; }
-        th, td { padding: 12px 10px; font-size: 12px; }
-        .btn-table { margin-left: 2px; padding: 6px 8px; font-size: 10px; }
-
+        /* Мобильные отступы таблицы */
+        th { padding: 12px 8px; font-size: 10px; }
+        td { padding: 14px 8px; font-size: 12px; }
+        
         .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
         .charts-grid { grid-template-columns: 1fr; gap: 15px; }
 
-        /* --- ЖИДКОЕ МЕНЮ (ГРИД) --- */
-        .nav {
-            position: fixed;
-            bottom: 20px; left: 20px; right: 20px;
-            margin: 0; border-radius: 20px;
-            background: var(--bg-panel);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            z-index: 1000;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            padding: 5px; height: 60px;
-            border: 1px solid var(--border);
-        }
-
-        /* Индикатор под кнопками */
-        .nav-indicator {
-            display: block; position: absolute;
-            top: 5px; left: 5px;
-            height: calc(100% - 10px);
-            width: calc((100% - 10px) / 3);
-            background: var(--bg-app);
-            border-radius: 16px;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            z-index: 1; 
-            pointer-events: none; /* Пропускаем клик сквозь индикатор */
-        }
-        
+        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 20px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 5px; height: 60px; border: 1px solid var(--border); }
+        .nav-indicator { display: block; position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc((100% - 10px) / 3); background: var(--bg-app); border-radius: 16px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1; pointer-events: none; }
         [data-theme="dark"] .nav-indicator { background: #334155; }
-        
-        .nav-btn {
-            background: transparent !important;
-            box-shadow: none !important;
-            flex-direction: column; gap: 4px;
-            font-size: 10px; color: var(--text-sub);
-            transition: color 0.2s;
-            z-index: 10; /* Кнопки выше индикатора */
-            width: 100%;
-        }
-        
+        .nav-btn { background: transparent !important; box-shadow: none !important; flex-direction: column; gap: 4px; font-size: 10px; color: var(--text-sub); transition: color 0.2s; z-index: 10; width: 100%; }
         .nav-btn svg { width: 22px; height: 22px; margin-bottom: 2px; transition: transform 0.2s; }
         .nav-btn.active { color: var(--accent); }
         .nav-btn.active svg { transform: translateY(-2px); fill: var(--accent); }
@@ -453,7 +433,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ ПОСЛЕ ДЕПЛОЯ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyxf7vaHSHh9clOSH_jMeWckVEKmVC_TI6ztDYzEWHIrQgyCKYuvcLJJ7DGJIg7cZKv/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwlpDVCjyO-s6OZ8ap9EeMC1PaAtPswDewmlEiOXf5Qu4GX0tQ2V7IYZYkyFBiIOrws/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -461,9 +441,8 @@
         
         let stopAnimationRequest = false, activeRequests = 0, deleteTargetId = null, isAnalyticsLoaded = false, analyticsNeedsRefresh = true; 
         
-        // State for analytics filters
         let selYear = new Date().getFullYear();
-        let selMonth = new Date().getMonth(); // 0-11, or 'all'
+        let selMonth = new Date().getMonth();
         let availableYears = [];
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
@@ -503,10 +482,7 @@
             runBackend('getInitialConfig').then(res => {
                 config = res;
                 availableYears = res.years;
-                
-                // Init Filters
                 updateFilterUI();
-
                 refreshTable(true);
                 loadAnalytics(true);
                 setLoading(false);
@@ -528,21 +504,47 @@
         function toggleTheme(event) {
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
+            
             if (!document.startViewTransition) { setTheme(newTheme); return; }
-            const rect = event.currentTarget.getBoundingClientRect();
-            const x = rect.left + rect.width / 2, y = rect.top + rect.height / 2;
+
+            // Координаты для анимации
+            let x, y;
+            if (!isDark) {
+                // Светлая -> Темная: Из планеты
+                const rect = event.currentTarget.getBoundingClientRect();
+                x = rect.left + rect.width / 2;
+                y = rect.top + rect.height / 2;
+            } else {
+                // Темная -> Светлая: Снизу вверх (по центру)
+                x = window.innerWidth / 2;
+                y = window.innerHeight;
+            }
+
             const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-            const transition = document.startViewTransition(() => { setTheme(newTheme); });
+
+            const transition = document.startViewTransition(() => {
+                setTheme(newTheme);
+            });
+
             transition.ready.then(() => {
-                const dropShadowColor = newTheme === 'light' ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.5)';
-                document.documentElement.animate([{ clipPath: `circle(0px at ${x}px ${y}px)`, filter: `drop-shadow(0 0 0px ${dropShadowColor})` }, { clipPath: `circle(${endRadius}px at ${x}px ${y}px)`, filter: `drop-shadow(0 0 50px ${dropShadowColor})` }], { duration: 700, easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)', pseudoElement: '::view-transition-new(root)' });
+                // Анимируем ТОЛЬКО новую тему, которая перекрывает старую
+                document.documentElement.animate(
+                    [
+                        { clipPath: `circle(0px at ${x}px ${y}px)` },
+                        { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` }
+                    ],
+                    {
+                        duration: 700,
+                        easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
+                        pseudoElement: '::view-transition-new(root)'
+                    }
+                );
             });
         }
         function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
 
         function switchTab(t, idx) {
             currTab = t;
-            // Visual Toggle
             const btns = document.querySelectorAll('.nav-btn');
             btns.forEach(b => b.classList.remove('active')); 
             if(typeof idx === 'undefined') {
@@ -550,7 +552,6 @@
             }
             if(btns[idx]) btns[idx].classList.add('active');
             
-            // Move Indicator
             const ind = document.getElementById('navInd');
             if(ind) ind.style.transform = `translateX(${idx * 100}%)`;
 
@@ -574,7 +575,6 @@
             calcTotal();
         }
 
-        // --- Custom Sheet Logic ---
         function updateFilterUI() {
             document.getElementById('txtYear').innerText = selYear;
             document.getElementById('txtMonth').innerText = (selMonth === 'all') ? 'Весь год' : monthNames[selMonth];
@@ -624,7 +624,18 @@
              let html = '';
              data.forEach(row => {
                  const rowJson = JSON.stringify(row).replace(/"/g, '&quot;');
-                 html += `<tr id="row-${row.rowId}"><td style="color:var(--text-sub);">${row.dateStr}</td><td style="font-weight:600;">${row.name}</td><td style="font-weight:700;">${row.total.toLocaleString()}</td><td class="action-cell"><button class="btn-table btn-edit" onclick="openEdit(${rowJson})">Ред.</button><button class="btn-table btn-del" onclick="openDelete(${rowJson})">Уд.</button></td></tr>`;
+                 // Форматирование даты: 07.12.2025 -> 07.12.25
+                 const shortDate = row.dateStr.length >= 10 ? row.dateStr.slice(0, 6) + row.dateStr.slice(8) : row.dateStr;
+                 
+                 html += `<tr id="row-${row.rowId}">
+                    <td style="color:var(--text-sub); white-space:nowrap;">${shortDate}</td>
+                    <td style="font-weight:600; line-height:1.2;">${row.name}</td>
+                    <td style="font-weight:700;">${row.total.toLocaleString()}</td>
+                    <td class="action-cell">
+                        <button class="btn-table btn-edit" onclick="openEdit(${rowJson})">✎</button>
+                        <button class="btn-table btn-del" onclick="openDelete(${rowJson})">✕</button>
+                    </td>
+                 </tr>`;
              });
              tbody.innerHTML = html;
         }
@@ -653,7 +664,10 @@
             const tbody = document.getElementById('tableBody');
             document.getElementById('emptyMsg').style.display = 'none';
             const tempId = 'temp-' + Date.now();
-            tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${new Date().toLocaleDateString('ru-RU')}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">...</span></td></tr>`);
+            
+            const shortDate = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'2-digit'});
+            
+            tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${shortDate}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">...</span></td></tr>`);
             document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
             const btn = document.getElementById('btnAdd'); btn.disabled = true; setLoading(true);
             runBackend('saveTransaction', payload).then(res => {
