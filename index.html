@@ -49,11 +49,6 @@
       
       * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
       
-      /* Анимация смены темы */
-      ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
-      ::view-transition-new(root) { z-index: 9999; }
-      ::view-transition-old(root) { z-index: 1; }
-      
       body { 
           margin: 0; padding: 20px; 
           font-family: 'Inter', sans-serif; 
@@ -62,11 +57,11 @@
           overflow: hidden; 
           display:flex; flex-direction:column;
           -webkit-font-smoothing: antialiased; font-weight: 500;
-          user-select: none; /* Защита от выделения при свайпах */
+          user-select: none;
       }
       
-      /* Header & Icon */
-      .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+      /* --- HEADER --- */
+      .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; position: relative; z-index: 10; }
       .brand-box { display: flex; align-items: center; gap: 12px; }
       .title { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
       .venus-icon { width: 42px; height: 42px; cursor: pointer; transition: transform 0.5s ease; position: relative; z-index: 5; }
@@ -74,21 +69,33 @@
       .venus-icon.spinning { animation: spinInfinite 1.5s linear infinite; }
       @keyframes spinInfinite { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-      /* NAVIGATION */
-      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; }
-      .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; gap:8px;}
-      .nav-btn.active { color: var(--text-main); background: var(--bg-app); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-      [data-theme="dark"] .nav-btn.active { background: #334155; box-shadow: none; }
-      .nav-btn svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; }
-      .nav-btn.active svg { opacity: 1; color: var(--accent); fill: var(--accent); }
-      .nav-indicator { display: none; }
-
-      /* LAYOUT */
-      .content-area { flex: 1; position: relative; overflow: hidden; border-radius: var(--radius); display: flex; }
-      .tab-page { display: none; width: 100%; height: 100%; overflow-y: auto; padding-bottom: 80px; } /* padding for mobile nav */
-      .tab-page.active { display: block; animation: fadeIn 0.3s ease-out; }
+      /* --- PAGE SLIDER CONTAINER --- */
+      .viewport {
+          flex: 1;
+          position: relative;
+          overflow: hidden;
+          width: 100%;
+          border-radius: var(--radius);
+      }
       
-      .split-view { display: flex; height: 100%; gap: 20px; }
+      .pages-container {
+          display: flex;
+          width: 300%; /* 3 pages */
+          height: 100%;
+          transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+          will-change: transform;
+      }
+
+      .tab-page {
+          width: 33.333%;
+          height: 100%;
+          overflow-y: auto;
+          padding-bottom: 80px;
+          position: relative;
+      }
+
+      /* --- PANELS --- */
+      .split-view { display: flex; height: 100%; gap: 20px; padding: 0 5px; } 
       .panel { background: var(--bg-panel); border-radius: var(--radius); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); }
       .panel-left { width: 360px; padding: 30px; flex-shrink: 0; overflow-y: auto; }
       .panel-right { flex: 1; overflow: hidden; display: flex; flex-direction: column;}
@@ -96,26 +103,21 @@
       h3 { margin-top: 0; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
       label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; display: block; letter-spacing: 0.02em; }
       
-      /* Inputs */
-      input, select, .custom-select-trigger { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-strong); background-color: var(--input-bg); color: var(--text-main); font-size: 15px; box-sizing: border-box; outline:none; transition:0.2s; font-weight: 600; font-family: 'Inter', sans-serif; }
-      input:focus, .custom-select-trigger:active { border-color: var(--accent); background: var(--bg-panel); box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1); }
+      input, select, .custom-select-trigger { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-strong); background-color: var(--input-bg); color: var(--text-main); font-size: 15px; outline:none; transition:0.2s; font-weight: 600; font-family: 'Inter', sans-serif; }
+      input:focus { border-color: var(--accent); background: var(--bg-panel); box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1); }
       
-      /* Quantity Controls */
       .qty-wrapper { display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--border-strong); border-radius: 12px; overflow: hidden; padding: 2px; }
       .qty-btn { width: 44px; height: 44px; background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; border-radius: 10px; transition: 0.2s; font-weight: 600; }
-      .qty-btn:hover { background: rgba(0,0,0,0.05); }
       .qty-input { text-align: center; border: none; font-weight: 700; font-size: 18px; flex: 1; padding: 0; background: transparent; -moz-appearance: textfield; }
       .qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-      /* Buttons */
       .btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; font-size: 16px; transition: 0.2s; }
       .btn:active { transform: scale(0.98); opacity: 0.9; }
       
-      /* Shake Animation for Errors */
-      .shake { animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both; transform: translate3d(0, 0, 0); backface-visibility: hidden; perspective: 1000px; }
+      .shake { animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both; }
       @keyframes shakeAnim { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
-      /* RECENT RECORDS (CARDS) */
+      /* --- CARDS LIST --- */
       .list-container { flex: 1; overflow-y: auto; padding: 10px 20px 20px 20px; -webkit-overflow-scrolling: touch; }
       .record-card { 
           background: var(--input-bg); border: 1px solid var(--border); 
@@ -130,17 +132,9 @@
       .rc-bot { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-strong); padding-top: 8px; }
       .rc-sum { font-size: 16px; font-weight: 800; color: var(--text-main); }
       .rc-actions { display: flex; gap: 8px; }
+      .btn-mini { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-strong); background: transparent; color: var(--text-sub); display: flex; align-items: center; justify-content: center; cursor: pointer; }
       
-      .btn-mini { 
-          width: 32px; height: 32px; border-radius: 8px; 
-          border: 1px solid var(--border-strong); background: transparent; 
-          color: var(--text-sub); display: flex; align-items: center; justify-content: center; cursor: pointer;
-      }
-      .btn-edit:active { background: var(--accent); color: white; border-color: var(--accent); }
-      .btn-del:active { background: var(--danger); color: white; border-color: var(--danger); }
-      .btn-mini svg { width: 16px; height: 16px; fill: currentColor; }
-
-      /* Analytics */
+      /* --- ANALYTICS (VERTICAL STACK) --- */
       .analytics-container { padding: 0 10px 100px 10px; overflow-y: auto; height: 100%; box-sizing: border-box; }
       .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
       .kpi-card { background: var(--bg-panel); padding: 20px; border-radius: 20px; box-shadow: var(--shadow-card); border: 1px solid var(--border); }
@@ -149,42 +143,72 @@
       .kpi-trend { font-size: 12px; font-weight: 700; margin-top: 4px; display: inline-block; padding: 2px 8px; border-radius: 12px; }
       .trend-up { background: rgba(52, 199, 89, 0.15); color: var(--color-inc); }
       .trend-down { background: rgba(255, 59, 48, 0.15); color: var(--color-exp); }
-      
-      /* Carousel for Charts */
-      .carousel-wrap { overflow-x: auto; display: flex; gap: 15px; padding-bottom: 10px; margin-bottom: 20px; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+
+      /* Vertical Charts (No Carousel) */
+      .charts-stack { display: flex; flex-direction: column; gap: 20px; }
       .chart-box { 
-          min-width: 85%; scroll-snap-align: center;
+          width: 100%; min-height: 280px; 
           background: var(--bg-panel); border-radius: 24px; padding: 20px; 
           box-shadow: var(--shadow-card); border: 1px solid var(--border);
-          display: flex; flex-direction: column; height: 300px;
+          display: flex; flex-direction: column; 
       }
       .chart-head { font-weight: 700; font-size: 16px; margin-bottom: 10px; }
-      .chart-canv { flex: 1; position: relative; }
+      .chart-canv { flex: 1; position: relative; min-height: 200px; }
 
-      /* Modals & Sheets */
+      /* --- NAV --- */
+      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; z-index: 10; }
+      .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; gap:8px;}
+      .nav-btn.active { color: var(--text-main); background: var(--bg-app); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+      [data-theme="dark"] .nav-btn.active { background: #334155; box-shadow: none; }
+      .nav-btn svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; }
+      .nav-btn.active svg { opacity: 1; color: var(--accent); fill: var(--accent); }
+      .nav-indicator { display: none; }
+
+      /* --- WHEEL PICKER (IOS DRUM) --- */
+      .picker-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+      .picker-box {
+          width: 300px; background: var(--bg-panel); border-radius: 24px; padding: 25px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          display: flex; flex-direction: column; align-items: center;
+      }
+      .picker-title { font-weight: 800; margin-bottom: 20px; color: var(--text-main); font-size: 18px; text-align: center; }
+      
+      .wheel-container {
+          width: 100%; height: 200px; position: relative; overflow: hidden;
+          mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+          -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+          touch-action: none; /* Control scroll manually */
+      }
+      /* The selection Lens */
+      .wheel-highlight {
+          position: absolute; top: 50%; left: 0; width: 100%; height: 44px; transform: translateY(-50%);
+          border-top: 1px solid var(--accent); border-bottom: 1px solid var(--accent);
+          background: rgba(var(--accent), 0.05); pointer-events: none; z-index: 0;
+          border-radius: 8px;
+      }
+      .wheel-scroller {
+          list-style: none; padding: 0; margin: 0;
+          transform-style: preserve-3d;
+      }
+      .wheel-item {
+          height: 44px; display: flex; align-items: center; justify-content: center;
+          font-size: 17px; font-weight: 500; color: var(--text-sub);
+          transition: transform 0.1s, opacity 0.1s, color 0.1s;
+          cursor: pointer;
+      }
+      .wheel-item.active {
+          color: var(--text-main); font-weight: 800; transform: scale(1.15); opacity: 1;
+      }
+      
+      /* Modals */
       .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
       .modal-box { background: var(--bg-panel); padding: 25px; border-radius: 24px; width: 320px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.3); transform: scale(0.95); animation: popIn 0.2s forwards; }
-
-      /* Centered Scrollable Sheet (Dropdown replacement) */
-      .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-      .sheet-box { 
-          width: 300px; max-height: 60vh; display: flex; flex-direction: column;
-          background: var(--bg-panel); border-radius: 24px; padding: 20px; 
-          box-shadow: 0 10px 40px rgba(0,0,0,0.4); animation: popIn 0.2s forwards;
-      }
-      .sheet-list { overflow-y: auto; flex: 1; margin-top: 10px; padding-right: 5px; }
-      .sheet-item { padding: 14px; border-bottom: 1px solid var(--border); font-size: 16px; font-weight: 500; text-align: center; cursor: pointer; border-radius: 12px; }
-      .sheet-item:active { background: var(--input-bg); }
-      .sheet-item.selected { color: var(--accent); font-weight: 700; background: rgba(0, 122, 255, 0.1); }
       
-      /* Search Results */
       .search-wrap { position: relative; margin-bottom: 15px; }
       .search-res { position: absolute; top: 100%; left: 0; width: 100%; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 14px; z-index: 100; max-height: 200px; overflow-y: auto; display: none; margin-top: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
       .res-item { padding: 14px 20px; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 600; }
-      
+
       @keyframes popIn { to { transform: scale(1); } }
-      @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-      
       .loader { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.01); z-index:50; display:none; }
       .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 12px; opacity: 0; transition: 0.3s; z-index: 3000; font-size: 14px; font-weight: 600; box-shadow: 0 10px 20px rgba(0,0,0,0.2); pointer-events: none; }
       .toast.show { opacity: 1; transform: translate(-50%, -10px); }
@@ -194,13 +218,11 @@
       @media (max-width: 768px) {
         body { padding: 0; }
         .header { padding: 10px 20px 0 20px; margin-bottom: 10px; }
-        .content-area { display: block; height: 100%; }
         .split-view { flex-direction: column; gap: 15px; }
         .panel { border-radius: 24px; border: none; box-shadow: none; background: transparent; }
         .panel-left { width: 100%; padding: 0 20px; overflow: visible; }
-        .panel-right { min-height: 300px; padding: 0 5px; } /* padding for cards shadows */
-        
-        .list-container { padding: 0 20px 100px 20px; overflow: visible; } /* visible for sticky header effect if needed */
+        .panel-right { min-height: 300px; padding: 0 5px; }
+        .list-container { padding: 0 20px 100px 20px; overflow: visible; }
         
         /* Fixed Bottom Nav */
         .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 24px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 5px; height: 65px; border: 1px solid var(--border); }
@@ -210,13 +232,6 @@
         .nav-btn svg { width: 22px; height: 22px; margin-bottom: 2px; transition: transform 0.2s; }
         .nav-btn.active { color: var(--accent); }
         .nav-btn.active svg { transform: translateY(-2px); fill: var(--accent); }
-      }
-      
-      /* Landscape Fixes */
-      @media (max-height: 500px) and (orientation: landscape) {
-         .header { display: none; }
-         .nav { bottom: 10px; left: 50%; transform: translateX(-50%); width: 300px; }
-         .panel-left { padding-bottom: 80px; }
       }
     </style>
 </head>
@@ -245,80 +260,85 @@
         </div>
     </div>
 
-    <div class="content-area" id="mainTouchArea">
-        
-        <div id="splitTab" class="tab-page active">
-            <div class="split-view">
-                <div class="panel panel-left">
-                    <h3 id="formTitle">Добавить запись</h3>
-                    <div class="search-wrap">
-                        <label id="lblSearch">Название</label>
-                        <input type="text" id="inpName" placeholder="Поиск или новое..." autocomplete="off" oninput="showSearch(event); calcTotal()">
-                        <div class="search-res" id="searchRes"></div>
-                    </div>
-                    <div style="display:flex; gap:10px; margin-bottom:10px;">
-                        <div style="flex:1">
-                           <label>Цена</label>
-                           <div class="qty-wrapper">
-                               <button class="qty-btn" onclick="modVal('inpPrice', -100)">−</button>
-                               <input type="number" id="inpPrice" class="qty-input" placeholder="0" oninput="calcTotal()">
-                               <button class="qty-btn" onclick="modVal('inpPrice', 100)">+</button>
-                           </div>
+    <div class="viewport" id="mainTouchArea">
+        <div class="pages-container" id="pagesContainer">
+            
+            <div class="tab-page" id="page-income">
+                <div class="split-view">
+                    <div class="panel panel-left">
+                        <h3>Добавить Доход</h3>
+                        <div class="search-wrap">
+                            <label>Название МК</label>
+                            <input type="text" id="inpNameInc" placeholder="Поиск или новое..." autocomplete="off" oninput="handleSearch(event, 'income')">
+                            <div class="search-res" id="resInc"></div>
                         </div>
-                        <div style="flex:1">
-                           <label>Кол-во</label>
-                           <div class="qty-wrapper">
-                               <button class="qty-btn" onclick="modVal('inpQty', -1)">−</button>
-                               <input type="number" id="inpQty" class="qty-input" value="1" oninput="calcTotal()">
-                               <button class="qty-btn" onclick="modVal('inpQty', 1)">+</button>
-                           </div>
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <div style="flex:1"><label>Цена</label><div class="qty-wrapper"><button class="qty-btn" onclick="modVal('priceInc',-100)">−</button><input type="number" id="priceInc" class="qty-input" placeholder="0" oninput="calcTotal('income')"><button class="qty-btn" onclick="modVal('priceInc',100)">+</button></div></div>
+                            <div style="flex:1"><label>Кол-во</label><div class="qty-wrapper"><button class="qty-btn" onclick="modVal('qtyInc',-1)">−</button><input type="number" id="qtyInc" class="qty-input" value="1" oninput="calcTotal('income')"><button class="qty-btn" onclick="modVal('qtyInc',1)">+</button></div></div>
                         </div>
+                        <div style="text-align:center; margin-top:20px; padding:15px; background:var(--bg-panel); border-radius:20px; border:1px solid var(--border); box-shadow:var(--shadow-card);">
+                            <span style="font-size:10px; color:var(--text-sub); text-transform:uppercase; font-weight:700;">Итого</span>
+                            <div id="totalInc" style="font-size:28px; font-weight:800; color:var(--text-main)">0 ₽</div>
+                        </div>
+                        <button id="btnAddInc" class="btn" onclick="submitEntry('income')">Добавить запись</button>
                     </div>
-                    
-                    <div style="text-align:center; margin-top:20px; margin-bottom:5px; padding: 15px; background: var(--bg-panel); border-radius: 20px; border: 1px solid var(--border); box-shadow: var(--shadow-card);">
-                        <span style="font-size:10px; color:var(--text-sub); text-transform:uppercase; font-weight:700; display:block; margin-bottom:4px;">Итого к записи</span>
-                        <div id="txtTotal" style="font-size:28px; font-weight:800; color:var(--text-main)">0 ₽</div>
-                    </div>
-                    <button id="btnAdd" class="btn" onclick="submitEntry()">Добавить запись</button>
-                </div>
-
-                <div class="panel panel-right">
-                    <div style="padding: 20px 20px 10px 20px; display:flex; justify-content:space-between; align-items:center;">
-                         <h3 id="tableTitle" style="margin:0">Последние</h3>
-                         <button style="background:none; border:none; color:var(--accent); font-weight:600; font-size:13px;" onclick="refreshTable(true)">Обновить</button>
-                    </div>
-                    
-                    <div class="list-container" id="cardListContainer">
-                        <div id="cardListBody"></div>
-                        <div id="emptyMsg" style="padding:40px; text-align:center; color:var(--text-sub);">Загрузка...</div>
+                    <div class="panel panel-right">
+                        <div style="padding:20px 20px 10px 20px; display:flex; justify-content:space-between;"><h3 style="margin:0">Последние</h3><button style="background:none; border:none; color:var(--accent); font-weight:600;" onclick="refreshTable('income', true)">Обновить</button></div>
+                        <div class="list-container" id="listIncome"></div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div id="analyticsTab" class="tab-page">
-            <div class="analytics-container">
-                <div style="display:flex; gap:10px; margin-bottom:20px;">
-                    <div class="custom-select-wrapper" style="flex:1" onclick="openSheet('year')">
-                        <div class="custom-select-trigger"><span id="txtYear">Год</span></div>
+            <div class="tab-page" id="page-expense">
+                 <div class="split-view">
+                    <div class="panel panel-left">
+                        <h3>Добавить Расход</h3>
+                        <div class="search-wrap">
+                            <label>Материал</label>
+                            <input type="text" id="inpNameExp" placeholder="Название..." autocomplete="off" oninput="handleSearch(event, 'expense')">
+                            <div class="search-res" id="resExp"></div>
+                        </div>
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <div style="flex:1"><label>Цена</label><div class="qty-wrapper"><button class="qty-btn" onclick="modVal('priceExp',-100)">−</button><input type="number" id="priceExp" class="qty-input" placeholder="0" oninput="calcTotal('expense')"><button class="qty-btn" onclick="modVal('priceExp',100)">+</button></div></div>
+                            <div style="flex:1"><label>Кол-во</label><div class="qty-wrapper"><button class="qty-btn" onclick="modVal('qtyExp',-1)">−</button><input type="number" id="qtyExp" class="qty-input" value="1" oninput="calcTotal('expense')"><button class="qty-btn" onclick="modVal('qtyExp',1)">+</button></div></div>
+                        </div>
+                         <div style="text-align:center; margin-top:20px; padding:15px; background:var(--bg-panel); border-radius:20px; border:1px solid var(--border); box-shadow:var(--shadow-card);">
+                            <span style="font-size:10px; color:var(--text-sub); text-transform:uppercase; font-weight:700;">Итого</span>
+                            <div id="totalExp" style="font-size:28px; font-weight:800; color:var(--text-main)">0 ₽</div>
+                        </div>
+                        <button id="btnAddExp" class="btn" onclick="submitEntry('expense')">Добавить запись</button>
                     </div>
-                    <div class="custom-select-wrapper" style="flex:1" onclick="openSheet('month')">
-                        <div class="custom-select-trigger"><span id="txtMonth">Месяц</span></div>
+                    <div class="panel panel-right">
+                        <div style="padding:20px 20px 10px 20px; display:flex; justify-content:space-between;"><h3 style="margin:0">Последние</h3><button style="background:none; border:none; color:var(--accent); font-weight:600;" onclick="refreshTable('expense', true)">Обновить</button></div>
+                        <div class="list-container" id="listExpense"></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="kpi-grid">
-                    <div class="kpi-card"><div class="kpi-title">ВЫРУЧКА</div><div class="kpi-val" style="color:var(--color-inc)" id="kpiInc">0</div><div id="trendInc"></div></div>
-                    <div class="kpi-card"><div class="kpi-title">РАСХОДЫ</div><div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div><div id="trendExp"></div></div>
-                    <div class="kpi-card"><div class="kpi-title">ПРИБЫЛЬ</div><div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div><div id="trendProf"></div></div>
-                    <div class="kpi-card"><div class="kpi-title">ПОСЕТИТЕЛИ</div><div class="kpi-val" style="color:var(--color-vis)" id="kpiVis">0</div><div id="trendVis"></div></div>
-                </div>
+            <div class="tab-page" id="page-analytics">
+                <div class="analytics-container">
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <div class="custom-select-wrapper" style="flex:1" onclick="openPicker('year')">
+                            <div class="custom-select-trigger"><span id="txtYear">Год</span></div>
+                        </div>
+                        <div class="custom-select-wrapper" style="flex:1" onclick="openPicker('month')">
+                            <div class="custom-select-trigger"><span id="txtMonth">Месяц</span></div>
+                        </div>
+                    </div>
 
-                <div class="carousel-wrap">
-                    <div class="chart-box"><div class="chart-head">Финансовый Пульс</div><div class="chart-canv"><canvas id="chartPulse"></canvas></div></div>
-                    <div class="chart-box"><div class="chart-head">Посещаемость</div><div class="chart-canv"><canvas id="chartAttendance"></canvas></div></div>
-                    <div class="chart-box"><div class="chart-head">Топ Доходов</div><div id="listInc" class="prog-list" style="overflow-y:auto"></div></div>
-                    <div class="chart-box"><div class="chart-head">Топ Расходов</div><div id="listExp" class="prog-list" style="overflow-y:auto"></div></div>
+                    <div class="kpi-grid">
+                        <div class="kpi-card"><div class="kpi-title">ВЫРУЧКА</div><div class="kpi-val" style="color:var(--color-inc)" id="kpiInc">0</div><div id="trendInc"></div></div>
+                        <div class="kpi-card"><div class="kpi-title">РАСХОДЫ</div><div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div><div id="trendExp"></div></div>
+                        <div class="kpi-card"><div class="kpi-title">ПРИБЫЛЬ</div><div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div><div id="trendProf"></div></div>
+                        <div class="kpi-card"><div class="kpi-title">ПОСЕТИТЕЛИ</div><div class="kpi-val" style="color:var(--color-vis)" id="kpiVis">0</div><div id="trendVis"></div></div>
+                    </div>
+
+                    <div class="charts-stack">
+                        <div class="chart-box"><div class="chart-head">Финансовый Пульс</div><div class="chart-canv"><canvas id="chartPulse"></canvas></div></div>
+                        <div class="chart-box"><div class="chart-head">Посещаемость</div><div class="chart-canv"><canvas id="chartAttendance"></canvas></div></div>
+                        <div class="chart-box"><div class="chart-head">Топ Доходов</div><div id="listIncPie" class="prog-list" style="overflow-y:auto"></div></div>
+                        <div class="chart-box"><div class="chart-head">Топ Расходов</div><div id="listExpPie" class="prog-list" style="overflow-y:auto"></div></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -326,24 +346,35 @@
 
     <div class="nav">
         <div class="nav-indicator" id="navInd"></div>
-        <button class="nav-btn active" onclick="switchTab('income', 0)">
+        <button class="nav-btn active" onclick="goToPage(0)">
             <svg viewBox="0 0 24 24"><path d="M21 18V19C21 20.1 20.1 21 19 21H5C3.89 21 3 20.1 3 19V5C3 3.9 3.89 3 5 3H19C20.1 3 21 3.9 21 5V6H12C10.89 6 10 6.9 10 8V16C10 17.1 10.89 18 12 18H21ZM12 16H22V8H12V16ZM16 13.5C15.17 13.5 14.5 12.83 14.5 12C14.5 11.17 15.17 10.5 16 10.5C16.83 10.5 17.5 11.17 17.5 12C17.5 12.83 16.83 13.5 16 13.5Z"/></svg>
             Доходы
         </button>
-        <button class="nav-btn" onclick="switchTab('expense', 1)">
+        <button class="nav-btn" onclick="goToPage(1)">
             <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
             Расходы
         </button>
-        <button class="nav-btn" onclick="switchTab('analytics', 2)">
+        <button class="nav-btn" onclick="goToPage(2)">
             <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg>
             Инфо
         </button>
     </div>
 
+    <div id="pickerOverlay" class="picker-overlay" onclick="closePicker()">
+        <div class="picker-box" onclick="event.stopPropagation()">
+            <div class="picker-title" id="pickerTitle">Выберите</div>
+            <div class="wheel-container" id="wheelCont">
+                <div class="wheel-highlight"></div>
+                <div class="wheel-scroller" id="wheelScroller"></div>
+            </div>
+            <button class="btn" style="margin-top:20px; padding:12px;" onclick="confirmPicker()">Выбрать</button>
+        </div>
+    </div>
+
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-bottom:20px; color:var(--text-main)">Редактирование</h3>
-            <input type="hidden" id="editId">
+            <input type="hidden" id="editId"><input type="hidden" id="editType">
             <label>Название</label><input type="text" id="editName" style="margin-bottom:15px;">
             <div style="display:flex; gap:15px; margin-bottom:20px;">
                 <div style="flex:1"><label>Цена</label><input type="number" id="editPrice"></div>
@@ -367,129 +398,105 @@
         </div>
     </div>
 
-    <div id="sheetModal" class="sheet-overlay" onclick="closeSheet(event)">
-        <div class="sheet-box" id="sheetContent">
-             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="sheet-title" id="sheetTitle" style="font-weight:700">Выбор</span>
-                <span style="color:var(--accent); font-weight:600; cursor:pointer;" onclick="document.getElementById('sheetModal').style.display='none'">Готово</span>
-             </div>
-            <div id="sheetList" class="sheet-list"></div>
-        </div>
-    </div>
-
     <script>
-        // 👇 ВСТАВЬ СЮДА ССЫЛКУ ИЗ GOOGLE SCRIPT (DEPLOY) 👇
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwiF-nYhSAbxcEJjZXMnccxy2NaSwvT_d-vNDtBE9fQSEyhk5QCVfvYWNod6fn858F4/exec';
-        // 👆👆👆
-
+        // 👇 ВСТАВЬ ССЫЛКУ 👇
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzQn8akGrdj8mjrRSI5IcEoRvd-2J8xoAa56084M27RRQ-3vmQ8gJRKIHAz-1imVHty/exec';
+        
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
         const tg = window.Telegram.WebApp;
-        
-        let currTab = 'income', dataCache = { income: null, expense: null }, config = { incomeItems: [], expenseItems: [] }, charts = {};
-        let stopAnimationRequest = false, activeRequests = 0, deleteTargetId = null, isAnalyticsLoaded = false, analyticsNeedsRefresh = true;
+        let currPageIdx = 0;
+        let config = { incomeItems: [], expenseItems: [] };
+        let dataCache = { income: null, expense: null };
+        let charts = {};
         let selYear = new Date().getFullYear(), selMonth = new Date().getMonth();
         let availableYears = [];
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
-        // HAPTIC HELPER
-        function tgHaptic(type) {
+        // HAPTICS
+        function haptic(type) {
             if (!tg.HapticFeedback) return;
-            if (type === 'light') tg.HapticFeedback.impactOccurred('light');
-            else if (type === 'medium') tg.HapticFeedback.impactOccurred('medium');
-            else if (type === 'heavy') tg.HapticFeedback.impactOccurred('heavy');
-            else if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
-            else if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
-            else if (type === 'selection') tg.HapticFeedback.selectionChanged();
+            if(type==='light') tg.HapticFeedback.impactOccurred('light');
+            else if(type==='heavy') tg.HapticFeedback.impactOccurred('heavy');
+            else if(type==='err') tg.HapticFeedback.notificationOccurred('error');
+            else if(type==='success') tg.HapticFeedback.notificationOccurred('success');
+            else if(type==='sel') tg.HapticFeedback.selectionChanged();
         }
 
         // --- BACKEND ---
         async function runBackend(action, payload = {}) {
             if (IS_GOOGLE) {
                 return new Promise((resolve, reject) => {
-                    if(action === 'getInitialConfig') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getInitialConfig();
-                    else if(action === 'saveTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveTransaction(payload);
-                    else if(action === 'getTableData') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getTableData(payload.type);
-                    else if(action === 'editTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).editTransaction(payload);
-                    else if(action === 'deleteTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteTransaction(payload);
-                    else if(action === 'getAnalyticsData') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getAnalyticsData(payload.year, payload.monthIdx);
-                    else reject("Unknown Func");
+                    if(action === 'getInitialConfig') google.script.run.withSuccessHandler(resolve).getInitialConfig();
+                    else if(action === 'saveTransaction') google.script.run.withSuccessHandler(resolve).saveTransaction(payload);
+                    else if(action === 'getTableData') google.script.run.withSuccessHandler(resolve).getTableData(payload.type);
+                    else if(action === 'editTransaction') google.script.run.withSuccessHandler(resolve).editTransaction(payload);
+                    else if(action === 'deleteTransaction') google.script.run.withSuccessHandler(resolve).deleteTransaction(payload);
+                    else if(action === 'getAnalyticsData') google.script.run.withSuccessHandler(resolve).getAnalyticsData(payload.year, payload.monthIdx);
                 });
             } else {
-                if(GAS_URL.includes("ВАШ_")) { alert("ОШИБКА: Вставь ссылку в index.html!"); throw new Error("No URL"); }
                 payload.action = action;
-                try {
-                    const res = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
-                    const text = await res.text();
-                    try { return JSON.parse(text); } catch(e) { throw new Error("Server Error: " + text); }
-                } catch(e) { throw e; }
+                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+                return JSON.parse(await res.text());
             }
         }
 
-        // --- INIT ---
         window.onload = function() {
             if(tg) tg.expand();
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
             setLoading(true);
-            
             runBackend('getInitialConfig').then(res => {
                 config = res; availableYears = res.years;
-                updateFilterUI(); refreshTable(true); loadAnalytics(true); setLoading(false);
-            }).catch(e => { showToast("Error: " + e, true); setLoading(false); });
-
+                updateFilterUI(); refreshTable('income', true);
+                setLoading(false);
+            });
             const v = document.getElementById('venus');
-            v.addEventListener('animationiteration', () => { if (stopAnimationRequest) { v.classList.remove('spinning'); stopAnimationRequest = false; } });
-            calcTotal();
+            v.addEventListener('animationiteration', () => { if(stopAnim) { v.classList.remove('spinning'); stopAnim=false; } });
             setupSwipes();
         };
 
+        let stopAnim = false, reqs = 0;
         function setLoading(active) {
             const v = document.getElementById('venus');
-            if (active) { activeRequests++; stopAnimationRequest = false; v.classList.add('spinning'); } 
-            else { activeRequests--; if (activeRequests < 0) activeRequests = 0; if (activeRequests === 0) stopAnimationRequest = true; }
+            if (active) { reqs++; stopAnim=false; v.classList.add('spinning'); } 
+            else { reqs--; if(reqs<=0) { reqs=0; stopAnim=true; } }
         }
 
-        // --- SWIPE LOGIC ---
-        function setupSwipes() {
-            let touchstartX = 0;
-            let touchstartY = 0;
-            const zone = document.getElementById('mainTouchArea');
-
-            zone.addEventListener('touchstart', (e) => {
-                touchstartX = e.changedTouches[0].screenX;
-                touchstartY = e.changedTouches[0].screenY;
-            }, {passive: true});
-
-            zone.addEventListener('touchend', (e) => {
-                const touchendX = e.changedTouches[0].screenX;
-                const touchendY = e.changedTouches[0].screenY;
-                handleSwipe(touchstartX, touchstartY, touchendX, touchendY);
-            }, {passive: true});
-        }
-
-        function handleSwipe(tsX, tsY, teX, teY) {
-            const xDiff = teX - tsX;
-            const yDiff = teY - tsY;
+        // --- NAVIGATION & PAGE SLIDER ---
+        function goToPage(idx) {
+            if(idx === currPageIdx) return;
+            currPageIdx = idx;
+            const container = document.getElementById('pagesContainer');
+            container.style.transform = `translateX(-${idx * 33.333}%)`;
             
-            // Check if horizontal swipe dominant
-            if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 50) {
-                const tabs = ['income', 'expense', 'analytics'];
-                let idx = tabs.indexOf(currTab);
-                
-                if (xDiff < 0) { // Swipe Left (Next)
-                    idx = (idx + 1) % tabs.length;
-                    tgHaptic('selection');
-                } else { // Swipe Right (Prev)
-                    idx = (idx - 1 + tabs.length) % tabs.length;
-                    tgHaptic('selection');
-                }
-                switchTab(tabs[idx], idx);
-            }
+            // Nav Indicators
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            btns[idx].classList.add('active');
+            document.getElementById('navInd').style.transform = `translateX(${idx * 100}%)`;
+            
+            // Logic
+            if(idx === 1 && !dataCache.expense) refreshTable('expense');
+            if(idx === 2) loadAnalytics();
         }
 
-        // --- THEME & NAV ---
-        function toggleTheme(event) {
-            tgHaptic('light');
+        function setupSwipes() {
+            let startX = 0, startY = 0;
+            const zone = document.getElementById('mainTouchArea');
+            zone.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, {passive:true});
+            zone.addEventListener('touchend', e => {
+                const diffX = e.changedTouches[0].clientX - startX;
+                const diffY = e.changedTouches[0].clientY - startY;
+                // Threshold 80px, and horizontal dominant
+                if(Math.abs(diffX) > 80 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
+                    if(diffX < 0 && currPageIdx < 2) { goToPage(currPageIdx+1); haptic('heavy'); }
+                    if(diffX > 0 && currPageIdx > 0) { goToPage(currPageIdx-1); haptic('heavy'); }
+                }
+            }, {passive:true});
+        }
+        
+        function toggleTheme(e) {
+            haptic('light');
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
             if (!document.startViewTransition) { setTheme(newTheme); return; }
@@ -497,46 +504,101 @@
             const x = rect.left + rect.width / 2;
             const y = rect.top + rect.height / 2;
             const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-            const transition = document.startViewTransition(() => { setTheme(newTheme); });
-            transition.ready.then(() => {
-                document.documentElement.animate(
-                    { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
-                    { duration: 700, easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)', pseudoElement: '::view-transition-new(root)' }
-                );
+            document.startViewTransition(() => setTheme(newTheme));
+            document.documentElement.animate({ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] }, { duration: 600, easing: 'ease-in', pseudoElement: '::view-transition-new(root)' });
+        }
+        function setTheme(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('theme', t); if(currPageIdx===2) loadAnalytics(); }
+
+        // --- WHEEL PICKER LOGIC ---
+        let pickerType = null;
+        let wheelItems = [];
+        function openPicker(type) {
+            haptic('light');
+            pickerType = type;
+            document.getElementById('pickerOverlay').style.display = 'flex';
+            document.getElementById('pickerTitle').innerText = type === 'year' ? 'Выберите Год' : 'Выберите Месяц';
+            
+            const scroller = document.getElementById('wheelScroller');
+            scroller.innerHTML = '';
+            
+            // Generate items
+            let items = [];
+            if(type === 'year') items = availableYears.map(y => ({ val: y, label: y }));
+            else {
+                items.push({val:'all', label:'Весь год'});
+                monthNames.forEach((m,i) => items.push({val:i, label:m}));
+            }
+            
+            // Add padding items for center alignment
+            scroller.innerHTML += '<div style="height:80px"></div>'; 
+            items.forEach((item, idx) => {
+                const el = document.createElement('div');
+                el.className = 'wheel-item';
+                el.innerText = item.label;
+                el.dataset.val = item.val;
+                el.onclick = () => scrollToItem(idx);
+                scroller.appendChild(el);
             });
+            scroller.innerHTML += '<div style="height:80px"></div>'; 
+            
+            wheelItems = Array.from(document.querySelectorAll('.wheel-item'));
+            
+            // Scroll to current
+            let currentVal = type === 'year' ? selYear : selMonth;
+            let targetIdx = items.findIndex(i => i.val == currentVal);
+            if(targetIdx < 0) targetIdx = 0;
+            
+            // Wait for render
+            setTimeout(() => {
+                scroller.scrollTop = targetIdx * 44; 
+                highlightWheel();
+                scroller.addEventListener('scroll', onWheelScroll);
+            }, 10);
         }
-        function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
-
-        function switchTab(t, idx) {
-            currTab = t;
-            const btns = document.querySelectorAll('.nav-btn');
-            btns.forEach(b => b.classList.remove('active')); 
-            if(typeof idx === 'undefined') {
-                if(t==='income') idx=0; else if(t==='expense') idx=1; else idx=2;
-            }
-            if(btns[idx]) btns[idx].classList.add('active');
-            const ind = document.getElementById('navInd');
-            if(ind) ind.style.transform = `translateX(${idx * 100}%)`;
-
-            document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-            if(t === 'analytics') {
-                document.getElementById('analyticsTab').classList.add('active');
-                if(analyticsNeedsRefresh || !isAnalyticsLoaded) loadAnalytics();
-            } else {
-                document.getElementById('splitTab').classList.add('active');
-                updateUIForTab(t);
-                if (dataCache[t]) renderTableFromCache(dataCache[t]);
-                else { document.getElementById('cardListBody').innerHTML = ''; document.getElementById('emptyMsg').style.display = 'block'; refreshTable(true); }
-            }
+        
+        function scrollToItem(idx) {
+            const scroller = document.getElementById('wheelScroller');
+            scroller.scrollTo({ top: idx * 44, behavior: 'smooth' });
         }
 
-        function updateUIForTab(t) {
-            const isInc = t === 'income';
-            document.getElementById('formTitle').innerText = isInc ? 'Добавить Доход' : 'Добавить Расход';
-            document.getElementById('lblSearch').innerText = isInc ? 'Название МК' : 'Расходный материал';
-            document.getElementById('tableTitle').innerText = isInc ? 'Доходы (Последние)' : 'Расходы (Последние)';
-            document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1;
-            calcTotal();
+        let wheelTimeout;
+        function onWheelScroll() {
+            const scroller = document.getElementById('wheelScroller');
+            const scrollTop = scroller.scrollTop;
+            const idx = Math.round(scrollTop / 44);
+            
+            wheelItems.forEach((el, i) => {
+                if(i === idx) {
+                    if(!el.classList.contains('active')) haptic('sel'); // Vibrate on change
+                    el.classList.add('active');
+                } else el.classList.remove('active');
+            });
+            
+            // Snap logic (debounce)
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(() => {
+                scroller.scrollTo({ top: idx * 44, behavior: 'smooth' });
+            }, 150);
+        }
+
+        function highlightWheel() {
+            // Initial highlight without scroll event
+            const scroller = document.getElementById('wheelScroller');
+            const idx = Math.round(scroller.scrollTop / 44);
+            wheelItems.forEach((el, i) => i === idx ? el.classList.add('active') : el.classList.remove('active'));
+        }
+
+        function closePicker() { document.getElementById('pickerOverlay').style.display = 'none'; document.getElementById('wheelScroller').removeEventListener('scroll', onWheelScroll); }
+        function confirmPicker() {
+            haptic('success');
+            const active = document.querySelector('.wheel-item.active');
+            if(active) {
+                const val = active.dataset.val;
+                if(pickerType === 'year') selYear = parseInt(val);
+                else selMonth = val === 'all' ? 'all' : parseInt(val);
+                updateFilterUI(); loadAnalytics();
+            }
+            closePicker();
         }
 
         function updateFilterUI() {
@@ -544,228 +606,154 @@
             document.getElementById('txtMonth').innerText = (selMonth === 'all') ? 'Весь год' : monthNames[selMonth];
         }
 
-        // --- SHEET (Dropdown) ---
-        function openSheet(type) {
-            tgHaptic('light');
-            const sheet = document.getElementById('sheetModal');
-            const list = document.getElementById('sheetList');
-            const title = document.getElementById('sheetTitle');
+        // --- DATA & TABLES ---
+        function refreshTable(type, force=false) {
+            if(!force && dataCache[type]) return;
+            const list = document.getElementById(type==='income'?'listIncome':'listExpense');
+            list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-sub)">Загрузка...</div>';
+            runBackend('getTableData', {type}).then(data => {
+                dataCache[type] = data; renderList(type, data);
+            });
+        }
+        function renderList(type, data) {
+            const list = document.getElementById(type==='income'?'listIncome':'listExpense');
             list.innerHTML = '';
-            sheet.style.display = 'flex';
-            
-            const createItem = (txt, active, cb) => {
+            if(!data || !data.length) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-sub)">Пусто</div>'; return; }
+            data.forEach(row => {
                 const div = document.createElement('div');
-                div.className = `sheet-item ${active ? 'selected' : ''}`;
-                div.innerText = txt;
-                div.onclick = () => { tgHaptic('medium'); cb(); sheet.style.display = 'none'; };
-                return div;
-            };
-
-            if (type === 'year') {
-                title.innerText = 'Выберите год';
-                availableYears.forEach(y => list.appendChild(createItem(y, y == selYear, () => { selYear = y; updateFilterUI(); loadAnalytics(); })));
-            } else {
-                title.innerText = 'Выберите месяц';
-                list.appendChild(createItem('Весь год', selMonth === 'all', () => { selMonth = 'all'; updateFilterUI(); loadAnalytics(); }));
-                monthNames.forEach((m, i) => list.appendChild(createItem(m, i === selMonth, () => { selMonth = i; updateFilterUI(); loadAnalytics(); })));
-            }
-            
-            // Add haptic on scroll
-            setupListHaptics(list.children);
-        }
-        function closeSheet(e) { if (e.target.id === 'sheetModal') document.getElementById('sheetModal').style.display = 'none'; }
-
-        // --- OBSERVER FOR SCROLL HAPTICS ---
-        const scrollObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                   // Trigger only if we are scrolling (simple check)
-                   tgHaptic('selection');
-                }
-            });
-        }, { threshold: 0.5, rootMargin: "-45% 0px -45% 0px" }); // Middle line trigger
-
-        function setupListHaptics(elements) {
-            Array.from(elements).forEach(el => scrollObserver.observe(el));
-        }
-
-        // --- RENDER LIST ---
-        function renderTableFromCache(data) {
-             const container = document.getElementById('cardListBody'), msg = document.getElementById('emptyMsg');
-             container.innerHTML = '';
-             if(!data || !data.length) { msg.style.display = 'block'; msg.innerText = 'Список пуст'; return; }
-             msg.style.display = 'none';
-             
-             data.forEach(row => {
-                 const rowJson = JSON.stringify(row).replace(/"/g, '&quot;');
-                 const shortDate = row.dateStr.length >= 10 ? row.dateStr.slice(0, 6) : row.dateStr;
-                 
-                 const card = document.createElement('div');
-                 card.className = 'record-card';
-                 card.id = `row-${row.rowId}`;
-                 card.innerHTML = `
-                    <div class="rc-top">
-                        <span class="rc-date">${shortDate}</span>
-                        <span class="rc-name">${row.name}</span>
-                    </div>
-                    <div class="rc-bot">
-                        <span class="rc-sum">${row.total.toLocaleString()} ₽</span>
-                        <div class="rc-actions">
-                            <button class="btn-mini btn-edit" onclick="openEdit(${rowJson})">
-                                <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                            </button>
-                            <button class="btn-mini btn-del" onclick="openDelete(${rowJson})">
-                                <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-                            </button>
-                        </div>
-                    </div>
-                 `;
-                 container.appendChild(card);
-                 scrollObserver.observe(card); // Attach Haptic Observer
-             });
-        }
-
-        function refreshTable(force = false, isSilent = false) {
-            if(!force && dataCache[currTab]) return;
-            const msg = document.getElementById('emptyMsg');
-            setLoading(true);
-            if (!isSilent) { document.getElementById('cardListBody').innerHTML = ''; msg.style.display = 'block'; msg.innerText = 'Загрузка...'; }
-            runBackend('getTableData', {type: currTab}).then(data => {
-                dataCache[currTab] = data; setLoading(false); renderTableFromCache(data); 
+                div.className = 'record-card';
+                div.id = `row-${row.rowId}`;
+                const shortDate = row.dateStr.slice(0,6);
+                const rowJson = JSON.stringify(row).replace(/"/g, '&quot;');
+                div.innerHTML = `<div class="rc-top"><span class="rc-date">${shortDate}</span><span class="rc-name">${row.name}</span></div><div class="rc-bot"><span class="rc-sum">${row.total.toLocaleString()} ₽</span><div class="rc-actions"><button class="btn-mini btn-edit" onclick="openEdit(${rowJson}, '${type}')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="btn-mini btn-del" onclick="openDel(${rowJson}, '${type}')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div></div>`;
+                list.appendChild(div);
             });
         }
 
-        // --- ACTIONS ---
-        function submitEntry() {
-            const btn = document.getElementById('btnAdd');
-            const name = document.getElementById('inpName').value.trim();
-            const price = parseFloat(document.getElementById('inpPrice').value);
-            const qty = parseFloat(document.getElementById('inpQty').value);
+        // --- FORMS ---
+        function submitEntry(type) {
+            const sfx = type==='income'?'Inc':'Exp';
+            const name = document.getElementById('inpName'+sfx).value.trim();
+            const price = parseFloat(document.getElementById('price'+sfx).value);
+            const qty = parseFloat(document.getElementById('qty'+sfx).value);
+            const btn = document.getElementById('btnAdd'+sfx);
             
-            // VALIDATION HAPTIC & SHAKE
-            if(!name || !price || isNaN(price)) {
-                tgHaptic('error');
-                btn.classList.add('shake');
-                setTimeout(()=>btn.classList.remove('shake'), 500);
-                return;
-            }
+            if(!name || !price || isNaN(price)) { haptic('err'); btn.classList.add('shake'); setTimeout(()=>btn.classList.remove('shake'), 400); return; }
+            haptic('success');
             
-            tgHaptic('success'); // Good haptic
             const total = price * qty;
-            const list = currTab === 'income' ? config.incomeItems : config.expenseItems;
-            const isNew = !list.includes(name);
-            if(isNew) list.push(name);
-            const payload = { type: currTab, name: name, price: price, qty: qty, total: total, isNew: isNew };
+            const list = type === 'income' ? config.incomeItems : config.expenseItems;
+            if(!list.includes(name)) list.push(name);
             
-            // Optimistic UI update
-            document.getElementById('emptyMsg').style.display = 'none';
-            const shortDate = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'});
-            const tempId = 'temp-' + Date.now();
+            // Add temp card
+            const container = document.getElementById('list'+(type==='income'?'Income':'Expense'));
+            const tmp = document.createElement('div'); tmp.className='record-card'; tmp.style.opacity='0.5';
+            tmp.innerHTML = `<div class="rc-top"><span>Сегодня</span><span>${name}</span></div><div class="rc-bot"><span>${total} ₽</span><span>...</span></div>`;
+            container.prepend(tmp);
+
+            // Clear inputs
+            document.getElementById('inpName'+sfx).value=''; document.getElementById('price'+sfx).value=''; document.getElementById('qty'+sfx).value=1; calcTotal(type);
             
-            const tempCard = document.createElement('div');
-            tempCard.className = 'record-card';
-            tempCard.id = tempId;
-            tempCard.style.opacity = '0.5';
-            tempCard.innerHTML = `<div class="rc-top"><span class="rc-date">${shortDate}</span><span class="rc-name">${name}</span></div><div class="rc-bot"><span class="rc-sum">${total.toLocaleString()} ₽</span><div class="rc-actions">...</div></div>`;
-            document.getElementById('cardListBody').prepend(tempCard);
-            
-            document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
-            btn.disabled = true; setLoading(true);
-            
-            runBackend('saveTransaction', payload).then(res => {
-                btn.disabled = false; setLoading(false);
-                if(res.success) { showToast('Успешно добавлено'); refreshTable(true, true); analyticsNeedsRefresh = true; } 
-                else { if(document.getElementById(tempId)) document.getElementById(tempId).remove(); showToast(res.message, true); }
+            runBackend('saveTransaction', {type, name, price, qty, total, isNew: !list.includes(name)}).then(res => {
+                if(res.success) { showToast('Добавлено'); refreshTable(type, true); }
+                else { tmp.remove(); showToast(res.message, true); }
             });
         }
 
-        function openEdit(row) {
-            tgHaptic('heavy');
-            document.getElementById('editId').value = row.rowId;
-            document.getElementById('editName').value = row.name; document.getElementById('editPrice').value = row.price; document.getElementById('editQty').value = row.qty; document.getElementById('editModal').style.display = 'flex';
+        function openEdit(row, type) {
+            haptic('heavy');
+            document.getElementById('editId').value = row.rowId; document.getElementById('editType').value = type;
+            document.getElementById('editName').value = row.name; document.getElementById('editPrice').value = row.price; document.getElementById('editQty').value = row.qty;
+            document.getElementById('editModal').style.display = 'flex';
         }
         function saveEdit() {
-            tgHaptic('success');
-            const id = document.getElementById('editId').value, name = document.getElementById('editName').value, price = parseFloat(document.getElementById('editPrice').value), qty = parseFloat(document.getElementById('editQty').value);
-            const payload = { rowId: id, type: currTab, name: name, price: price, qty: qty };
+            haptic('success');
+            const id = document.getElementById('editId').value, type = document.getElementById('editType').value;
+            const name = document.getElementById('editName').value, price = parseFloat(document.getElementById('editPrice').value), qty = parseFloat(document.getElementById('editQty').value);
             document.getElementById('editModal').style.display = 'none';
-            const rowEl = document.getElementById('row-' + id);
-            if(rowEl) { 
-                rowEl.querySelector('.rc-name').innerText = name;
-                rowEl.querySelector('.rc-sum').innerText = (price * qty).toLocaleString() + ' ₽';
-            }
             setLoading(true);
-            runBackend('editTransaction', payload).then(res => {
+            runBackend('editTransaction', {rowId:id, type, name, price, qty}).then(res => {
                 setLoading(false);
-                if(res.success) { showToast('Сохранено'); refreshTable(true, true); analyticsNeedsRefresh = true; } else { showToast(res.message, true); refreshTable(true, false); }
+                if(res.success) { showToast('Сохранено'); refreshTable(type, true); } else showToast(res.message, true);
             });
         }
-        function openDelete(row) { tgHaptic('heavy'); deleteTargetId = row.rowId; document.getElementById('deleteModal').style.display = 'flex'; }
+        let delId, delType;
+        function openDel(row, type) { haptic('heavy'); delId = row.rowId; delType = type; document.getElementById('deleteModal').style.display = 'flex'; }
         function confirmDelete() {
-            if(!deleteTargetId) return;
-            tgHaptic('medium');
+            haptic('heavy');
             document.getElementById('deleteModal').style.display = 'none';
-            const rowElement = document.getElementById('row-' + deleteTargetId);
-            if (rowElement) { rowElement.style.transition = 'opacity 0.3s, transform 0.3s'; rowElement.style.opacity = '0'; rowElement.style.transform = 'scale(0.9)'; setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
-            setLoading(true);
-            runBackend('deleteTransaction', {rowId: deleteTargetId, type: currTab}).then(res => {
-                setLoading(false);
-                if(res.success) { showToast('Удалено'); refreshTable(true, true); analyticsNeedsRefresh = true; } else { showToast(res.message, true); refreshTable(true, false); }
+            const el = document.getElementById('row-'+delId); if(el) el.style.opacity='0';
+            runBackend('deleteTransaction', {rowId:delId, type:delType}).then(res => {
+                if(res.success) { showToast('Удалено'); refreshTable(delType, true); } else showToast(res.message, true);
             });
         }
 
-        function loadAnalytics(isSilent = false) {
+        // --- ANALYTICS ---
+        function loadAnalytics() {
             setLoading(true);
             runBackend('getAnalyticsData', {year: selYear, monthIdx: selMonth}).then(d => {
-                setLoading(false); isAnalyticsLoaded = true; analyticsNeedsRefresh = false;
-                renderKPI('kpiInc', d.current.income, d.growth.income, '₽', 'trend-up'); renderKPI('kpiExp', d.current.expense, d.growth.expense, '₽', 'trend-down'); renderKPI('kpiProf', d.current.profit, d.growth.profit, '₽', 'trend-up'); renderKPI('kpiVis', d.current.visitors, d.growth.visitors, 'чел', 'trend-up');
-                renderAreaChart('chartPulse', d.pulse.labels, [{ label:'Доход', data:d.pulse.income, borderColor:'#34C759', bg:'rgba(52, 199, 89, 0.1)' }, { label:'Расход', data:d.pulse.expense, borderColor:'#FF3B30', bg:'rgba(255, 59, 48, 0.1)' }]);
-                renderAreaChart('chartAttendance', d.attendance.labels, [{ label:'Посетители', data:d.attendance.data, borderColor:'#AF52DE', bg:'rgba(175, 82, 222, 0.1)' }]);
-                renderProgressList('listInc', d.pieIncome.labels, d.pieIncome.data, '#34C759');
-                renderProgressList('listExp', d.pieExpense.labels, d.pieExpense.data, '#FF3B30');
+                setLoading(false);
+                renderKPI('kpiInc', d.current.income, d.growth.income, 'trend-up');
+                renderKPI('kpiExp', d.current.expense, d.growth.expense, 'trend-down');
+                renderKPI('kpiProf', d.current.profit, d.growth.profit, 'trend-up');
+                renderKPI('kpiVis', d.current.visitors, d.growth.visitors, 'trend-up');
+                
+                renderChart('chartPulse', d.pulse.labels, [{label:'Inc', data:d.pulse.income, borderColor:'#34C759', bg:'rgba(52,199,89,0.1)'}, {label:'Exp', data:d.pulse.expense, borderColor:'#FF3B30', bg:'rgba(255,59,48,0.1)'}]);
+                renderChart('chartAttendance', d.attendance.labels, [{label:'Vis', data:d.attendance.data, borderColor:'#AF52DE', bg:'rgba(175,82,222,0.1)'}]);
+                renderProg('listIncPie', d.pieIncome.labels, d.pieIncome.data, '#34C759');
+                renderProg('listExpPie', d.pieExpense.labels, d.pieExpense.data, '#FF3B30');
             });
         }
-        function renderKPI(id, val, growth, suff, colorCls) {
-            document.getElementById(id).innerText = val.toLocaleString() + ' ' + suff;
-            const el = document.getElementById(id.replace('kpi','trend'));
-            if(el) { const arr = growth>=0?'↗':'↘'; const cls = (growth>=0 && colorCls==='trend-up') || (growth<0 && colorCls==='trend-down') ? 'trend-up' : 'trend-down'; let finalCls = cls; if(id==='kpiExp') finalCls = (growth > 0) ? 'trend-down' : 'trend-up'; el.className = `kpi-trend ${finalCls}`; el.innerText = `${arr} ${Math.abs(growth)}%`; }
+        function renderKPI(id, val, gr, goodCls) {
+            document.getElementById(id).innerText = val.toLocaleString();
+            const tr = document.getElementById(id.replace('kpi','trend'));
+            let cls = 'trend-up'; 
+            if(id === 'kpiExp') cls = gr > 0 ? 'trend-down' : 'trend-up';
+            else cls = gr >= 0 ? 'trend-up' : 'trend-down';
+            tr.className = `kpi-trend ${cls}`; tr.innerText = `${gr>=0?'↗':'↘'} ${Math.abs(gr)}%`;
         }
-        function renderAreaChart(id, labels, datasets) {
+        function renderChart(id, lbls, sets) {
             if(charts[id]) charts[id].destroy();
-            const ctx = document.getElementById(id).getContext('2d');
-            const ds = datasets.map(d => ({ label: d.label, data: d.data, borderColor: d.borderColor, backgroundColor: d.bg, borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }));
-            charts[id] = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: ds }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1C1C1E', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 8, padding: 10 } }, scales: { x: { grid: { display: false }, ticks: { color: '#8E8E93', font:{size:10} } }, y: { display: false } } } });
-        }
-        function renderProgressList(id, labels, data, color) {
-            const el = document.getElementById(id);
-            el.innerHTML = ''; if(!data.length) { el.innerHTML='<div style="color:var(--text-sub); font-size:13px">Нет данных</div>'; return; }
-            const max = Math.max(...data);
-            labels.forEach((lbl, i) => { 
-                const val = data[i]; const pct = (val / max) * 100; 
-                const html = `<div class="prog-item" style="display:flex; flex-direction:column; gap:4px; margin-bottom:8px;"><div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600; color:var(--text-main);"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div style="width:100%; height:6px; background:var(--input-bg); border-radius:3px; overflow:hidden;"><div style="height:100%; border-radius:3px; width:${pct}%; background:${color}; transition: width 1s ease-out;"></div></div></div>`; 
-                el.insertAdjacentHTML('beforeend', html); 
+            charts[id] = new Chart(document.getElementById(id).getContext('2d'), {
+                type: 'line',
+                data: { labels: lbls, datasets: sets.map(s => ({label:s.label, data:s.data, borderColor:s.borderColor, backgroundColor:s.bg, borderWidth:2, fill:true, tension:0.4, pointRadius:0}))},
+                options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{grid:{display:false}}, y:{display:false}} }
             });
-            // Observer for haptics in charts too
-            setupListHaptics(el.children);
         }
-        function showSearch(e) {
+        function renderProg(id, lbls, data, col) {
+            const el = document.getElementById(id); el.innerHTML = '';
+            if(!data.length) { el.innerText='Нет данных'; return; }
+            const max = Math.max(...data);
+            lbls.forEach((l, i) => {
+                const pct = (data[i]/max)*100;
+                el.insertAdjacentHTML('beforeend', `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>${l}</span><span>${data[i].toLocaleString()}</span></div><div style="height:6px;background:var(--input-bg);border-radius:3px;margin-top:2px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div>`);
+            });
+        }
+
+        // --- UTILS ---
+        function modVal(id, d) { haptic('light'); const el=document.getElementById(id); let v=parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id.includes('qty') && v<1) v=1; el.value=v; calcTotal(id.includes('Inc')?'income':'expense'); }
+        function calcTotal(type) {
+            const sfx = type==='income'?'Inc':'Exp';
+            const p = parseFloat(document.getElementById('price'+sfx).value)||0;
+            const q = parseFloat(document.getElementById('qty'+sfx).value)||0;
+            document.getElementById('total'+sfx).innerText = (p*q).toLocaleString() + ' ₽';
+        }
+        function handleSearch(e, type) {
             const val = e.target.value.toLowerCase();
-            const box = document.getElementById('searchRes'); box.innerHTML = ''; if(!val) { box.style.display='none'; return; }
-            const src = currTab==='income' ? config.incomeItems : config.expenseItems;
-            const res = src.filter(s => s.toLowerCase().includes(val)).slice(0,5);
-            if(res.length) { box.style.display='block'; res.forEach(r => { const d = document.createElement('div'); d.className='res-item'; d.innerText=r; d.onclick=()=>{ tgHaptic('light'); document.getElementById('inpName').value=r; box.style.display='none'; calcTotal(); }; box.appendChild(d); }); } else box.style.display='none';
+            const res = document.getElementById(type==='income'?'resInc':'resExp');
+            res.innerHTML = ''; if(!val) { res.style.display='none'; return; }
+            const list = type==='income' ? config.incomeItems : config.expenseItems;
+            const matches = list.filter(x => x.toLowerCase().includes(val)).slice(0,5);
+            if(matches.length) {
+                res.style.display='block';
+                matches.forEach(m => {
+                    const d = document.createElement('div'); d.className='res-item'; d.innerText=m;
+                    d.onclick = () => { haptic('light'); document.getElementById(type==='income'?'inpNameInc':'inpNameExp').value=m; res.style.display='none'; };
+                    res.appendChild(d);
+                });
+            } else res.style.display='none';
         }
-        function modVal(id, d) { 
-            tgHaptic('light');
-            const el = document.getElementById(id); let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal(); 
-        }
-        function calcTotal() {
-            const priceVal = document.getElementById('inpPrice').value, nameVal = document.getElementById('inpName').value.trim();
-            const p = parseFloat(priceVal); const q = parseFloat(document.getElementById('inpQty').value);
-            document.getElementById('txtTotal').innerText = ((p*q)||0).toLocaleString() + ' ₽'; const btn = document.getElementById('btnAdd');
-            if (!nameVal) { btn.innerText = "Укажите название"; btn.style.opacity = "0.6"; } else if (!priceVal || isNaN(p) || p === 0) { btn.innerText = "Укажите цену"; btn.style.opacity = "0.6"; } else { btn.innerText = "Добавить запись"; btn.style.opacity = "1"; }
-        }
-        function showToast(m, err) { const t = document.getElementById('toast'); t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; if(err) tgHaptic('error'); else tgHaptic('success'); setTimeout(() => t.className='toast', 3000); }
+        function showToast(msg, err) { const t=document.getElementById('toast'); t.innerText=msg; t.className=err?'toast error show':'toast success show'; haptic(err?'err':'success'); setTimeout(()=>t.className='toast', 3000); }
     </script>
 </body>
 </html>
