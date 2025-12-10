@@ -49,177 +49,241 @@
         --scroll-thumb: #475569;
       }
       
-      * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+      * { -webkit-tap-highlight-color: transparent; }
+      
+      /* --- ПРОСТАЯ И НАДЕЖНАЯ АНИМАЦИЯ --- */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+          animation: none;
+          mix-blend-mode: normal;
+          position: absolute;
+          width: 100%; height: 100%; top: 0; left: 0;
+      }
+
+      /* Новая тема всегда сверху (Z-9999) и растет */
+      ::view-transition-new(root) { z-index: 9999; }
+      /* Старая тема лежит снизу (Z-1) и ждет */
+      ::view-transition-old(root) { z-index: 1; }
+      
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background-color: var(--scroll-thumb); border-radius: 10px; }
       
       body { 
-          margin: 0; padding: 20px; 
+          margin: 0;
+          padding: 20px; 
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
           background-color: var(--bg-app); 
           color: var(--text-main); 
           height: 100vh; height: 100dvh; 
+          box-sizing: border-box; 
           overflow: hidden; 
-          display:flex; flex-direction:column;
-          -webkit-font-smoothing: antialiased; font-weight: 500;
+          display:flex;
+          flex-direction:column;
+          /* Убрали CSS transition фона, чтобы не мешал ViewTransition */
+          -webkit-font-smoothing: antialiased;
+          font-weight: 500;
       }
       
-      /* --- HEADER --- */
       .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
       .brand-box { display: flex; align-items: center; gap: 12px; }
       .title { margin: 0; font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
-      .venus-icon { width: 42px; height: 42px; cursor: pointer; transition: transform 0.5s ease; z-index: 5; }
+      
+      .venus-icon { width: 42px; height: 42px; cursor: pointer; transition: transform 0.5s ease; position: relative; z-index: 5; }
+      .venus-icon:active { transform: scale(0.9); }
       .venus-icon.spinning { animation: spinInfinite 1.5s linear infinite; }
       @keyframes spinInfinite { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-      /* --- NAV (Bottom Bar) --- */
-      .nav { 
-          display: flex; background: var(--bg-panel); padding: 4px; 
-          border-radius: 14px; flex-shrink: 0; 
-          box-shadow: var(--shadow-card); border: 1px solid var(--border); 
-          position: relative; z-index: 1000;
-      }
+      /* NAV */
+      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; }
       .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; gap:8px;}
+      .nav-btn:hover { color: var(--text-main); }
       .nav-btn.active { color: var(--text-main); background: var(--bg-app); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
       [data-theme="dark"] .nav-btn.active { background: #334155; box-shadow: none; }
       .nav-btn svg { width: 18px; height: 18px; fill: currentColor; opacity: 0.7; }
       .nav-btn.active svg { opacity: 1; color: var(--accent); fill: var(--accent); }
+      .nav-indicator { display: none; }
 
-      /* --- CONTENT AREA & SLIDE TRANSITIONS --- */
-      .content-area { 
-          flex: 1; position: relative; overflow: hidden; 
-          border-radius: var(--radius); width: 100%;
-          touch-action: pan-y; /* Позволяем вертикальный скролл, горизонтальный перехватываем JS */
+      /* CONTENT & ANIMATIONS */
+      .content-area { flex: 1; position: relative; overflow: hidden; border-radius: var(--radius); display: flex; }
+      
+      .tab-page { display: none; width: 100%; height: 100%; }
+      /* Убрали дефолтную fadeIn, управляем через JS */
+      .tab-page.active { display: block; }
+      
+      /* Анимации для свайпов */
+      .anim-next { animation: slideInRight 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+      .anim-prev { animation: slideInLeft 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+      .anim-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+      @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideInLeft {
+          from { transform: translateX(-100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
       }
       
-      .tab-page { 
-          position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-          transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s;
-          display: none; opacity: 0; overflow-y: auto; overflow-x: hidden;
-          padding-bottom: 80px; /* Отступ под навигацию на мобильном */
+      .split-view { display: flex; height: 100%; gap: 20px; }
+      .panel { background: var(--bg-panel); border-radius: var(--radius); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); }
+      .panel-left { width: 360px; padding: 30px; flex-shrink: 0; overflow-y: auto; }
+      .panel-right { flex: 1; }
+      
+      h3 { margin-top: 0; font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 20px; }
+      label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; display: block; letter-spacing: 0.02em; }
+      
+      input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+      input[type=number] { -moz-appearance: textfield; }
+
+      input, select, .custom-select-trigger { 
+          width: 100%; padding: 14px; 
+          border-radius: 12px; border: 1px solid var(--border-strong); 
+          background-color: var(--input-bg); color: var(--text-main); 
+          font-size: 15px; box-sizing: border-box; outline:none; transition:0.2s; 
+          font-weight: 600; font-family: 'Inter', sans-serif;
       }
       
-      .tab-page.active { display: block; opacity: 1; transform: translateX(0); z-index: 2; }
+      .custom-select-wrapper { position: relative; width: 100%; cursor: pointer; }
+      .custom-select-trigger { display: flex; justify-content: space-between; align-items: center; }
+      .custom-select-trigger::after { content: '▼'; font-size: 10px; color: var(--text-sub); margin-left: 10px; }
+      input:focus, .custom-select-trigger:active { border-color: var(--accent); background: var(--bg-panel); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
       
-      /* Анимации входа/выхода */
-      .tab-page.slide-out-left { display: block; transform: translateX(-100%); opacity: 0; z-index: 1; }
-      .tab-page.slide-out-right { display: block; transform: translateX(100%); opacity: 0; z-index: 1; }
-      .tab-page.slide-in-left { display: block; animation: slideInLeft 0.3s forwards; z-index: 3; }
-      .tab-page.slide-in-right { display: block; animation: slideInRight 0.3s forwards; z-index: 3; }
-
-      @keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-      @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-      /* --- PANELS & FORMS --- */
-      .panel { background: var(--bg-panel); border-radius: var(--radius); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); margin-bottom: 20px; }
-      .panel-inner { padding: 20px; }
-      
-      h3 { margin-top: 0; font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
-      label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; display: block; letter-spacing: 0.02em; }
-      
-      input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border-strong); background-color: var(--input-bg); color: var(--text-main); font-size: 15px; outline:none; transition:0.2s; font-weight: 600; font-family: 'Inter', sans-serif; }
-      input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-      
-      /* Стили для количества и цены */
       .qty-wrapper { display: flex; align-items: center; background: var(--input-bg); border: 1px solid var(--border-strong); border-radius: 12px; overflow: hidden; padding: 2px; }
       .qty-btn { width: 44px; height: 44px; background: transparent; border: none; color: var(--text-main); font-size: 20px; cursor: pointer; border-radius: 10px; transition: 0.2s; font-weight: 600; }
-      .qty-btn:active { background: rgba(0,0,0,0.1); transform: scale(0.9); }
-      .qty-input { text-align: center; border: none; font-weight: 700; font-size: 18px; flex: 1; padding: 0; background: transparent; color: var(--text-main); }
+      .qty-btn:hover { background: rgba(0,0,0,0.05); }
+      .qty-input { text-align: center; border: none; font-weight: 700; font-size: 18px; flex: 1; padding: 0; background: transparent; color: var(--text-main); -moz-appearance: textfield; }
       .qty-input:focus { box-shadow: none; border: none; }
 
-      /* Кнопка "Добавить" */
-      .btn { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; font-size: 16px; transition: transform 0.1s, background 0.2s; }
-      .btn:active { transform: scale(0.96); opacity: 0.9; }
-      /* Тряска при ошибке */
-      .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; background-color: var(--danger) !important; }
-      @keyframes shake { 
-          10%, 90% { transform: translate3d(-1px, 0, 0); } 
-          20%, 80% { transform: translate3d(2px, 0, 0); } 
-          30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 
-          40%, 60% { transform: translate3d(4px, 0, 0); } 
-      }
+      .btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; font-size: 16px; transition: 0.2s; }
+      .btn:active { transform: scale(0.98); opacity: 0.9; }
+      
+      .table-header { padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+      .btn-refresh { padding: 8px 16px; background-color: transparent; border: 1px solid var(--border-strong); border-radius: 8px; font-weight: 600; cursor: pointer; color: var(--text-main); font-size: 12px; transition: 0.2s; }
+      .btn-refresh:hover { background-color: var(--input-bg); border-color: var(--accent); color: var(--accent); }
 
-      /* --- NEW LIST STYLE (No horizontal scroll) --- */
-      .card-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; }
-      .card-item { 
-          background: var(--input-bg); border: 1px solid var(--border); border-radius: 16px; padding: 15px; 
-          display: flex; flex-direction: column; gap: 8px; position: relative;
+      .grid-wrapper { flex: 1; overflow-y: auto; padding: 0 10px; }
+      
+      /* --- ТАБЛИЦА (С ГОРИЗОНТАЛЬНЫМ СКРОЛЛОМ) --- */
+      table { 
+          width: 100%; border-collapse: separate; 
+          border-spacing: 0 8px; 
+          min-width: 500px; 
+          table-layout: auto; 
       }
-      .card-row { display: flex; justify-content: space-between; align-items: center; }
-      .card-date { font-size: 12px; color: var(--text-sub); font-weight: 600; }
-      .card-title { font-size: 15px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
-      .card-price { font-size: 16px; font-weight: 800; color: var(--text-main); }
-      .card-actions { display: flex; gap: 8px; }
-      .btn-icon { 
-          width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border-strong); 
-          background: transparent; display: flex; align-items: center; justify-content: center; color: var(--text-sub);
+      
+      th { position: sticky; top: 0; background: var(--bg-panel); color: var(--text-sub); font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px 15px; font-weight: 700; z-index: 10; }
+      
+      td { 
+          padding: 16px 10px; background: var(--input-bg); border: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; font-weight: 500; 
+          white-space: normal;
+      }
+      
+      tr td:first-child { border-top-left-radius: 14px; border-bottom-left-radius: 14px; border-right: none; }
+      tr td:last-child { border-top-right-radius: 14px; border-bottom-right-radius: 14px; text-align: right; border-left: none; }
+      tr td:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
+      
+      /* Настройка ширины колонок */
+      th:nth-child(1) { width: 70px; } 
+      th:nth-child(2) { width: auto; } 
+      th:nth-child(3) { width: 90px; text-align: right; } 
+      th:nth-child(4) { width: 90px; text-align: right; } 
+
+      td:nth-child(3) { font-weight: 700; text-align: right; }
+
+      .btn-table { 
+          padding: 0; width: 34px; height: 34px; 
+          border-radius: 10px; cursor: pointer; 
+          border: 1px solid var(--border-strong); background: transparent; color: var(--text-sub); 
+          margin-left: 4px; display: inline-flex; align-items: center; justify-content: center;
           transition: 0.2s;
       }
-      .btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
-      .btn-icon:active { transform: scale(0.9); }
-      .btn-edit:active { background: var(--accent); color: white; border-color: var(--accent); }
-      .btn-del:active { background: var(--danger); color: white; border-color: var(--danger); }
+      .btn-table svg { width: 16px; height: 16px; fill: currentColor; }
+      .btn-edit:hover { border-color: var(--accent); background-color: var(--accent); color: white; }
+      .btn-del:hover { border-color: var(--danger); background-color: var(--danger); color: white; }
 
-      /* --- ANALYTICS PICKER (3D WHEEL) --- */
-      .picker-trigger { 
-          background: var(--bg-panel); border: 1px solid var(--border); padding: 12px; border-radius: 12px;
-          text-align: center; font-weight: 700; color: var(--text-main); margin-bottom: 20px;
-      }
-      .picker-overlay {
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);
-          z-index: 5000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(4px);
-      }
-      .picker-container {
-          width: 100%; background: var(--bg-panel); border-radius: 24px 24px 0 0; padding: 20px 0;
-          box-shadow: 0 -10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-      .picker-header { display: flex; justify-content: space-between; padding: 0 20px 10px 20px; border-bottom: 1px solid var(--border); }
-      .picker-btn { color: var(--accent); font-weight: 600; font-size: 16px; cursor: pointer; }
+      .analytics-container { padding: 0 10px 20px 10px; overflow-y: auto; height: 100%; width: 100%; box-sizing: border-box; }
+      .filters-row { display: flex; gap: 15px; margin-bottom: 25px; }
+      .filters-row .custom-select-wrapper { flex: 1; }
       
-      .wheel-container { height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; position: relative; padding: 80px 0; -webkit-overflow-scrolling: touch; }
-      /* Градиенты для эффекта барабана */
-      .wheel-container::before { content:''; position: absolute; top: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(to bottom, var(--bg-panel), transparent); pointer-events: none; z-index: 2; }
-      .wheel-container::after { content:''; position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(to top, var(--bg-panel), transparent); pointer-events: none; z-index: 2; }
-      
-      .wheel-item { 
-          height: 40px; display: flex; align-items: center; justify-content: center; 
-          scroll-snap-align: center; font-size: 16px; color: var(--text-sub); transition: 0.2s;
-          transform-origin: center; opacity: 0.5;
-      }
-      /* Активный элемент (по центру) - увеличивается JS-ом через IntersectionObserver или скролл ивенты, но для простоты CSS snap помогает */
-      .wheel-highlight {
-          position: absolute; top: 50%; left: 0; width: 100%; height: 40px; margin-top: -20px;
-          border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong);
-          pointer-events: none; z-index: 1; background: rgba(0,0,0,0.03);
-      }
-
-      /* KPI & Charts */
-      .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-      .kpi-card { background: var(--bg-panel); padding: 15px; border-radius: 16px; border: 1px solid var(--border); }
-      .kpi-title { font-size: 10px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; }
-      .kpi-val { font-size: 20px; font-weight: 800; color: var(--text-main); margin: 4px 0; }
-      .kpi-trend { font-size: 11px; padding: 2px 6px; border-radius: 10px; display: inline-block; font-weight: 700; }
+      .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+      .kpi-card { background: var(--bg-panel); padding: 25px; border-radius: 24px; box-shadow: var(--shadow-card); position: relative; border: 1px solid var(--border); }
+      .kpi-title { font-size: 12px; color: var(--text-sub); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
+      .kpi-val { font-size: 32px; font-weight: 800; color: var(--text-main); letter-spacing: -1px; }
+      .kpi-trend { font-size: 13px; font-weight: 700; margin-top: 5px; display: inline-block; padding: 4px 10px; border-radius: 20px; }
       .trend-up { background: rgba(52, 199, 89, 0.15); color: var(--color-inc); }
       .trend-down { background: rgba(255, 59, 48, 0.15); color: var(--color-exp); }
       
-      .chart-box { background: var(--bg-panel); padding: 15px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 15px; min-height: 250px; }
-      
-      /* Search Overlay */
-      .search-res { position: absolute; top: 100%; left: 0; width: 100%; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 14px; z-index: 100; max-height: 200px; overflow-y: auto; display: none; margin-top: 5px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
-      .res-item { padding: 12px 15px; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 600; }
-      
-      /* Loader & Toast */
-      .loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.05); z-index:9000; display:none; }
-      .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 20px; opacity: 0; transition: 0.3s; z-index: 9999; font-weight: 600; font-size: 14px; pointer-events: none; margin-top: -60px; }
-      .toast.show { opacity: 1; margin-top: 0; }
-      .toast.error { background: var(--danger); }
+      .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px; }
+      .chart-box { background: var(--bg-panel); border-radius: 24px; padding: 25px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; min-height: 320px; border: 1px solid var(--border); }
+      .chart-head { font-weight: 700; font-size: 18px; margin-bottom: 20px; color: var(--text-main); }
+      .chart-canv { flex: 1; position: relative; }
 
-      /* Mobile adjustments */
-      @media (max-width: 768px) {
-        body { padding: 10px; }
-        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; width: auto; margin: 0; }
-        .content-area { padding-bottom: 90px; } /* Space for nav */
-      }
-      
+      .prog-list { display: flex; flex-direction: column; gap: 10px; overflow-y: hidden; overflow-x: hidden; }
+      .prog-item { display: flex; flex-direction: column; gap: 4px; }
+      .prog-info { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-main); }
+      .prog-bar-bg { width: 100%; height: 6px; background: var(--input-bg); border-radius: 3px; overflow: hidden; border: 1px solid var(--border); box-sizing: border-box; }
+      .prog-bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease-out; }
+
+      .search-wrap { position: relative; margin-bottom: 15px; }
+      .search-res { position: absolute; top: 100%; left: 0; width: 100%; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 14px; z-index: 100; max-height: 200px; overflow-y: auto; display: none; margin-top: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+      .res-item { padding: 14px 20px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 15px; color: var(--text-main); font-weight: 600; }
+      .res-item:hover { background: var(--hover-bg); color: var(--accent); }
+
+      .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+      .modal-box { background: var(--bg-panel); padding: 25px; border-radius: 20px; width: 340px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.3); transform: scale(0.95); animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; display: none; align-items: flex-end; justify-content: center; backdrop-filter: blur(2px); }
+      .sheet-box { width: 100%; background: var(--bg-panel); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; max-height: 60vh; overflow-y: auto; }
+      .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+      .sheet-title { font-weight: 700; font-size: 16px; color: var(--text-main); }
+      .sheet-close { color: var(--accent); font-weight: 600; cursor: pointer; padding: 5px; }
+      .sheet-item { padding: 16px; border-bottom: 1px solid var(--border); font-size: 16px; color: var(--text-main); font-weight: 500; cursor: pointer; text-align: center; }
+      .sheet-item:last-child { border-bottom: none; }
+      .sheet-item.selected { color: var(--accent); font-weight: 700; }
+
+      @keyframes popIn { to { transform: scale(1); } }
       @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .loader { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.01); z-index:50; display:none; }
+      .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 3000; font-size: 14px; font-weight: 500; box-shadow: 0 10px 20px -3px rgba(0,0,0,0.2); pointer-events: none; }
+      .toast.show { opacity: 1; bottom: 100px; }
+      .toast.success { background: var(--success); }
+      .toast.error { background: var(--danger); }
+      
+      @media (max-width: 768px) {
+        body { padding: 0; overflow: hidden; }
+        .header { padding: 5px 15px 0 15px; margin-bottom: 5px; height: 40px; }
+        .venus-icon { width: 32px; height: 32px; }
+        .title { font-size: 18px; }
+        .content-area { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; display: block; padding: 0 5px 120px 5px; height: 100%; }
+        .tab-page { height: auto; overflow: visible; }
+        .split-view { flex-direction: column; gap: 15px; height: auto; }
+        .panel { border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .panel-left, .panel-right { width: 100%; height: auto; overflow: visible; flex-shrink: 0; padding: 20px; box-sizing: border-box; }
+        .panel-right { min-height: auto; }
+        h3 { font-size: 15px; margin-bottom: 10px; }
+        label { margin-bottom: 4px; font-size: 11px; }
+        input, select, .custom-select-trigger { padding: 10px; font-size: 13px; height: 40px; }
+        .qty-wrapper { height: 36px; }
+        .qty-btn { width: 36px; height: 100%; font-size: 16px; }
+        .qty-input { font-size: 15px; }
+        #txtTotal { font-size: 20px !important; margin-top: 0; }
+        .btn { padding: 12px; margin-top: 10px; font-size: 14px; }
+        .search-wrap { margin-bottom: 10px; }
+        
+        .grid-wrapper { padding: 0; }
+        
+        .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .charts-grid { grid-template-columns: 1fr; gap: 15px; }
+
+        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 20px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 5px; height: 60px; border: 1px solid var(--border); }
+        .nav-indicator { display: block; position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc((100% - 10px) / 3); background: var(--bg-app); border-radius: 16px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1; pointer-events: none; }
+        [data-theme="dark"] .nav-indicator { background: #334155; }
+        .nav-btn { background: transparent !important; box-shadow: none !important; flex-direction: column; gap: 4px; font-size: 10px; color: var(--text-sub); transition: color 0.2s; z-index: 10; width: 100%; }
+        .nav-btn svg { width: 22px; height: 22px; margin-bottom: 2px; transition: transform 0.2s; }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn.active svg { transform: translateY(-2px); fill: var(--accent); }
+      }
     </style>
 </head>
 <body data-theme="light">
@@ -229,622 +293,544 @@
 
     <div class="header">
         <div class="brand-box">
-            <svg id="venus" onclick="toggleTheme()" class="venus-icon" viewBox="0 0 100 100" fill="none">
+            <svg id="venus" onclick="toggleTheme(event)" class="venus-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="50" cy="50" r="48" fill="url(#venusGrad)" />
                 <path d="M10 50C10 50 30 40 50 40C70 40 90 50 90 50" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
                 <path d="M15 30C15 30 35 25 50 25C65 25 85 30 85 30" stroke="rgba(255,255,255,0.2)" stroke-width="3"/>
                 <path d="M15 70C15 70 35 75 50 75C65 75 85 70 85 70" stroke="rgba(255,255,255,0.2)" stroke-width="3"/>
-                <defs><radialGradient id="venusGrad" cx="0" cy="0" r="1" gradientTransform="translate(30 30) rotate(0) scale(70)"><stop stop-color="#FFD700"/><stop offset="1" stop-color="#FF8C00"/></radialGradient></defs>
+                <circle cx="70" cy="30" r="8" fill="rgba(0,0,0,0.1)"/>
+                <circle cx="30" cy="65" r="5" fill="rgba(0,0,0,0.1)"/>
+                <defs>
+                    <radialGradient id="venusGrad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(30 30) rotate(0) scale(70)">
+                        <stop stop-color="#FFD700"/>
+                        <stop offset="1" stop-color="#FF8C00"/>
+                    </radialGradient>
+                </defs>
             </svg>
-            <div class="title">Венера</div>
-        </div>
-    </div>
-
-    <div class="content-area" id="mainContainer">
-        
-        <div id="tab-income" class="tab-page active">
-             <div class="panel">
-                <div class="panel-inner">
-                    <h3>Новый Мастер Класс</h3>
-                    <div style="position:relative; margin-bottom:15px;">
-                        <label>Название</label>
-                        <input type="text" id="incName" placeholder="Поиск или название..." autocomplete="off" onkeyup="handleKeyInput(event, 'incName', 'incRes'); calcTotal('inc');">
-                        <div class="search-res" id="incRes"></div>
-                    </div>
-                    <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <div style="flex:1">
-                            <label>Цена</label>
-                            <div class="qty-wrapper">
-                                <button class="qty-btn" onclick="modVal('incPrice', -100, 'inc')">−</button>
-                                <input type="number" id="incPrice" class="qty-input" placeholder="0" onkeyup="handleKeyInput(event); calcTotal('inc');">
-                                <button class="qty-btn" onclick="modVal('incPrice', 100, 'inc')">+</button>
-                            </div>
-                        </div>
-                        <div style="flex:0.7">
-                            <label>Кол-во</label>
-                            <div class="qty-wrapper">
-                                <button class="qty-btn" onclick="modVal('incQty', -1, 'inc')">−</button>
-                                <input type="number" id="incQty" class="qty-input" value="1" onkeyup="handleKeyInput(event); calcTotal('inc');">
-                                <button class="qty-btn" onclick="modVal('incQty', 1, 'inc')">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="text-align:center; padding:10px; background:var(--input-bg); border-radius:12px; border:1px solid var(--border);">
-                         <span style="font-size:10px; color:var(--text-sub); text-transform:uppercase;">Итого</span>
-                         <div id="incTotal" style="font-size:22px; font-weight:800;">0 ₽</div>
-                    </div>
-                    <button id="btnInc" class="btn" onclick="submitEntry('income')">Добавить</button>
-                </div>
-             </div>
-             
-             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:0 5px;">
-                <h3>Последние записи</h3>
-                <span onclick="refreshTable('income')" style="color:var(--accent); font-size:12px; font-weight:600; cursor:pointer;">Обновить</span>
-             </div>
-             <div id="list-income" class="card-list"></div>
-        </div>
-
-        <div id="tab-expense" class="tab-page">
-             <div class="panel">
-                <div class="panel-inner">
-                    <h3>Новый Расход</h3>
-                    <div style="position:relative; margin-bottom:15px;">
-                        <label>Наименование</label>
-                        <input type="text" id="expName" placeholder="Поиск или название..." autocomplete="off" onkeyup="handleKeyInput(event, 'expName', 'expRes'); calcTotal('exp');">
-                        <div class="search-res" id="expRes"></div>
-                    </div>
-                    <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <div style="flex:1">
-                            <label>Цена</label>
-                            <div class="qty-wrapper">
-                                <button class="qty-btn" onclick="modVal('expPrice', -100, 'exp')">−</button>
-                                <input type="number" id="expPrice" class="qty-input" placeholder="0" onkeyup="handleKeyInput(event); calcTotal('exp');">
-                                <button class="qty-btn" onclick="modVal('expPrice', 100, 'exp')">+</button>
-                            </div>
-                        </div>
-                        <div style="flex:0.7">
-                            <label>Кол-во</label>
-                            <div class="qty-wrapper">
-                                <button class="qty-btn" onclick="modVal('expQty', -1, 'exp')">−</button>
-                                <input type="number" id="expQty" class="qty-input" value="1" onkeyup="handleKeyInput(event); calcTotal('exp');">
-                                <button class="qty-btn" onclick="modVal('expQty', 1, 'exp')">+</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="text-align:center; padding:10px; background:var(--input-bg); border-radius:12px; border:1px solid var(--border);">
-                         <span style="font-size:10px; color:var(--text-sub); text-transform:uppercase;">Итого</span>
-                         <div id="expTotal" style="font-size:22px; font-weight:800;">0 ₽</div>
-                    </div>
-                    <button id="btnExp" class="btn" onclick="submitEntry('expense')">Добавить</button>
-                </div>
-             </div>
-             
-             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:0 5px;">
-                <h3>Последние записи</h3>
-                <span onclick="refreshTable('expense')" style="color:var(--accent); font-size:12px; font-weight:600; cursor:pointer;">Обновить</span>
-             </div>
-             <div id="list-expense" class="card-list"></div>
-        </div>
-
-        <div id="tab-analytics" class="tab-page">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <div class="picker-trigger" style="flex:1" onclick="openPicker('year')"><span id="txtYear">Год</span></div>
-                <div class="picker-trigger" style="flex:1" onclick="openPicker('month')"><span id="txtMonth">Месяц</span></div>
-            </div>
-
-            <div class="kpi-grid">
-                <div class="kpi-card"><div class="kpi-title">ВЫРУЧКА</div><div class="kpi-val" style="color:var(--color-inc)" id="kpiInc">0</div><div id="trendInc"></div></div>
-                <div class="kpi-card"><div class="kpi-title">РАСХОДЫ</div><div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div><div id="trendExp"></div></div>
-                <div class="kpi-card"><div class="kpi-title">ПРИБЫЛЬ</div><div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div><div id="trendProf"></div></div>
-                <div class="kpi-card"><div class="kpi-title">КЛИЕНТЫ</div><div class="kpi-val" style="color:var(--color-vis)" id="kpiVis">0</div><div id="trendVis"></div></div>
-            </div>
-
-            <div class="chart-box"><h3 style="font-size:16px;">Финансовый Пульс</h3><canvas id="chartPulse"></canvas></div>
-            <div class="chart-box"><h3 style="font-size:16px;">Посещаемость</h3><canvas id="chartAttendance"></canvas></div>
-        </div>
-
-    </div>
-
-    <div id="pickerModal" class="picker-overlay">
-        <div class="picker-container">
-            <div class="picker-header">
-                <span class="picker-btn" style="color:var(--text-sub)" onclick="closePicker(false)">Отмена</span>
-                <span class="picker-btn" onclick="closePicker(true)">Готово</span>
-            </div>
-            <div class="wheel-highlight"></div>
-            <div class="wheel-container" id="wheelBox">
-                </div>
+            <div class="title">Мастерская Венера</div>
         </div>
     </div>
 
     <div class="nav">
-        <button class="nav-btn active" onclick="goToTab(0)">
+        <div class="nav-indicator" id="navInd"></div>
+        <button class="nav-btn active" onclick="switchTab('income', 0)">
             <svg viewBox="0 0 24 24"><path d="M21 18V19C21 20.1 20.1 21 19 21H5C3.89 21 3 20.1 3 19V5C3 3.9 3.89 3 5 3H19C20.1 3 21 3.9 21 5V6H12C10.89 6 10 6.9 10 8V16C10 17.1 10.89 18 12 18H21ZM12 16H22V8H12V16ZM16 13.5C15.17 13.5 14.5 12.83 14.5 12C14.5 11.17 15.17 10.5 16 10.5C16.83 10.5 17.5 11.17 17.5 12C17.5 12.83 16.83 13.5 16 13.5Z"/></svg>
             МК
         </button>
-        <button class="nav-btn" onclick="goToTab(1)">
+        <button class="nav-btn" onclick="switchTab('expense', 1)">
             <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
             Расход
         </button>
-        <button class="nav-btn" onclick="goToTab(2)">
+        <button class="nav-btn" onclick="switchTab('analytics', 2)">
             <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg>
             Инфо
         </button>
     </div>
 
-    <script>
-        // 👇👇👇 ВСТАВЬ СВОЮ ССЫЛКУ НИЖЕ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxHs2iY8VjvE_oHjAkzyMGux57T9Ui3o6GCitV2BWVgHMq17-19S_5E1L7jrW9DcYO8/exec';
-        // 👆👆👆
-
-        const tg = window.Telegram.WebApp;
-        const haptic = tg.HapticFeedback;
-
-        let curTabIdx = 0;
-        const tabs = ['income', 'expense', 'analytics'];
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        // Data & Config
-        let config = { incomeItems: [], expenseItems: [] };
-        let dataCache = { income: null, expense: null };
-        let selYear = new Date().getFullYear();
-        let selMonth = new Date().getMonth();
-        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-        let availableYears = [selYear];
-
-        // --- INIT ---
-        window.onload = function() {
-            if(tg) { tg.expand(); tg.ready(); }
-            
-            // Theme check
-            const saved = localStorage.getItem('theme') || 'light';
-            document.body.setAttribute('data-theme', saved);
-
-            // Setup Swipe
-            const container = document.getElementById('mainContainer');
-            container.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-            container.addEventListener('touchend', e => { 
-                touchEndX = e.changedTouches[0].screenX; 
-                handleSwipe(); 
-            }, {passive: true});
-
-            // Setup Throttled Haptic for Scrolling (Pseudo)
-            setupScrollHaptics();
-
-            // Load Data
-            fetchInitialConfig();
-            refreshTable('income', true);
-        };
-
-        // --- HAPTICS HELPERS ---
-        function vib(type) {
-            if(!tg) return;
-            // impactLight, impactMedium, impactHeavy, selectionChanged, notificationOccurred
-            if(type === 'light') haptic.impactOccurred('light');
-            else if(type === 'medium') haptic.impactOccurred('medium');
-            else if(type === 'selection') haptic.selectionChanged();
-            else if(type === 'error') haptic.notificationOccurred('error');
-            else if(type === 'success') haptic.notificationOccurred('success');
-        }
-
-        // --- NAVIGATION & SWIPES ---
-        function goToTab(idx) {
-            if(idx === curTabIdx) return;
-            vib('medium');
-
-            const current = document.getElementById('tab-' + tabs[curTabIdx]);
-            const next = document.getElementById('tab-' + tabs[idx]);
-            const btns = document.querySelectorAll('.nav-btn');
-
-            // Nav Highlight
-            btns.forEach(b => b.classList.remove('active'));
-            btns[idx].classList.add('active');
-
-            // Animation Direction
-            const direction = idx > curTabIdx ? 'right' : 'left'; // moving to...
-            
-            // Clean classes
-            current.classList.remove('active', 'slide-in-left', 'slide-in-right', 'slide-out-left', 'slide-out-right');
-            next.classList.remove('active', 'slide-in-left', 'slide-in-right', 'slide-out-left', 'slide-out-right');
-            
-            // Apply anim
-            if(direction === 'right') {
-                current.classList.add('slide-out-left');
-                next.classList.add('slide-in-right');
-            } else {
-                current.classList.add('slide-out-right');
-                next.classList.add('slide-in-left');
-            }
-
-            curTabIdx = idx;
-            
-            if(tabs[curTabIdx] === 'analytics') loadAnalytics();
-        }
-
-        function handleSwipe() {
-            const diff = touchEndX - touchStartX;
-            if(Math.abs(diff) < 80) return; // Threshold
-
-            if(diff < 0) {
-                // Swipe Left -> Next Tab
-                let next = curTabIdx + 1;
-                if(next >= tabs.length) next = 0; // Loop
-                goToTab(next);
-            } else {
-                // Swipe Right -> Prev Tab
-                let prev = curTabIdx - 1;
-                if(prev < 0) prev = tabs.length - 1; // Loop
-                goToTab(prev);
-            }
-        }
-
-        // --- FORMS & INPUTS ---
-        function handleKeyInput(e, id, resId) {
-            // Vib on every key (except modifiers)
-            if(!e.ctrlKey && !e.altKey && !e.metaKey) vib('light');
-            
-            if(id && resId) {
-                // Search logic
-                const val = e.target.value.toLowerCase();
-                const box = document.getElementById(resId);
-                const list = (id === 'incName') ? config.incomeItems : config.expenseItems;
-                
-                if(!val) { box.style.display='none'; return; }
-                const found = list.filter(x => x.toLowerCase().includes(val)).slice(0,4);
-                
-                if(found.length) {
-                    box.innerHTML = '';
-                    box.style.display = 'block';
-                    found.forEach(item => {
-                        const div = document.createElement('div');
-                        div.className = 'res-item';
-                        div.innerText = item;
-                        div.onclick = () => {
-                            document.getElementById(id).value = item;
-                            box.style.display='none';
-                            vib('selection');
-                            calcTotal(id.substring(0,3));
-                        };
-                        box.appendChild(div);
-                    });
-                } else {
-                    box.style.display = 'none';
-                }
-            }
-        }
-
-        function modVal(id, delta, prefix) {
-            vib('selection');
-            const el = document.getElementById(id);
-            let val = parseFloat(el.value) || 0;
-            if(id.includes('Qty') && val + delta < 1) return;
-            if(id.includes('Price') && val + delta < 0) val = 0;
-            else val += delta;
-            
-            el.value = val;
-            calcTotal(prefix);
-            
-            // Animation for input
-            el.style.transform = "scale(1.1)";
-            setTimeout(()=> el.style.transform = "scale(1)", 100);
-        }
-
-        function calcTotal(prefix) {
-            const p = parseFloat(document.getElementById(prefix+'Price').value) || 0;
-            const q = parseFloat(document.getElementById(prefix+'Qty').value) || 0;
-            document.getElementById(prefix+'Total').innerText = (p*q).toLocaleString() + ' ₽';
-        }
-
-        function submitEntry(type) {
-            const prefix = type === 'income' ? 'inc' : 'exp';
-            const btn = document.getElementById(type === 'income' ? 'btnInc' : 'btnExp');
-            
-            const name = document.getElementById(prefix+'Name').value.trim();
-            const price = parseFloat(document.getElementById(prefix+'Price').value);
-            const qty = parseFloat(document.getElementById(prefix+'Qty').value);
-            const total = price * qty;
-
-            if(!name || !price) {
-                vib('error');
-                btn.classList.add('shake');
-                setTimeout(()=> btn.classList.remove('shake'), 500);
-                showToast("Заполните все поля", true);
-                return;
-            }
-
-            // UI Optimistic Update
-            vib('success');
-            btn.disabled = true;
-            btn.style.opacity = '0.7';
-
-            const payload = { 
-                action: 'saveTransaction', 
-                type: type, 
-                name: name, price: price, qty: qty, total: total, 
-                isNew: !((type==='income'?config.incomeItems:config.expenseItems).includes(name)) 
-            };
-            
-            // Add to cache list optimistically (simple append to top)
-            const listEl = document.getElementById('list-'+type);
-            const tempId = 'temp-'+Date.now();
-            const fakeRow = { rowId: tempId, dateStr: new Date().toLocaleDateString(), name, price, qty, total };
-            listEl.insertAdjacentHTML('afterbegin', renderCard(fakeRow, type, true));
-            
-            // Clear inputs
-            document.getElementById(prefix+'Name').value = '';
-            document.getElementById(prefix+'Price').value = '';
-            document.getElementById(prefix+'Qty').value = 1;
-            calcTotal(prefix);
-
-            // Send
-            fetch(GAS_URL, {
-                method: "POST", body: JSON.stringify(payload)
-            }).then(r => r.json()).then(res => {
-                btn.disabled = false; btn.style.opacity = '1';
-                if(res.success) {
-                    showToast("Сохранено");
-                    refreshTable(type, true); // Real refresh
-                } else {
-                    document.getElementById(tempId).remove();
-                    showToast(res.message, true);
-                }
-            }).catch(e => {
-                document.getElementById(tempId).remove();
-                btn.disabled = false; btn.style.opacity = '1';
-                showToast("Ошибка сети", true);
-            });
-        }
-
-        // --- LISTS & TABLES ---
-        function renderCard(row, type, isTemp=false) {
-            const style = isTemp ? 'opacity:0.5;' : '';
-            const btnColor = type === 'income' ? 'var(--color-inc)' : 'var(--color-exp)';
-            return `
-            <div class="card-item" id="${row.rowId}" style="${style}">
-                <div class="card-row">
-                    <span class="card-date">${row.dateStr}</span>
-                    <span class="card-price" style="color:${btnColor}">${row.total.toLocaleString()}</span>
+    <div class="content-area">
+        <div id="splitTab" class="tab-page active">
+            <div class="split-view">
+                <div class="panel panel-left">
+                     <h3 id="formTitle">Добавить запись</h3>
+                    <div class="search-wrap">
+                        <label id="lblSearch">Название</label>
+                        <input type="text" id="inpName" placeholder="Поиск или новое..." autocomplete="off" oninput="showSearch(event); calcTotal()">
+                        <div class="search-res" id="searchRes"></div>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <div style="flex:1">
+                           <label>Цена</label>
+                           <div class="qty-wrapper">
+                               <button class="qty-btn" onclick="modVal('inpPrice', -100)">−</button>
+                               <input type="number" id="inpPrice" class="qty-input" placeholder="0" oninput="calcTotal()">
+                               <button class="qty-btn" onclick="modVal('inpPrice', 100)">+</button>
+                           </div>
+                        </div>
+                        <div style="flex:1">
+                           <label>Кол-во</label>
+                           <div class="qty-wrapper">
+                               <button class="qty-btn" onclick="modVal('inpQty', -1)">−</button>
+                               <input type="number" id="inpQty" class="qty-input" value="1" oninput="calcTotal()">
+                               <button class="qty-btn" onclick="modVal('inpQty', 1)">+</button>
+                           </div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; margin-top:auto; margin-bottom:5px; padding: 10px; background: var(--input-bg); border-radius: 16px; border: 1px solid var(--border);">
+                        <span style="font-size:9px; color:var(--text-sub); text-transform:uppercase; font-weight:700; display:block; margin-bottom:2px;">Итого к записи</span>
+                        <div id="txtTotal" style="font-size:24px; font-weight:800; color:var(--text-main)">0 ₽</div>
+                    </div>
+                    <button id="btnAdd" class="btn" onclick="submitEntry()">Добавить запись</button>
                 </div>
-                <div class="card-row">
-                    <span class="card-title">${row.name}</span>
-                    <div class="card-actions">
-                        <button class="btn-icon btn-del" onclick="reqDelete('${row.rowId}', '${type}')">
-                            <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                         </button>
+
+                <div class="panel panel-right">
+                    <div class="table-header">
+                        <h3 id="tableTitle" style="margin:0">Последние записи</h3>
+                        <button class="btn-refresh" onclick="refreshTable(true)">Обновить</button>
+                    </div>
+                    <div class="grid-wrapper">
+                        <table id="mainTable">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Название</th>
+                                    <th>Сумма</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                        <div id="emptyMsg" style="padding:40px; text-align:center; color:var(--text-sub);">Нажмите "Обновить" для загрузки</div>
                     </div>
                 </div>
-            </div>`;
-        }
+            </div>
+        </div>
 
-        function refreshTable(type, force=false) {
-            if(!force && dataCache[type]) return;
-            const list = document.getElementById('list-'+type);
-            list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-sub)">Загрузка...</div>';
-            
-            fetch(GAS_URL, {
-                method: "POST", body: JSON.stringify({ action: 'getTableData', type: type })
-            }).then(r => r.json()).then(data => {
-                dataCache[type] = data;
-                if(!data.length) list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-sub)">Нет записей</div>';
-                else {
-                    list.innerHTML = data.map(r => renderCard(r, type)).join('');
-                }
-            });
-        }
+        <div id="analyticsTab" class="tab-page">
+            <div class="analytics-container">
+                <div class="filters-row">
+                    <div class="custom-select-wrapper" onclick="openSheet('year')">
+                        <div class="custom-select-trigger"><span id="txtYear">Год</span></div>
+                    </div>
+                    <div class="custom-select-wrapper" onclick="openSheet('month')">
+                        <div class="custom-select-trigger"><span id="txtMonth">Месяц</span></div>
+                    </div>
+                </div>
 
-        function reqDelete(id, type) {
-            if(confirm("Удалить запись?")) {
-                vib('medium');
-                document.getElementById(id).style.opacity = '0.2';
-                fetch(GAS_URL, {
-                     method: "POST", body: JSON.stringify({ action: 'deleteTransaction', rowId: id, type: type })
-                }).then(r=>r.json()).then(res=>{
-                    if(res.success) { showToast("Удалено"); refreshTable(type, true); }
-                });
-            }
-        }
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="kpi-title">ВЫРУЧКА</div><div class="kpi-val" style="color:var(--color-inc)" id="kpiInc">0</div><div id="trendInc"></div></div>
+                    <div class="kpi-card"><div class="kpi-title">РАСХОДЫ</div><div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div><div id="trendExp"></div></div>
+                    <div class="kpi-card"><div class="kpi-title">ПРИБЫЛЬ</div><div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div><div id="trendProf"></div></div>
+                    <div class="kpi-card"><div class="kpi-title">ПОСЕТИТЕЛИ</div><div class="kpi-val" style="color:var(--color-vis)" id="kpiVis">0</div><div id="trendVis"></div></div>
+                </div>
 
-        // --- ANALYTICS ---
-        function loadAnalytics() {
-            // Simple check to avoid spamming
-            const kpi = document.getElementById('kpiInc');
-            if(kpi.innerText !== '0') vib('light'); // Feedback on tab load
+                <div class="charts-grid">
+                     <div class="chart-box"><div class="chart-head">Финансовый Пульс</div><div class="chart-canv"><canvas id="chartPulse"></canvas></div></div>
+                     <div class="chart-box" style="min-height:300px"><div class="chart-head">Топ Доходов</div><div id="listInc" class="prog-list"></div></div>
+                </div>
+                <div class="charts-grid">
+                     <div class="chart-box"><div class="chart-head">Посещаемость</div><div class="chart-canv"><canvas id="chartAttendance"></canvas></div></div>
+                     <div class="chart-box" style="min-height:300px"><div class="chart-head">Топ Расходов</div><div id="listExp" class="prog-list"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            fetch(GAS_URL, {
-                 method: "POST", body: JSON.stringify({ action: 'getAnalyticsData', year: selYear, monthIdx: selMonth })
-            }).then(r=>r.json()).then(d => {
-                // Render KPI
-                renderKpi('Inc', d.current.income, d.growth.income);
-                renderKpi('Exp', d.current.expense, d.growth.expense);
-                renderKpi('Prof', d.current.profit, d.growth.profit);
-                renderKpi('Vis', d.current.visitors, d.growth.visitors);
-                
-                // Charts
-                renderChart('chartPulse', d.pulse.labels, [
-                    {label:'Доход', data:d.pulse.income, borderColor:'#34C759', backgroundColor:'rgba(52,199,89,0.1)', fill:true},
-                    {label:'Расход', data:d.pulse.expense, borderColor:'#FF3B30', backgroundColor:'rgba(255,59,48,0.1)', fill:true}
-                ]);
-                renderChart('chartAttendance', d.attendance.labels, [
-                    {label:'Посетители', data:d.attendance.data, borderColor:'#AF52DE', backgroundColor:'rgba(175,82,222,0.1)', fill:true}
-                ]);
-            });
-        }
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-bottom:20px; color:var(--text-main)">Редактирование</h3>
+            <input type="hidden" id="editId">
+            <label>Название</label><input type="text" id="editName" style="margin-bottom:15px;">
+            <div style="display:flex; gap:15px; margin-bottom:20px;">
+                <div style="flex:1"><label>Цена</label><input type="number" id="editPrice"></div>
+                <div style="flex:1"><label>Кол-во</label><input type="number" id="editQty"></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" onclick="saveEdit()">Сохранить</button>
+                <button class="btn" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-strong);" onclick="document.getElementById('editModal').style.display='none'">Отмена</button>
+            </div>
+        </div>
+    </div>
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-bottom:15px; color:var(--text-main)">Удаление</h3>
+            <p style="color:var(--text-sub); margin-bottom:25px; font-size:14px; line-height:1.5;">Вы уверены, что хотите удалить эту запись? Это действие нельзя будет отменить.</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" style="background:var(--danger); color:white; margin-top:0;" onclick="confirmDelete()">Удалить</button>
+                <button class="btn" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-strong); margin-top:0;" onclick="document.getElementById('deleteModal').style.display='none'">Отмена</button>
+            </div>
+        </div>
+    </div>
 
-        function renderKpi(id, val, growth) {
-            document.getElementById('kpi'+id).innerText = val.toLocaleString();
-            const tr = document.getElementById('trend'+id);
-            const isUp = growth >= 0;
-            // Logic for expenses: growth is bad
-            let isGood = isUp;
-            if(id === 'Exp') isGood = !isUp;
-            
-            tr.className = `kpi-trend ${isGood ? 'trend-up' : 'trend-down'}`;
-            tr.innerText = (isUp ? '↗ ' : '↘ ') + Math.abs(growth) + '%';
-        }
+    <div id="sheetModal" class="sheet-overlay" onclick="closeSheet(event)">
+        <div class="sheet-box" id="sheetContent">
+            <div class="sheet-header">
+                <span class="sheet-title" id="sheetTitle">Выбор</span>
+                <span class="sheet-close" onclick="document.getElementById('sheetModal').style.display='none'">Готово</span>
+            </div>
+            <div id="sheetList"></div>
+        </div>
+    </div>
 
-        let chartInstances = {};
-        function renderChart(id, labels, datasets) {
-            const ctx = document.getElementById(id).getContext('2d');
-            if(chartInstances[id]) chartInstances[id].destroy();
-            
-            chartInstances[id] = new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    elements: { point: { radius: 0, hitRadius: 10 } },
-                    scales: { x: { display: false }, y: { display: false } },
-                    plugins: { legend: { display: false } },
-                    interaction: { mode: 'index', intersect: false },
-                }
-            });
-        }
+    <script>
+        // 👇 ВСТАВЬ СЮДА ССЫЛКУ
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwdTG-kOXtYamX2jeD8EgnN3xsCqtQd-nYR68Y6CzZ5ndL_BI2cLt1k2y1R--kbd2qB/exec';
+        // 👆👆👆
 
-        // --- 3D PICKER LOGIC ---
-        let currentPickerType = null;
-        function openPicker(type) {
-            vib('medium');
-            currentPickerType = type;
-            const box = document.getElementById('wheelBox');
-            box.innerHTML = ''; // clear
-            
-            // Add padding items for center alignment
-            const padTop = document.createElement('div'); padTop.style.height = '80px'; box.appendChild(padTop);
+        const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
+        let currTab = 'income', dataCache = { income: null, expense: null }, config = { incomeItems: [], expenseItems: [] }, charts = {};
+        let stopAnimationRequest = false, activeRequests = 0, deleteTargetId = null, isAnalyticsLoaded = false, analyticsNeedsRefresh = true;
+        let selYear = new Date().getFullYear();
+        let selMonth = new Date().getMonth();
+        let availableYears = [];
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+        
+        // --- ЛОГИКА СВАЙПОВ И КРУГОВОЙ НАВИГАЦИИ ---
+        const TABS_ORDER = ['income', 'expense', 'analytics'];
+        let touchStartX = 0;
+        let touchEndX = 0;
 
-            let items = [];
-            if(type === 'year') items = availableYears.map(y => ({ val: y, txt: y }));
-            else {
-                items.push({val:'all', txt:'Весь год'});
-                monthNames.forEach((m,i) => items.push({val:i, txt:m}));
-            }
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
 
-            items.forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'wheel-item';
-                el.innerText = item.txt;
-                el.dataset.val = item.val;
-                
-                // Highlight current
-                if((type==='year' && item.val==selYear) || (type==='month' && item.val==selMonth)) {
-                    el.style.opacity = '1';
-                    el.style.fontWeight = '700';
-                    el.style.transform = 'scale(1.1)';
-                }
-                
-                box.appendChild(el);
-            });
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
 
-            const padBot = document.createElement('div'); padBot.style.height = '80px'; box.appendChild(padBot);
-            
-            document.getElementById('pickerModal').style.display = 'flex';
-            
-            // Scroll logic with Haptics
-            let lastScroll = 0;
-            box.onscroll = (e) => {
-                const y = box.scrollTop;
-                // Simple throttling for haptics
-                if(Math.abs(y - lastScroll) > 30) {
-                    vib('selection');
-                    lastScroll = y;
-                    updateWheelVisuals(box);
-                }
-            };
-            // Scroll to current position
-            setTimeout(() => {
-                const active = Array.from(document.querySelectorAll('.wheel-item')).find(el => 
-                    (type==='year' && el.dataset.val==selYear) || (type==='month' && el.dataset.val==selMonth)
-                );
-                if(active) active.scrollIntoView({block: "center"});
-            }, 100);
-        }
+        function handleSwipe() {
+            const threshold = 50; 
+            const swipeDistance = touchEndX - touchStartX;
 
-        function updateWheelVisuals(container) {
-            const center = container.scrollTop + (container.clientHeight / 2);
-            const items = container.querySelectorAll('.wheel-item');
-            items.forEach(item => {
-                const itemCenter = item.offsetTop + (item.clientHeight / 2);
-                const dist = Math.abs(center - itemCenter);
-                if(dist < 25) {
-                    item.style.opacity = '1'; item.style.fontWeight = '700'; item.style.transform = 'scale(1.1)';
-                } else {
-                    item.style.opacity = '0.4'; item.style.fontWeight = '400'; item.style.transform = 'scale(1.0)';
-                }
-            });
-        }
+            if (Math.abs(swipeDistance) < threshold) return;
 
-        function closePicker(save) {
-            if(save) {
-                vib('success');
-                // Find centered item
-                const box = document.getElementById('wheelBox');
-                const center = box.scrollTop + (box.clientHeight / 2);
-                let selected = null;
-                let minDist = 9999;
-                
-                box.querySelectorAll('.wheel-item').forEach(item => {
-                    const d = Math.abs((item.offsetTop + item.clientHeight/2) - center);
-                    if(d < minDist) { minDist = d; selected = item; }
-                });
+            let currentIdx = TABS_ORDER.indexOf(currTab);
+            if (currentIdx === -1) currentIdx = 0;
 
-                if(selected) {
-                    const val = selected.dataset.val;
-                    if(currentPickerType === 'year') {
-                        selYear = parseInt(val);
-                        document.getElementById('txtYear').innerText = selYear;
-                    } else {
-                        selMonth = val === 'all' ? 'all' : parseInt(val);
-                        document.getElementById('txtMonth').innerText = val === 'all' ? 'Весь год' : monthNames[val];
-                    }
-                    loadAnalytics();
-                }
+            if (swipeDistance < 0) {
+                // Свайп влево (СЛЕДУЮЩАЯ)
+                let nextIdx = currentIdx + 1;
+                if (nextIdx >= TABS_ORDER.length) nextIdx = 0; // Круг
+                switchTab(TABS_ORDER[nextIdx], nextIdx, 'next');
             } else {
-                vib('light');
+                // Свайп вправо (ПРЕДЫДУЩАЯ)
+                let prevIdx = currentIdx - 1;
+                if (prevIdx < 0) prevIdx = TABS_ORDER.length - 1; // Круг
+                switchTab(TABS_ORDER[prevIdx], prevIdx, 'prev');
             }
-            document.getElementById('pickerModal').style.display = 'none';
+        }
+        // ---------------------------------------------
+
+        async function runBackend(action, payload = {}) {
+            if (IS_GOOGLE) {
+                return new Promise((resolve, reject) => {
+                    if(action === 'getInitialConfig') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getInitialConfig();
+                    else if(action === 'saveTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveTransaction(payload);
+                    else if(action === 'getTableData') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getTableData(payload.type);
+                    else if(action === 'editTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).editTransaction(payload);
+                    else if(action === 'deleteTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteTransaction(payload);
+                    else if(action === 'getAnalyticsData') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getAnalyticsData(payload.year, payload.monthIdx);
+                    else reject("Unknown Func");
+                });
+            } else {
+                if(GAS_URL.includes("ВАШ_")) { alert("ОШИБКА: Вставь ссылку в index.html!"); throw new Error("No URL"); }
+                payload.action = action;
+                try {
+                    const res = await fetch(GAS_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(payload)
+                    });
+                    const text = await res.text();
+                    try { return JSON.parse(text); } catch(e) { throw new Error("Server Error: " + text); }
+                } catch(e) { throw e; }
+            }
         }
 
-        // --- UTILS ---
-        function setupScrollHaptics() {
-            // Attach to scrollable areas
-            const areas = document.querySelectorAll('.tab-page, .wheel-container');
-            areas.forEach(area => {
-                let lastY = 0;
-                area.addEventListener('scroll', () => {
-                    const nowY = area.scrollTop;
-                    if(Math.abs(nowY - lastY) > 50) { // Every 50px
-                        vib('selection');
-                        lastY = nowY;
-                    }
-                }, {passive: true});
-            });
-        }
-
-        function fetchInitialConfig() {
-            fetch(GAS_URL, { method: "POST", body: JSON.stringify({ action: 'getInitialConfig' }) })
-            .then(r=>r.json()).then(res => {
+        window.onload = function() {
+            if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.expand();
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            setLoading(true);
+            
+            runBackend('getInitialConfig').then(res => {
                 config = res;
                 availableYears = res.years;
-                document.getElementById('txtYear').innerText = selYear;
-                document.getElementById('txtMonth').innerText = monthNames[selMonth];
+                updateFilterUI();
+                refreshTable(true);
+                loadAnalytics(true);
+                setLoading(false);
+            }).catch(e => {
+                showToast("Error: " + e, true);
+                setLoading(false);
             });
-        }
-        
-        function toggleTheme() {
-            vib('medium');
-            const body = document.body;
-            const cur = body.getAttribute('data-theme');
-            const next = cur === 'dark' ? 'light' : 'dark';
-            body.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
+            const v = document.getElementById('venus');
+            v.addEventListener('animationiteration', () => { if (stopAnimationRequest) { v.classList.remove('spinning'); stopAnimationRequest = false; } });
+            calcTotal();
+        };
+
+        function setLoading(active) {
+            const v = document.getElementById('venus');
+            if (active) { activeRequests++; stopAnimationRequest = false; v.classList.add('spinning'); } 
+            else { activeRequests--; if (activeRequests < 0) activeRequests = 0; if (activeRequests === 0) stopAnimationRequest = true; }
         }
 
-        function showToast(msg, isErr) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.className = isErr ? 'toast error show' : 'toast show';
-            if(isErr) vib('error');
-            setTimeout(() => t.className = 'toast', 2500);
+        function toggleTheme(event) {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            if (!document.startViewTransition) { setTheme(newTheme); return; }
+
+            const rect = document.getElementById('venus').getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+            const transition = document.startViewTransition(() => {
+                setTheme(newTheme);
+            });
+            transition.ready.then(() => {
+                const clipPath = [
+                    `circle(0px at ${x}px ${y}px)`,
+                    `circle(${endRadius}px at ${x}px ${y}px)`
+                ];
+                document.documentElement.animate(
+                   { clipPath: clipPath },
+                   {
+                        duration: 700,
+                        easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
+                        pseudoElement: '::view-transition-new(root)'
+                    }
+                );
+            });
+        }
+        function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
+
+        // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ---
+        function switchTab(t, idx, direction = 'fade') {
+            // Если вкладка та же самая, ничего не делаем (если только это не свайп, который может вызвать перерисовку)
+            if (currTab === t && !direction) return;
+
+            currTab = t;
+            
+            // Навигация (кнопки)
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(b => b.classList.remove('active')); 
+            if(typeof idx === 'undefined') {
+                if(t==='income') idx=0; else if(t==='expense') idx=1; else idx=2;
+            }
+            if(btns[idx]) btns[idx].classList.add('active');
+            const ind = document.getElementById('navInd');
+            if(ind) ind.style.transform = `translateX(${idx * 100}%)`;
+
+            // Логика контента
+            const splitPage = document.getElementById('splitTab');
+            const analyticsPage = document.getElementById('analyticsTab');
+            let activePage;
+
+            // Сброс классов
+            document.querySelectorAll('.tab-page').forEach(p => {
+                p.classList.remove('active', 'anim-next', 'anim-prev', 'anim-fade');
+            });
+
+            if(t === 'analytics') {
+                activePage = analyticsPage;
+                if(analyticsNeedsRefresh || !isAnalyticsLoaded) loadAnalytics();
+            } else {
+                activePage = splitPage;
+                updateUIForTab(t);
+                if (dataCache[t]) renderTableFromCache(dataCache[t]);
+                else { document.getElementById('tableBody').innerHTML = ''; document.getElementById('emptyMsg').style.display = 'block'; refreshTable(true); }
+            }
+
+            // Применяем класс active и анимацию
+            activePage.classList.add('active');
+            
+            // Хак для перезапуска анимации
+            void activePage.offsetWidth; 
+
+            if (direction === 'next') {
+                activePage.classList.add('anim-next');
+            } else if (direction === 'prev') {
+                activePage.classList.add('anim-prev');
+            } else {
+                activePage.classList.add('anim-fade');
+            }
+        }
+
+        function updateUIForTab(t) {
+            const isInc = t === 'income';
+            document.getElementById('formTitle').innerText = isInc ? 'Добавить Мастер Класс' : 'Добавить Расход';
+            document.getElementById('lblSearch').innerText = isInc ? 'Название МК' : 'Наименование';
+            document.getElementById('tableTitle').innerText = isInc ? 'Доходы (Последние записи)' : 'Расходы (Последние записи)';
+            document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1;
+            calcTotal();
+        }
+
+        function updateFilterUI() {
+            document.getElementById('txtYear').innerText = selYear;
+            document.getElementById('txtMonth').innerText = (selMonth === 'all') ? 'Весь год' : monthNames[selMonth];
+        }
+
+        function openSheet(type) {
+            const sheet = document.getElementById('sheetModal');
+            const list = document.getElementById('sheetList');
+            const title = document.getElementById('sheetTitle');
+            list.innerHTML = '';
+            sheet.style.display = 'flex';
+            if (type === 'year') {
+                title.innerText = 'Выберите год';
+                availableYears.forEach(y => {
+                    const div = document.createElement('div');
+                    div.className = `sheet-item ${y == selYear ? 'selected' : ''}`;
+                    div.innerText = y;
+                    div.onclick = () => { selYear = y; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                    list.appendChild(div);
+                });
+            } else {
+                title.innerText = 'Выберите месяц';
+                const divAll = document.createElement('div');
+                divAll.className = `sheet-item ${selMonth === 'all' ? 'selected' : ''}`;
+                divAll.innerText = 'Весь год';
+                divAll.onclick = () => { selMonth = 'all'; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                list.appendChild(divAll);
+                monthNames.forEach((m, i) => {
+                    const div = document.createElement('div');
+                    div.className = `sheet-item ${i === selMonth ? 'selected' : ''}`;
+                    div.innerText = m;
+                    div.onclick = () => { selMonth = i; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                    list.appendChild(div);
+                });
+            }
+        }
+        function closeSheet(e) {
+            if (e.target.id === 'sheetModal') document.getElementById('sheetModal').style.display = 'none';
+        }
+
+        function renderTableFromCache(data) {
+             const tbody = document.getElementById('tableBody'), msg = document.getElementById('emptyMsg');
+             if(!data || !data.length) { tbody.innerHTML = ''; msg.style.display = 'block'; msg.innerText = 'Список пуст'; return; }
+             msg.style.display = 'none';
+             let html = '';
+             data.forEach(row => {
+                 const rowJson = JSON.stringify(row).replace(/"/g, '&quot;');
+                 const shortDate = row.dateStr.length >= 10 ? row.dateStr.slice(0, 6) + row.dateStr.slice(8) : row.dateStr;
+                 const iconEdit = `<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+                 const iconDel = `<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+
+                 html += `<tr id="row-${row.rowId}">
+                    <td style="color:var(--text-sub); white-space:nowrap;">${shortDate}</td>
+                    <td style="font-weight:600; line-height:1.2;">${row.name}</td>
+                    <td style="font-weight:700;">${row.total.toLocaleString()}</td>
+                    <td class="action-cell">
+                        <button class="btn-table btn-edit" onclick="openEdit(${rowJson})">${iconEdit}</button>
+                        <button class="btn-table btn-del" onclick="openDelete(${rowJson})">${iconDel}</button>
+                    </td>
+                 </tr>`;
+             });
+             tbody.innerHTML = html;
+        }
+
+        function refreshTable(force = false, isSilent = false) {
+            if(!force && dataCache[currTab]) return;
+            const tbody = document.getElementById('tableBody'), msg = document.getElementById('emptyMsg');
+            setLoading(true);
+            if (!isSilent) { tbody.innerHTML = ''; msg.style.display = 'block'; msg.innerText = 'Загрузка...'; }
+            runBackend('getTableData', {type: currTab}).then(data => {
+                dataCache[currTab] = data; setLoading(false); renderTableFromCache(data); 
+            });
+        }
+
+        function submitEntry() {
+            const name = document.getElementById('inpName').value.trim();
+            const price = parseFloat(document.getElementById('inpPrice').value);
+            const qty = parseFloat(document.getElementById('inpQty').value);
+            if(!name || !price) return;
+            
+            const total = price * qty;
+            const list = currTab === 'income' ? config.incomeItems : config.expenseItems;
+            const isNew = !list.includes(name);
+            if(isNew) list.push(name);
+            const payload = { type: currTab, name: name, price: price, qty: qty, total: total, isNew: isNew };
+            const tbody = document.getElementById('tableBody');
+            document.getElementById('emptyMsg').style.display = 'none';
+            const tempId = 'temp-' + Date.now();
+            const shortDate = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'2-digit'});
+            
+            tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${shortDate}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">...</span></td></tr>`);
+            document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
+            const btn = document.getElementById('btnAdd'); btn.disabled = true; setLoading(true);
+            runBackend('saveTransaction', payload).then(res => {
+                btn.disabled = false; setLoading(false);
+                if(res.success) { showToast('Успешно добавлено'); refreshTable(true, true); analyticsNeedsRefresh = true; loadAnalytics(true); } 
+                else { const tempEl = document.getElementById(tempId); if(tempEl) tempEl.remove(); showToast(res.message, true); document.getElementById('inpName').value = name; document.getElementById('inpPrice').value = price; }
+            });
+        }
+
+        function openEdit(row) {
+            document.getElementById('editId').value = row.rowId;
+            document.getElementById('editName').value = row.name; document.getElementById('editPrice').value = row.price; document.getElementById('editQty').value = row.qty; document.getElementById('editModal').style.display = 'flex';
+        }
+        function saveEdit() {
+            const id = document.getElementById('editId').value, name = document.getElementById('editName').value, price = parseFloat(document.getElementById('editPrice').value), qty = parseFloat(document.getElementById('editQty').value);
+            const payload = { rowId: id, type: currTab, name: name, price: price, qty: qty };
+            document.getElementById('editModal').style.display = 'none';
+            const row = document.getElementById('row-' + id);
+            if(row) { 
+                row.cells[1].innerText = name;
+                row.cells[2].innerText = (price * qty).toLocaleString(); 
+                row.style.transition = 'background 0.3s';
+                row.style.background = 'rgba(var(--accent), 0.1)'; 
+                setTimeout(() => row.style.background = 'transparent', 1000);
+            }
+            setLoading(true);
+            runBackend('editTransaction', payload).then(res => {
+                setLoading(false);
+                if(res.success) { showToast('Сохранено'); refreshTable(true, true); analyticsNeedsRefresh = true; loadAnalytics(true); } else { showToast(res.message, true); refreshTable(true, false); }
+            });
+        }
+        function openDelete(row) { deleteTargetId = row.rowId; document.getElementById('deleteModal').style.display = 'flex'; }
+        function confirmDelete() {
+            if(!deleteTargetId) return;
+            document.getElementById('deleteModal').style.display = 'none';
+            const rowElement = document.getElementById('row-' + deleteTargetId);
+            if (rowElement) { rowElement.style.transition = 'opacity 0.3s'; rowElement.style.opacity = '0';
+            setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
+            setLoading(true);
+            runBackend('deleteTransaction', {rowId: deleteTargetId, type: currTab}).then(res => {
+                setLoading(false);
+                if(res.success) { showToast('Удалено'); refreshTable(true, true); analyticsNeedsRefresh = true; loadAnalytics(true); } else { showToast(res.message, true); refreshTable(true, false); }
+            });
+        }
+
+        function loadAnalytics(isSilent = false) {
+            setLoading(true);
+            runBackend('getAnalyticsData', {year: selYear, monthIdx: selMonth}).then(d => {
+                setLoading(false); isAnalyticsLoaded = true; analyticsNeedsRefresh = false;
+                renderKPI('kpiInc', d.current.income, d.growth.income, '₽', 'trend-up'); renderKPI('kpiExp', d.current.expense, d.growth.expense, '₽', 'trend-down'); renderKPI('kpiProf', d.current.profit, d.growth.profit, '₽', 'trend-up'); renderKPI('kpiVis', d.current.visitors, d.growth.visitors, 'чел', 'trend-up');
+                renderAreaChart('chartPulse', d.pulse.labels, [{ label:'Доход', data:d.pulse.income, borderColor:'#34C759', bg:'rgba(52, 199, 89, 0.1)' }, { label:'Расход', data:d.pulse.expense, borderColor:'#FF3B30', bg:'rgba(255, 59, 48, 0.1)' }]);
+                renderAreaChart('chartAttendance', d.attendance.labels, [{ label:'Посетители', data:d.attendance.data, borderColor:'#AF52DE', bg:'rgba(175, 82, 222, 0.1)' }]);
+                renderProgressList('listInc', d.pieIncome.labels, d.pieIncome.data, '#34C759');
+                renderProgressList('listExp', d.pieExpense.labels, d.pieExpense.data, '#FF3B30');
+            });
+        }
+        function renderKPI(id, val, growth, suff, colorCls) {
+            document.getElementById(id).innerText = val.toLocaleString() + ' ' + suff;
+            const el = document.getElementById(id.replace('kpi','trend'));
+            if(el) { const arr = growth>=0?'↗':'↘'; const cls = (growth>=0 && colorCls==='trend-up') || (growth<0 && colorCls==='trend-down') ? 'trend-up' : 'trend-down'; let finalCls = cls; if(id==='kpiExp') finalCls = (growth > 0) ? 'trend-down' : 'trend-up'; el.className = `kpi-trend ${finalCls}`; el.innerText = `${arr} ${Math.abs(growth)}%`; }
+        }
+        function renderAreaChart(id, labels, datasets) {
+            if(charts[id]) charts[id].destroy();
+            const ctx = document.getElementById(id).getContext('2d');
+            const ds = datasets.map(d => ({ label: d.label, data: d.data, borderColor: d.borderColor, backgroundColor: d.bg, borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }));
+            charts[id] = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: ds }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1C1C1E', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 8, padding: 10 } }, scales: { x: { grid: { display: false }, ticks: { color: '#8E8E93', font:{size:10} } }, y: { display: false } } } });
+        }
+        function renderProgressList(id, labels, data, color) {
+            const el = document.getElementById(id);
+            el.innerHTML = ''; if(!data.length) { el.innerHTML='<div style="color:var(--text-sub); font-size:13px">Нет данных</div>'; return; }
+            const max = Math.max(...data);
+            labels.forEach((lbl, i) => { const val = data[i]; const pct = (val / max) * 100; const html = `<div class="prog-item"><div class="prog-info"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%; background:${color}"></div></div></div>`; el.insertAdjacentHTML('beforeend', html); });
+        }
+        function showSearch(e) {
+            const val = e.target.value.toLowerCase();
+            const box = document.getElementById('searchRes'); box.innerHTML = ''; if(!val) { box.style.display='none'; return; }
+            const src = currTab==='income' ? config.incomeItems : config.expenseItems;
+            const res = src.filter(s => s.toLowerCase().includes(val)).slice(0,5);
+            if(res.length) { box.style.display='block'; res.forEach(r => { const d = document.createElement('div'); d.className='res-item'; d.innerText=r; d.onclick=()=>{ document.getElementById('inpName').value=r; box.style.display='none'; calcTotal(); }; box.appendChild(d); });
+            } else box.style.display='none';
+        }
+        function modVal(id, d) { const el = document.getElementById(id);
+            let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal();
+        }
+        function calcTotal() {
+            const priceVal = document.getElementById('inpPrice').value, nameVal = document.getElementById('inpName').value.trim();
+            const p = parseFloat(priceVal); const q = parseFloat(document.getElementById('inpQty').value);
+            document.getElementById('txtTotal').innerText = ((p*q)||0).toLocaleString() + ' ₽'; const btn = document.getElementById('btnAdd');
+            if (!nameVal) { btn.innerText = "Укажите название"; btn.style.opacity = "0.6";
+            } else if (!priceVal || isNaN(p) || p === 0) { btn.innerText = "Укажите цену"; btn.style.opacity = "0.6";
+            } else { btn.innerText = "Добавить запись"; btn.style.opacity = "1"; }
+        }
+        function showToast(m, err) { const t = document.getElementById('toast');
+            t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000);
         }
     </script>
 </body>
