@@ -60,9 +60,7 @@
           width: 100%; height: 100%; top: 0; left: 0;
       }
 
-      /* Новая тема всегда сверху (Z-9999) и растет */
       ::view-transition-new(root) { z-index: 9999; }
-      /* Старая тема лежит снизу (Z-1) и ждет */
       ::view-transition-old(root) { z-index: 1; }
       
       ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -80,7 +78,6 @@
           overflow: hidden; 
           display:flex;
           flex-direction:column;
-          /* Убрали CSS transition фона, чтобы не мешал ViewTransition */
           -webkit-font-smoothing: antialiased;
           font-weight: 500;
       }
@@ -108,20 +105,19 @@
       .content-area { flex: 1; position: relative; overflow: hidden; border-radius: var(--radius); display: flex; }
       
       .tab-page { display: none; width: 100%; height: 100%; }
-      /* Убрали дефолтную fadeIn, управляем через JS */
       .tab-page.active { display: block; }
       
-      /* Анимации для свайпов */
-      .anim-next { animation: slideInRight 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-      .anim-prev { animation: slideInLeft 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+      /* Анимации для свайпов (Slide Effect) */
+      .anim-next { animation: slideInRight 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+      .anim-prev { animation: slideInLeft 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
       .anim-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
       @keyframes slideInRight {
-          from { transform: translateX(100%); opacity: 0; }
+          from { transform: translateX(100%); opacity: 0.5; }
           to { transform: translateX(0); opacity: 1; }
       }
       @keyframes slideInLeft {
-          from { transform: translateX(-100%); opacity: 0; }
+          from { transform: translateX(-100%); opacity: 0.5; }
           to { transform: translateX(0); opacity: 1; }
       }
       
@@ -183,7 +179,6 @@
       tr td:last-child { border-top-right-radius: 14px; border-bottom-right-radius: 14px; text-align: right; border-left: none; }
       tr td:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
       
-      /* Настройка ширины колонок */
       th:nth-child(1) { width: 70px; } 
       th:nth-child(2) { width: auto; } 
       th:nth-child(3) { width: 90px; text-align: right; } 
@@ -453,7 +448,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwJlK6PqmagiDNYQiY2CzvKaojvVHAu57aj7HTboxv8_zI7sktMtkHOrRhIUO34eaiH/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzKOMjItixU6AyJnIctfpgS_T2gUCEMPghzjk2sFetnpqzHvysoZvb8tJNMf67XCFBZ/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -464,35 +459,44 @@
         let availableYears = [];
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
         
-        // --- ЛОГИКА СВАЙПОВ (ИСПРАВЛЕНА ЧУВСТВИТЕЛЬНОСТЬ) ---
+        // --- ЛОГИКА СВАЙПОВ + ЗАЩИТА ОТ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ ---
         const TABS_ORDER = ['income', 'expense', 'analytics'];
         let touchStartX = 0;
-        let touchStartY = 0; // Добавлено для проверки вертикального скролла
+        let touchStartY = 0; 
         let touchEndX = 0;
-        let touchEndY = 0;   // Добавлено
+        let touchEndY = 0;
+        let isSwipeIgnored = false; // Флаг для блокировки свайпа страницы
 
         document.addEventListener('touchstart', e => {
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
+            
+            // ПРОВЕРКА: Если мы касаемся таблицы (класс .grid-wrapper) или графика,
+            // мы блокируем свайп страницы, чтобы дать возможность прокрутить контент.
+            if (e.target.closest('.grid-wrapper') || e.target.closest('.chart-canv')) {
+                isSwipeIgnored = true;
+            } else {
+                isSwipeIgnored = false;
+            }
         }, false);
 
         document.addEventListener('touchend', e => {
             touchEndX = e.changedTouches[0].screenX;
             touchEndY = e.changedTouches[0].screenY;
-            handleSwipe();
+            
+            if (!isSwipeIgnored) {
+                handleSwipe();
+            }
         }, false);
 
         function handleSwipe() {
-            // Увеличили порог с 50 до 120 пикселей (чтобы не срабатывало от легкого касания)
-            const threshold = 120; 
-            
+            const threshold = 100; // Порог свайпа
             const xDiff = touchEndX - touchStartX;
             const yDiff = touchEndY - touchStartY;
             
-            // 1. Проверка длины свайпа (если короткий - выходим)
+            // 1. Длина
             if (Math.abs(xDiff) < threshold) return;
-
-            // 2. Проверка направления (если скроллим ВНИЗ больше, чем вбок - это не свайп)
+            // 2. Вертикальность (если скроллим вниз - отмена)
             if (Math.abs(yDiff) > Math.abs(xDiff)) return;
 
             let currentIdx = TABS_ORDER.indexOf(currTab);
@@ -511,15 +515,19 @@
             }
         }
         
-        // --- ВИБРАЦИЯ (HAPTIC) ---
-        function triggerHaptic() {
-            // 1. Приоритет: Native Telegram Haptic (мягкий удар 'soft' идеально для перелистывания)
+        // --- ВИБРАЦИЯ (ЭФФЕКТ КНИГИ / FADING IMPULSE) ---
+        function triggerBookHaptic() {
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('soft'); 
-            }
-            // 2. Fallback: Обычный виброотклик браузера
-            else if (navigator.vibrate) {
-                navigator.vibrate(15); // Короткий импульс
+                // 1. Сильный импульс (начало перелистывания)
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                
+                // 2. Слабый импульс через 80мс (страница "легла" / затухание)
+                setTimeout(() => {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('soft');
+                }, 80);
+            } else if (navigator.vibrate) {
+                // Аналог для браузера: [сильный, пауза, слабый]
+                navigator.vibrate([20, 50, 10]); 
             }
         }
         // ---------------------------------------------
@@ -608,14 +616,13 @@
         }
         function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
 
-        // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ (С ВИБРАЦИЕЙ) ---
         function switchTab(t, idx, direction = 'fade') {
             if (currTab === t && !direction) return;
 
             currTab = t;
             
-            // Запуск вибрации при переключении
-            triggerHaptic();
+            // Включаем "книжную" вибрацию
+            triggerBookHaptic();
 
             const btns = document.querySelectorAll('.nav-btn');
             btns.forEach(b => b.classList.remove('active')); 
