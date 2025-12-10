@@ -50,18 +50,8 @@
       }
       
       * { -webkit-tap-highlight-color: transparent; }
-
-      /* shake animation for error feedback */
-      @keyframes shakeX {
-        0% { transform: translateX(0); }
-        20% { transform: translateX(-8px); }
-        40% { transform: translateX(8px); }
-        60% { transform: translateX(-6px); }
-        80% { transform: translateX(6px); }
-        100% { transform: translateX(0); }
-      }
-      .shake { animation: shakeX 420ms cubic-bezier(.36,.07,.19,.97); }
-
+      
+      /* --- ПРОСТАЯ И НАДЕЖНАЯ АНИМАЦИЯ --- */
       ::view-transition-old(root),
       ::view-transition-new(root) {
           animation: none;
@@ -70,7 +60,9 @@
           width: 100%; height: 100%; top: 0; left: 0;
       }
 
+      /* Новая тема всегда сверху (Z-9999) и растет */
       ::view-transition-new(root) { z-index: 9999; }
+      /* Старая тема лежит снизу (Z-1) и ждет */
       ::view-transition-old(root) { z-index: 1; }
       
       ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -86,6 +78,7 @@
           box-sizing: border-box; 
           overflow: hidden; 
           display:flex; flex-direction:column;
+          /* Убрали CSS transition фона, чтобы не мешал ViewTransition */
           -webkit-font-smoothing: antialiased;
           font-weight: 500;
       }
@@ -328,21 +321,21 @@
                         <input type="text" id="inpName" placeholder="Поиск или новое..." autocomplete="off" oninput="showSearch(event); calcTotal()">
                         <div class="search-res" id="searchRes"></div>
                     </div>
-                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
                         <div style="flex:1">
                            <label>Цена</label>
                            <div class="qty-wrapper">
-                               <button class="qty-btn" onclick="modVal('inpPrice', -100); vib('medium')">−</button>
+                               <button class="qty-btn" onclick="modVal('inpPrice', -100)">−</button>
                                <input type="number" id="inpPrice" class="qty-input" placeholder="0" oninput="calcTotal()">
-                               <button class="qty-btn" onclick="modVal('inpPrice', 100); vib('medium')">+</button>
+                               <button class="qty-btn" onclick="modVal('inpPrice', 100)">+</button>
                            </div>
                         </div>
                         <div style="flex:1">
                            <label>Кол-во</label>
                            <div class="qty-wrapper">
-                               <button class="qty-btn" onclick="modVal('inpQty', -1); vib('medium')">−</button>
+                               <button class="qty-btn" onclick="modVal('inpQty', -1)">−</button>
                                <input type="number" id="inpQty" class="qty-input" value="1" oninput="calcTotal()">
-                               <button class="qty-btn" onclick="modVal('inpQty', 1); vib('medium')">+</button>
+                               <button class="qty-btn" onclick="modVal('inpQty', 1)">+</button>
                            </div>
                         </div>
                     </div>
@@ -443,52 +436,20 @@
     </div>
 
     <script>
-        // 👇 Укажи сюда свой опубликованный GAS URL (если не используешь google.script.run)
+        // 👇 ВСТАВЬ СЮДА ССЫЛКУ
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbwTkoZvqC1TRSJTq2ihFTjshY3p_ddhy2cOgwHiQofecacBTRnEsEeU5e95fsQFA10a/exec';
+        // 👆👆👆
+
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
         let currTab = 'income', dataCache = { income: null, expense: null }, config = { incomeItems: [], expenseItems: [] }, charts = {};
+        
+        let stopAnimationRequest = false, activeRequests = 0, deleteTargetId = null, isAnalyticsLoaded = false, analyticsNeedsRefresh = true; 
+        
         let selYear = new Date().getFullYear();
         let selMonth = new Date().getMonth();
         let availableYears = [];
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
-        // -----------------------
-        // HAPTICS / VIBRATION HELPERS
-        // -----------------------
-        function vib(pattern) {
-            try {
-                if (window.Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback && typeof Telegram.WebApp.HapticFeedback.impactOccurred === 'function') {
-                    if (pattern === 'light') Telegram.WebApp.HapticFeedback.impactOccurred('light');
-                    else if (pattern === 'medium') Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-                    else if (pattern === 'strong') Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-                    else if (pattern === 'selection') Telegram.WebApp.HapticFeedback.selectionChanged();
-                    else if (pattern === 'error') Telegram.WebApp.HapticFeedback.notificationOccurred('error');
-                    else if (Array.isArray(pattern)) { navigator.vibrate(pattern); }
-                    return;
-                }
-            } catch(e) { /* ignore */ }
-
-            if (navigator.vibrate) {
-                if (pattern === 'light') navigator.vibrate(10);
-                else if (pattern === 'medium') navigator.vibrate(30);
-                else if (pattern === 'strong') navigator.vibrate([60,20,60]);
-                else if (pattern === 'bounce') navigator.vibrate([15,10,15]);
-                else if (pattern === 'selection') navigator.vibrate(8);
-                else if (pattern === 'error') navigator.vibrate([80,30,80]);
-                else if (Array.isArray(pattern)) navigator.vibrate(pattern);
-            }
-        }
-
-        function invalidAddFeedback() {
-            const btn = document.getElementById('btnAdd');
-            btn.classList.remove('shake');
-            void btn.offsetWidth;
-            btn.classList.add('shake');
-            vib('strong');
-        }
-
-        // -----------------------
-        // BACKEND COMM
-        // -----------------------
         async function runBackend(action, payload = {}) {
             if (IS_GOOGLE) {
                 return new Promise((resolve, reject) => {
@@ -501,24 +462,26 @@
                     else reject("Unknown Func");
                 });
             } else {
+                if(GAS_URL.includes("ВАШ_")) { alert("ОШИБКА: Вставь ссылку в index.html!"); throw new Error("No URL"); }
                 payload.action = action;
-                const res = await fetch(GAS_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify(payload)
-                });
-                const text = await res.text();
-                try { return JSON.parse(text); } catch(e) { throw new Error("Server Error: " + text); }
+                try {
+                    const res = await fetch(GAS_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(payload)
+                    });
+                    const text = await res.text();
+                    try { return JSON.parse(text); } catch(e) { throw new Error("Server Error: " + text); }
+                } catch(e) { throw e; }
             }
         }
 
-        // -----------------------
-        // INIT
-        // -----------------------
         window.onload = function() {
+            if(window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.expand();
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
             setLoading(true);
+            
             runBackend('getInitialConfig').then(res => {
                 config = res;
                 availableYears = res.years;
@@ -526,21 +489,57 @@
                 refreshTable(true);
                 loadAnalytics(true);
                 setLoading(false);
-            }).catch(e => { setLoading(false); });
-
-            initSwipePaging();
-
-            // input haptics
-            document.getElementById('inpName').addEventListener('input', ()=>vib('light'));
-            document.getElementById('inpPrice').addEventListener('input', ()=>vib('medium'));
-            document.getElementById('inpQty').addEventListener('input', ()=>vib('medium'));
-
-            // charts interaction haptic: handled when chart created
+            }).catch(e => {
+                showToast("Error: " + e, true);
+                setLoading(false);
+            });
+            const v = document.getElementById('venus');
+            v.addEventListener('animationiteration', () => { if (stopAnimationRequest) { v.classList.remove('spinning'); stopAnimationRequest = false; } });
+            calcTotal();
         };
 
         function setLoading(active) {
-            // visual hint can be extended
+            const v = document.getElementById('venus');
+            if (active) { activeRequests++; stopAnimationRequest = false; v.classList.add('spinning'); } 
+            else { activeRequests--; if (activeRequests < 0) activeRequests = 0; if (activeRequests === 0) stopAnimationRequest = true; }
         }
+
+        function toggleTheme(event) {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            if (!document.startViewTransition) { setTheme(newTheme); return; }
+
+            // Центр логотипа (начало анимации)
+            const rect = document.getElementById('venus').getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+
+            const transition = document.startViewTransition(() => {
+                setTheme(newTheme);
+            });
+
+            transition.ready.then(() => {
+                const clipPath = [
+                    `circle(0px at ${x}px ${y}px)`,
+                    `circle(${endRadius}px at ${x}px ${y}px)`
+                ];
+
+                document.documentElement.animate(
+                    {
+                        clipPath: clipPath
+                    },
+                    {
+                        duration: 700,
+                        easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
+                        pseudoElement: '::view-transition-new(root)' // Всегда анимируем новую тему, растущую поверх старой
+                    }
+                );
+            });
+        }
+        function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
 
         function switchTab(t, idx) {
             currTab = t;
@@ -550,18 +549,21 @@
                 if(t==='income') idx=0; else if(t==='expense') idx=1; else idx=2;
             }
             if(btns[idx]) btns[idx].classList.add('active');
+            
+            const ind = document.getElementById('navInd');
+            if(ind) ind.style.transform = `translateX(${idx * 100}%)`;
+
             document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
             if(t === 'analytics') {
                 document.getElementById('analyticsTab').classList.add('active');
-                loadAnalytics();
+                if(analyticsNeedsRefresh || !isAnalyticsLoaded) loadAnalytics();
             } else {
                 document.getElementById('splitTab').classList.add('active');
                 updateUIForTab(t);
-                refreshTable(true);
+                if (dataCache[t]) renderTableFromCache(dataCache[t]);
+                else { document.getElementById('tableBody').innerHTML = ''; document.getElementById('emptyMsg').style.display = 'block'; refreshTable(true); }
             }
-            vib('medium');
         }
-
         function updateUIForTab(t) {
             const isInc = t === 'income';
             document.getElementById('formTitle').innerText = isInc ? 'Добавить Мастер Класс' : 'Добавить Расход';
@@ -573,7 +575,7 @@
 
         function updateFilterUI() {
             document.getElementById('txtYear').innerText = selYear;
-            document.getElementById('txtMonth').innerText = (selMonth === 'all') ? 'Весь год' : ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][selMonth];
+            document.getElementById('txtMonth').innerText = (selMonth === 'all') ? 'Весь год' : monthNames[selMonth];
         }
 
         function openSheet(type) {
@@ -582,13 +584,14 @@
             const title = document.getElementById('sheetTitle');
             list.innerHTML = '';
             sheet.style.display = 'flex';
+
             if (type === 'year') {
                 title.innerText = 'Выберите год';
                 availableYears.forEach(y => {
                     const div = document.createElement('div');
                     div.className = `sheet-item ${y == selYear ? 'selected' : ''}`;
                     div.innerText = y;
-                    div.onclick = () => { selYear = y; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); vib('medium'); };
+                    div.onclick = () => { selYear = y; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
                     list.appendChild(div);
                 });
             } else {
@@ -596,84 +599,62 @@
                 const divAll = document.createElement('div');
                 divAll.className = `sheet-item ${selMonth === 'all' ? 'selected' : ''}`;
                 divAll.innerText = 'Весь год';
-                divAll.onclick = () => { selMonth = 'all'; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); vib('medium'); };
+                divAll.onclick = () => { selMonth = 'all'; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
                 list.appendChild(divAll);
-                ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'].forEach((m, i) => {
+
+                monthNames.forEach((m, i) => {
                     const div = document.createElement('div');
                     div.className = `sheet-item ${i === selMonth ? 'selected' : ''}`;
                     div.innerText = m;
-                    div.onclick = () => { selMonth = i; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); vib('medium'); };
+                    div.onclick = () => { selMonth = i; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
                     list.appendChild(div);
                 });
             }
-            list.addEventListener('scroll', onSheetScroll);
         }
         function closeSheet(e) {
             if (e.target.id === 'sheetModal') document.getElementById('sheetModal').style.display = 'none';
         }
-        function onSheetScroll(e) { vib('light'); }
 
-        // -----------------------
-        // TABLE / ROW RENDERING
-        // -----------------------
         function renderTableFromCache(data) {
              const tbody = document.getElementById('tableBody'), msg = document.getElementById('emptyMsg');
              if(!data || !data.length) { tbody.innerHTML = ''; msg.style.display = 'block'; msg.innerText = 'Список пуст'; return; }
              msg.style.display = 'none';
-             tbody.innerHTML = '';
+             let html = '';
              data.forEach(row => {
                  const rowJson = JSON.stringify(row).replace(/"/g, '&quot;');
-                 const html = `<tr id="row-${row.rowId}" class="entry-row" data-row='${rowJson}'>
-                    <td>
-                      <div class="entry-top"><div style="color:var(--text-sub)">${row.dateStr}</div><div class="entry-price">${row.total.toLocaleString()} ₽</div></div>
-                      <div class="entry-bottom"><div class="entry-name">${row.name}</div>
-                      <div class="entry-actions"><button class="btn-table btn-edit" onclick='openEdit(${rowJson})'>✎</button><button class="btn-table btn-del" onclick='openDelete(${rowJson})'>✕</button></div>
-                      </div>
+                 const shortDate = row.dateStr.length >= 10 ? row.dateStr.slice(0, 6) + row.dateStr.slice(8) : row.dateStr;
+                 const iconEdit = `<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+                 const iconDel = `<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
+
+                 html += `<tr id="row-${row.rowId}">
+                    <td style="color:var(--text-sub); white-space:nowrap;">${shortDate}</td>
+                    <td style="font-weight:600; line-height:1.2;">${row.name}</td>
+                    <td style="font-weight:700;">${row.total.toLocaleString()}</td>
+                    <td class="action-cell">
+                        <button class="btn-table btn-edit" onclick="openEdit(${rowJson})">${iconEdit}</button>
+                        <button class="btn-table btn-del" onclick="openDelete(${rowJson})">${iconDel}</button>
                     </td>
                  </tr>`;
-                 tbody.insertAdjacentHTML('beforeend', html);
              });
-
-             const items = Array.from(tbody.querySelectorAll('.entry-row'));
-             const observer = new IntersectionObserver((entries) => {
-                 entries.forEach(en => {
-                     if(en.isIntersecting) {
-                         vib('light');
-                     }
-                 });
-             }, { root: document.querySelector('#mainTable').parentElement, threshold: 0.9 });
-             items.forEach(i => observer.observe(i));
+             tbody.innerHTML = html;
         }
 
-        function refreshTable(force = false) {
+        function refreshTable(force = false, isSilent = false) {
+            if(!force && dataCache[currTab]) return;
             const tbody = document.getElementById('tableBody'), msg = document.getElementById('emptyMsg');
-            msg.style.display = 'block';
-            msg.innerText = 'Загрузка...';
+            setLoading(true);
+            if (!isSilent) { tbody.innerHTML = ''; msg.style.display = 'block'; msg.innerText = 'Загрузка...'; }
             runBackend('getTableData', {type: currTab}).then(data => {
-                dataCache[currTab] = data; renderTableFromCache(data); 
-            }).catch(e=> { msg.innerText = 'Ошибка загрузки'; });
-        }
-
-        // -----------------------
-        // SUBMIT / VALIDATION (with vib/shake)
-        // -----------------------
-        function calcTotal() {
-            const p = parseFloat(document.getElementById('inpPrice').value) || 0;
-            const q = parseFloat(document.getElementById('inpQty').value) || 0;
-            document.getElementById('txtTotal').innerText = (p*q).toLocaleString() + ' ₽';
-            const nameVal = document.getElementById('inpName').value.trim();
-            const btn = document.getElementById('btnAdd');
-            if (!nameVal) { btn.innerText = "Укажите название"; btn.style.opacity = "0.6"; }
-            else if (!document.getElementById('inpPrice').value || isNaN(p) || p === 0) { btn.innerText = "Укажите цену"; btn.style.opacity = "0.6"; }
-            else { btn.innerText = "Добавить запись"; btn.style.opacity = "1"; }
+                dataCache[currTab] = data; setLoading(false); renderTableFromCache(data); 
+            });
         }
 
         function submitEntry() {
             const name = document.getElementById('inpName').value.trim();
-            const priceVal = document.getElementById('inpPrice').value;
-            const price = parseFloat(priceVal);
-            const qty = parseFloat(document.getElementById('inpQty').value) || 1;
-            if(!name || !priceVal || isNaN(price) || price<=0) { invalidAddFeedback(); return; }
+            const price = parseFloat(document.getElementById('inpPrice').value);
+            const qty = parseFloat(document.getElementById('inpQty').value);
+            if(!name || !price) return;
+            
             const total = price * qty;
             const list = currTab === 'income' ? config.incomeItems : config.expenseItems;
             const isNew = !list.includes(name);
@@ -683,145 +664,100 @@
             document.getElementById('emptyMsg').style.display = 'none';
             const tempId = 'temp-' + Date.now();
             const shortDate = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'2-digit'});
-            tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" class="entry-row" style="background: rgba(0,0,0,0.03);"><td><div class="entry-top"><div style="color:var(--text-sub)">${shortDate}</div><div class="entry-price">${total.toLocaleString()} ₽</div></div><div class="entry-bottom"><div class="entry-name">${name}</div><div class="entry-actions"><span style="color:var(--text-sub)">...</span></div></div></td></tr>`);
+            
+            tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${shortDate}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">...</span></td></tr>`);
             document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
-            const btn = document.getElementById('btnAdd'); btn.disabled = true;
+            const btn = document.getElementById('btnAdd'); btn.disabled = true; setLoading(true);
             runBackend('saveTransaction', payload).then(res => {
-                btn.disabled = false;
-                if(res.success) { showToast('Успешно добавлено'); refreshTable(true); vib('bounce'); } 
+                btn.disabled = false; setLoading(false);
+                if(res.success) { showToast('Успешно добавлено'); refreshTable(true, true); analyticsNeedsRefresh = true; loadAnalytics(true); } 
                 else { const tempEl = document.getElementById(tempId); if(tempEl) tempEl.remove(); showToast(res.message, true); document.getElementById('inpName').value = name; document.getElementById('inpPrice').value = price; }
-            }).catch(e=> { btn.disabled=false; showToast('Ошибка', true); });
+            });
         }
 
-        // -----------------------
-        // EDIT / DELETE (stronger vibration)
-        // -----------------------
-        let deleteTargetId = null;
         function openEdit(row) {
             document.getElementById('editId').value = row.rowId;
             document.getElementById('editName').value = row.name; document.getElementById('editPrice').value = row.price; document.getElementById('editQty').value = row.qty; document.getElementById('editModal').style.display = 'flex';
-            vib('medium');
         }
         function saveEdit() {
             const id = document.getElementById('editId').value, name = document.getElementById('editName').value, price = parseFloat(document.getElementById('editPrice').value), qty = parseFloat(document.getElementById('editQty').value);
             const payload = { rowId: id, type: currTab, name: name, price: price, qty: qty };
             document.getElementById('editModal').style.display = 'none';
-            vib('strong');
+            const row = document.getElementById('row-' + id);
+            if(row) { 
+                row.cells[1].innerText = name; 
+                row.cells[2].innerText = (price * qty).toLocaleString(); 
+                row.style.transition = 'background 0.3s';
+                row.style.background = 'rgba(var(--accent), 0.1)'; 
+                setTimeout(() => row.style.background = 'transparent', 1000); 
+            }
+            setLoading(true);
             runBackend('editTransaction', payload).then(res => {
-                if(res.success) { showToast('Сохранено'); refreshTable(true); vib('medium'); } else { showToast(res.message, true); refreshTable(true); }
+                setLoading(false);
+                if(res.success) { showToast('Сохранено'); refreshTable(true, true); analyticsNeedsRefresh = true; loadAnalytics(true); } else { showToast(res.message, true); refreshTable(true, false); }
             });
         }
-        function openDelete(row) { deleteTargetId = row.rowId; document.getElementById('deleteModal').style.display = 'flex'; vib('strong'); }
+        function openDelete(row) { deleteTargetId = row.rowId; document.getElementById('deleteModal').style.display = 'flex'; }
         function confirmDelete() {
             if(!deleteTargetId) return;
             document.getElementById('deleteModal').style.display = 'none';
-            vib('strong');
+            const rowElement = document.getElementById('row-' + deleteTargetId);
+            if (rowElement) { rowElement.style.transition = 'opacity 0.3s'; rowElement.style.opacity = '0';
+            setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
+            setLoading(true);
             runBackend('deleteTransaction', {rowId: deleteTargetId, type: currTab}).then(res => {
-                if(res.success) { showToast('Удалено'); refreshTable(true); vib('medium'); } else { showToast(res.message, true); refreshTable(true); }
+                setLoading(false);
+                if(res.success) { showToast('Удалено'); refreshTable(true, true); analyticsNeedsRefresh = true; loadAnalytics(true); } else { showToast(res.message, true); refreshTable(true, false); }
             });
         }
 
-        // -----------------------
-        // ANALYTICS: load and simple chart interaction vibration
-        // -----------------------
-        function loadAnalytics() {
+        function loadAnalytics(isSilent = false) {
+            setLoading(true);
             runBackend('getAnalyticsData', {year: selYear, monthIdx: selMonth}).then(d => {
-                document.getElementById('kpiInc').innerText = (d.current.income || 0).toLocaleString() + ' ₽';
-                document.getElementById('kpiExp').innerText = (d.current.expense || 0).toLocaleString() + ' ₽';
-                document.getElementById('kpiProf').innerText = (d.current.profit || 0).toLocaleString() + ' ₽';
-                document.getElementById('kpiVis').innerText = (d.current.visitors || 0).toLocaleString() + ' чел';
+                setLoading(false); isAnalyticsLoaded = true; analyticsNeedsRefresh = false;
+                renderKPI('kpiInc', d.current.income, d.growth.income, '₽', 'trend-up'); renderKPI('kpiExp', d.current.expense, d.growth.expense, '₽', 'trend-down'); renderKPI('kpiProf', d.current.profit, d.growth.profit, '₽', 'trend-up'); renderKPI('kpiVis', d.current.visitors, d.growth.visitors, 'чел', 'trend-up');
                 renderAreaChart('chartPulse', d.pulse.labels, [{ label:'Доход', data:d.pulse.income, borderColor:'#34C759', bg:'rgba(52, 199, 89, 0.1)' }, { label:'Расход', data:d.pulse.expense, borderColor:'#FF3B30', bg:'rgba(255, 59, 48, 0.1)' }]);
                 renderAreaChart('chartAttendance', d.attendance.labels, [{ label:'Посетители', data:d.attendance.data, borderColor:'#AF52DE', bg:'rgba(175, 82, 222, 0.1)' }]);
                 renderProgressList('listInc', d.pieIncome.labels, d.pieIncome.data, '#34C759');
                 renderProgressList('listExp', d.pieExpense.labels, d.pieExpense.data, '#FF3B30');
-                vib('medium');
-            }).catch(e=>{ showToast('Ошибка аналитики', true); });
+            });
         }
-
+        function renderKPI(id, val, growth, suff, colorCls) {
+            document.getElementById(id).innerText = val.toLocaleString() + ' ' + suff;
+            const el = document.getElementById(id.replace('kpi','trend'));
+            if(el) { const arr = growth>=0?'↗':'↘'; const cls = (growth>=0 && colorCls==='trend-up') ||
+            (growth<0 && colorCls==='trend-down') ? 'trend-up' : 'trend-down'; let finalCls = cls; if(id==='kpiExp') finalCls = (growth > 0) ? 'trend-down' : 'trend-up'; el.className = `kpi-trend ${finalCls}`; el.innerText = `${arr} ${Math.abs(growth)}%`; }
+        }
         function renderAreaChart(id, labels, datasets) {
             if(charts[id]) charts[id].destroy();
             const ctx = document.getElementById(id).getContext('2d');
             const ds = datasets.map(d => ({ label: d.label, data: d.data, borderColor: d.borderColor, backgroundColor: d.bg, borderWidth: 2, tension: 0.4, fill: true, pointRadius: 0, pointHoverRadius: 6 }));
             charts[id] = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: ds }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1C1C1E', titleColor: '#fff', bodyColor: '#fff', cornerRadius: 8, padding: 10 } }, scales: { x: { grid: { display: false }, ticks: { color: '#8E8E93', font:{size:10} } }, y: { display: false } } } });
-            // add haptics on point hover/click
-            ctx.canvas.addEventListener('pointerdown', () => vib('light'));
         }
-
         function renderProgressList(id, labels, data, color) {
             const el = document.getElementById(id);
             el.innerHTML = ''; if(!data.length) { el.innerHTML='<div style="color:var(--text-sub); font-size:13px">Нет данных</div>'; return; }
             const max = Math.max(...data);
-            labels.forEach((lbl, i) => { const val = data[i]; const pct = max>0? (val / max) * 100 : 0; const html = `<div class="prog-item"><div class="prog-info"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%; background:${color}"></div></div></div>`; el.insertAdjacentHTML('beforeend', html); });
+            labels.forEach((lbl, i) => { const val = data[i]; const pct = (val / max) * 100; const html = `<div class="prog-item"><div class="prog-info"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%; background:${color}"></div></div></div>`; el.insertAdjacentHTML('beforeend', html); });
         }
-
         function showSearch(e) {
-            const q = (e.target.value || '').toLowerCase();
-            const wrap = document.getElementById('searchRes');
-            wrap.innerHTML = '';
-            if(!q) { wrap.style.display='none'; return; }
-            const list = currTab === 'income' ? config.incomeItems : config.expenseItems;
-            const filtered = list.filter(i => i.toLowerCase().includes(q)).slice(0,8);
-            if(filtered.length) {
-                wrap.style.display='block';
-                filtered.forEach(it => {
-                    const div = document.createElement('div');
-                    div.className = 'res-item';
-                    div.innerText = it;
-                    div.onclick = () => { document.getElementById('inpName').value = it; wrap.innerHTML = ''; vib('medium'); calcTotal(); };
-                    wrap.appendChild(div);
-                });
-            } else wrap.style.display='none';
+            const val = e.target.value.toLowerCase();
+            const box = document.getElementById('searchRes'); box.innerHTML = ''; if(!val) { box.style.display='none'; return; }
+            const src = currTab==='income' ? config.incomeItems : config.expenseItems;
+            const res = src.filter(s => s.toLowerCase().includes(val)).slice(0,5);
+            if(res.length) { box.style.display='block'; res.forEach(r => { const d = document.createElement('div'); d.className='res-item'; d.innerText=r; d.onclick=()=>{ document.getElementById('inpName').value=r; box.style.display='none'; calcTotal(); }; box.appendChild(d); }); } else box.style.display='none';
         }
-
-        function modVal(id, delta) {
-            const el = document.getElementById(id);
-            let v = parseFloat(el.value || 0) || 0;
-            v += delta;
-            if(id==='inpQty' && v<1) v=1;
-            if(v<0) v=0;
-            el.value = v;
-            calcTotal();
-            vib('medium');
+        function modVal(id, d) { const el = document.getElementById(id);
+            let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal();
         }
-
-        function toggleTheme() {
-            const t = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', t);
-            localStorage.setItem('theme', t);
-            vib('selection');
+        function calcTotal() {
+            const priceVal = document.getElementById('inpPrice').value, nameVal = document.getElementById('inpName').value.trim();
+            const p = parseFloat(priceVal); const q = parseFloat(document.getElementById('inpQty').value);
+            document.getElementById('txtTotal').innerText = ((p*q)||0).toLocaleString() + ' ₽'; const btn = document.getElementById('btnAdd');
+            if (!nameVal) { btn.innerText = "Укажите название"; btn.style.opacity = "0.6"; } else if (!priceVal || isNaN(p) || p === 0) { btn.innerText = "Укажите цену"; btn.style.opacity = "0.6"; } else { btn.innerText = "Добавить запись"; btn.style.opacity = "1"; }
         }
-
-        function showToast(msg, isError) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.className = 'toast show' + (isError? ' error':'' );
-            setTimeout(()=> t.className = 'toast', 1800);
-        }
-
-        // -----------------------
-        // SWIPE PAGING (80px)
-        // -----------------------
-        function initSwipePaging() {
-            let startX = null, startY = null;
-            let accX = 0;
-            const el = document.querySelector('.content-area');
-            el.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; accX = 0; }, {passive:true});
-            el.addEventListener('touchmove', (e) => {
-                if(startX === null) return;
-                const dx = e.touches[0].clientX - startX;
-                const dy = Math.abs(e.touches[0].clientY - startY);
-                if(dy > 80) return;
-                accX = dx;
-            }, {passive:true});
-            el.addEventListener('touchend', (e) => {
-                if(startX === null) return;
-                if(Math.abs(accX) > 80) {
-                    const order = ['income','expense','analytics'];
-                    let idx = order.indexOf(currTab);
-                    if(accX < 0) idx = (idx + 1) % order.length; else idx = (idx - 1 + order.length) % order.length;
-                    switchTab(order[idx], idx);
-                }
-                startX = null; accX = 0;
-            });
+        function showToast(m, err) { const t = document.getElementById('toast');
+            t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000);
         }
     </script>
 </body>
