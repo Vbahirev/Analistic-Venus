@@ -453,7 +453,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwdTG-kOXtYamX2jeD8EgnN3xsCqtQd-nYR68Y6CzZ5ndL_BI2cLt1k2y1R--kbd2qB/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwJlK6PqmagiDNYQiY2CzvKaojvVHAu57aj7HTboxv8_zI7sktMtkHOrRhIUO34eaiH/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -464,39 +464,62 @@
         let availableYears = [];
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
         
-        // --- ЛОГИКА СВАЙПОВ И КРУГОВОЙ НАВИГАЦИИ ---
+        // --- ЛОГИКА СВАЙПОВ (ИСПРАВЛЕНА ЧУВСТВИТЕЛЬНОСТЬ) ---
         const TABS_ORDER = ['income', 'expense', 'analytics'];
         let touchStartX = 0;
+        let touchStartY = 0; // Добавлено для проверки вертикального скролла
         let touchEndX = 0;
+        let touchEndY = 0;   // Добавлено
 
         document.addEventListener('touchstart', e => {
             touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
         }, false);
 
         document.addEventListener('touchend', e => {
             touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
             handleSwipe();
         }, false);
 
         function handleSwipe() {
-            const threshold = 50; 
-            const swipeDistance = touchEndX - touchStartX;
+            // Увеличили порог с 50 до 120 пикселей (чтобы не срабатывало от легкого касания)
+            const threshold = 120; 
+            
+            const xDiff = touchEndX - touchStartX;
+            const yDiff = touchEndY - touchStartY;
+            
+            // 1. Проверка длины свайпа (если короткий - выходим)
+            if (Math.abs(xDiff) < threshold) return;
 
-            if (Math.abs(swipeDistance) < threshold) return;
+            // 2. Проверка направления (если скроллим ВНИЗ больше, чем вбок - это не свайп)
+            if (Math.abs(yDiff) > Math.abs(xDiff)) return;
 
             let currentIdx = TABS_ORDER.indexOf(currTab);
             if (currentIdx === -1) currentIdx = 0;
 
-            if (swipeDistance < 0) {
+            if (xDiff < 0) {
                 // Свайп влево (СЛЕДУЮЩАЯ)
                 let nextIdx = currentIdx + 1;
-                if (nextIdx >= TABS_ORDER.length) nextIdx = 0; // Круг
+                if (nextIdx >= TABS_ORDER.length) nextIdx = 0; 
                 switchTab(TABS_ORDER[nextIdx], nextIdx, 'next');
             } else {
                 // Свайп вправо (ПРЕДЫДУЩАЯ)
                 let prevIdx = currentIdx - 1;
-                if (prevIdx < 0) prevIdx = TABS_ORDER.length - 1; // Круг
+                if (prevIdx < 0) prevIdx = TABS_ORDER.length - 1; 
                 switchTab(TABS_ORDER[prevIdx], prevIdx, 'prev');
+            }
+        }
+        
+        // --- ВИБРАЦИЯ (HAPTIC) ---
+        function triggerHaptic() {
+            // 1. Приоритет: Native Telegram Haptic (мягкий удар 'soft' идеально для перелистывания)
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('soft'); 
+            }
+            // 2. Fallback: Обычный виброотклик браузера
+            else if (navigator.vibrate) {
+                navigator.vibrate(15); // Короткий импульс
             }
         }
         // ---------------------------------------------
@@ -585,14 +608,15 @@
         }
         function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
 
-        // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ---
+        // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ (С ВИБРАЦИЕЙ) ---
         function switchTab(t, idx, direction = 'fade') {
-            // Если вкладка та же самая, ничего не делаем (если только это не свайп, который может вызвать перерисовку)
             if (currTab === t && !direction) return;
 
             currTab = t;
             
-            // Навигация (кнопки)
+            // Запуск вибрации при переключении
+            triggerHaptic();
+
             const btns = document.querySelectorAll('.nav-btn');
             btns.forEach(b => b.classList.remove('active')); 
             if(typeof idx === 'undefined') {
@@ -602,12 +626,10 @@
             const ind = document.getElementById('navInd');
             if(ind) ind.style.transform = `translateX(${idx * 100}%)`;
 
-            // Логика контента
             const splitPage = document.getElementById('splitTab');
             const analyticsPage = document.getElementById('analyticsTab');
             let activePage;
 
-            // Сброс классов
             document.querySelectorAll('.tab-page').forEach(p => {
                 p.classList.remove('active', 'anim-next', 'anim-prev', 'anim-fade');
             });
@@ -622,10 +644,8 @@
                 else { document.getElementById('tableBody').innerHTML = ''; document.getElementById('emptyMsg').style.display = 'block'; refreshTable(true); }
             }
 
-            // Применяем класс active и анимацию
             activePage.classList.add('active');
             
-            // Хак для перезапуска анимации
             void activePage.offsetWidth; 
 
             if (direction === 'next') {
