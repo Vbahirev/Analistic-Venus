@@ -268,7 +268,19 @@
         .nav-btn.active { color: var(--accent); }
         .nav-btn.active svg { transform: translateY(-2px); fill: var(--accent); }
       }
-    </style>
+    
+/* loading bounce animation utility */
+.loading-bounce {
+  animation: ui-bounce 520ms cubic-bezier(.2,.8,.2,1);
+}
+@keyframes ui-bounce {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+  60% { transform: translateY(2px); }
+  100% { transform: translateY(0); }
+}
+
+</style>
 </head>
 <body data-theme="light">
 
@@ -437,7 +449,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА ССЫЛКУ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyRor3e-oLYRlwNxJNkBAMlhcU25QPbuzrtifa36Fd5TOUqLbqRQoMLB7JaOo5VmaHl/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycby9DUnlYHHM8ZL5w0QVsQqOA_dGQ4XTRqLd2Rb6oiAv27KQkDdCvpGooE8rJLr3bUc/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -760,5 +772,138 @@
             t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000);
         }
     </script>
+<script>
+
+/* HAPTICS — graded by importance, subtle -> strong
+   Light (subtle)  : [8]
+   Medium (confirm): [30,20]
+   Strong (page)   : [60,30,20]
+   Swipe subtle    : [10]
+   Loading bounce  : [40,20,40]
+*/
+(function(){
+  const canVibrate = !!(navigator && navigator.vibrate);
+  function vib(pattern){
+    if(!canVibrate) return;
+    try{ navigator.vibrate(pattern); }catch(e){}
+  }
+  // semantic helpers
+  const H = {
+    subtle: () => vib([8]),
+    inputType: () => vib([6]),          // tiny on typing / input feedback
+    confirm: () => vib([30,20]),       // stronger on confirmations
+    page: () => vib([60,30,20]),       // strong for page switches
+    swipeSoft: () => vib([10]),        // soft swipe feedback
+    bounce: () => vib([40,20,40])      // loading bounce effect
+  };
+
+  // Attach subtle feedback to inputs (key press / change)
+  document.querySelectorAll('input, textarea, select').forEach(el=>{
+    el.addEventListener('input', ()=> H.inputType());
+    el.addEventListener('change', ()=> H.subtle());
+  });
+
+  // Confirm buttons: add medium vibration on confirm actions (class .confirm)
+  document.querySelectorAll('.confirm, .btn-confirm').forEach(b=>{
+    b.addEventListener('click', ()=> H.confirm());
+  });
+
+  // Soft feedback on general button taps
+  document.querySelectorAll('.btn, .nav-btn, .btn-table').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      // If button has data-importance, choose
+      const imp = b.dataset && b.dataset.importance;
+      if(imp === 'low') H.subtle();
+      else if(imp === 'medium') H.inputType();
+      else H.subtle();
+    });
+  });
+
+  // Swipe handling: subtle vibrational swipe during move, strong on complete page change
+  (function(){
+    const area = document.querySelector('.content-area') || document.body;
+    let startX=0, lastMove=0, moving=false, moved=false;
+    area.addEventListener('touchstart', (e)=>{
+      if(e.touches.length!==1) return;
+      startX = e.touches[0].clientX;
+      lastMove = startX;
+      moving = true;
+      moved = false;
+    }, {passive:true});
+    area.addEventListener('touchmove', (e)=>{
+      if(!moving) return;
+      const x = e.touches[0].clientX;
+      const dx = x - lastMove;
+      lastMove = x;
+      // small vibrational tick for movement (throttle)
+      if(Math.abs(dx) > 8){
+        H.swipeSoft();
+        moved = true;
+      }
+    }, {passive:true});
+    area.addEventListener('touchend', (e)=>{
+      if(!moving) return;
+      moving=false;
+      const endX = lastMove;
+      const dx = endX - startX;
+      if(Math.abs(dx) > 60){
+        // page swipe happened
+        H.page();
+      } else if(moved){
+        // minor swipe
+        H.subtle();
+      }
+    }, {passive:true});
+  })();
+
+  // Vertical list scrolling: subtle tick when new row becomes visible (already implemented earlier).
+  // We'll attach stronger ticks on fast scroll end (fling)
+  (function(){
+    const scrollers = document.querySelectorAll('.grid-wrapper, .list-wrapper, .scrollable');
+    scrollers.forEach(wrapper=>{
+      let lastY = 0, lastTime = 0, velocity = 0, ticking=false;
+      wrapper.addEventListener('scroll', ()=>{
+        const now = Date.now();
+        const y = wrapper.scrollTop;
+        const dy = y - lastY;
+        const dt = Math.max(1, now - lastTime);
+        velocity = dy/dt;
+        lastY = y; lastTime = now;
+        // subtle feedback on slow scroll
+        if(Math.abs(dy) > 20) {
+          H.subtle();
+        }
+        if(!ticking){
+          ticking=true;
+          requestAnimationFrame(()=>{
+            // if fast fling -> stronger vibration
+            if(Math.abs(velocity) > 0.8) H.page();
+            ticking=false;
+          });
+        }
+      }, {passive:true});
+    });
+  })();
+
+  // Loading bounce effect: expose function startLoadingBounce/endLoadingBounce
+  window.startLoadingBounce = function(el){
+    // el optional DOM to animate; we just vibrate pattern and add css class for bounce if element provided
+    H.bounce();
+    if(el && el.classList) el.classList.add('loading-bounce');
+  };
+  window.endLoadingBounce = function(el){
+    if(el && el.classList) el.classList.remove('loading-bounce');
+  };
+
+  // For confirmation modals and important actions add confirm vibration by default
+  document.addEventListener('click', (e)=>{
+    const t = e.target;
+    if(!t) return;
+    if(t.matches && t.matches('.modal-confirm, .action-apply')) H.confirm();
+  }, true);
+
+})();
+
+</script>
 </body>
 </html>
