@@ -60,7 +60,7 @@
           user-select: none;
       }
       
-      /* --- HEADER --- */
+      /* HEADER */
       .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; position: relative; z-index: 10; }
       .brand-box { display: flex; align-items: center; gap: 12px; }
       .title { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
@@ -69,32 +69,12 @@
       .venus-icon.spinning { animation: spinInfinite 1.5s linear infinite; }
       @keyframes spinInfinite { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-      /* --- PAGE SLIDER CONTAINER --- */
-      .viewport {
-          flex: 1;
-          position: relative;
-          overflow: hidden;
-          width: 100%;
-          border-radius: var(--radius);
-      }
-      
-      .pages-container {
-          display: flex;
-          width: 300%; /* 3 pages */
-          height: 100%;
-          transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-          will-change: transform;
-      }
+      /* PAGE SLIDER CONTAINER */
+      .viewport { flex: 1; position: relative; overflow: hidden; width: 100%; border-radius: var(--radius); }
+      .pages-container { display: flex; width: 300%; height: 100%; transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: transform; }
+      .tab-page { width: 33.333%; height: 100%; overflow-y: auto; padding-bottom: 80px; position: relative; }
 
-      .tab-page {
-          width: 33.333%;
-          height: 100%;
-          overflow-y: auto;
-          padding-bottom: 80px;
-          position: relative;
-      }
-
-      /* --- PANELS --- */
+      /* UI ELEMENTS */
       .split-view { display: flex; height: 100%; gap: 20px; padding: 0 5px; } 
       .panel { background: var(--bg-panel); border-radius: var(--radius); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); }
       .panel-left { width: 360px; padding: 30px; flex-shrink: 0; overflow-y: auto; }
@@ -113,11 +93,10 @@
 
       .btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; font-size: 16px; transition: 0.2s; }
       .btn:active { transform: scale(0.98); opacity: 0.9; }
-      
       .shake { animation: shakeAnim 0.4s cubic-bezier(.36,.07,.19,.97) both; }
       @keyframes shakeAnim { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
-      /* --- CARDS LIST --- */
+      /* LIST & CARDS (2-row layout) */
       .list-container { flex: 1; overflow-y: auto; padding: 10px 20px 20px 20px; -webkit-overflow-scrolling: touch; }
       .record-card { 
           background: var(--input-bg); border: 1px solid var(--border); 
@@ -128,13 +107,13 @@
       .record-card:active { transform: scale(0.98); }
       .rc-top { display: flex; justify-content: space-between; align-items: center; }
       .rc-date { font-size: 11px; color: var(--text-sub); font-weight: 600; text-transform: uppercase;}
-      .rc-name { font-size: 15px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }
+      .rc-name { font-size: 15px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65%; }
       .rc-bot { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-strong); padding-top: 8px; }
       .rc-sum { font-size: 16px; font-weight: 800; color: var(--text-main); }
       .rc-actions { display: flex; gap: 8px; }
       .btn-mini { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-strong); background: transparent; color: var(--text-sub); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-      
-      /* --- ANALYTICS (VERTICAL STACK) --- */
+
+      /* ANALYTICS */
       .analytics-container { padding: 0 10px 100px 10px; overflow-y: auto; height: 100%; box-sizing: border-box; }
       .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
       .kpi-card { background: var(--bg-panel); padding: 20px; border-radius: 20px; box-shadow: var(--shadow-card); border: 1px solid var(--border); }
@@ -143,19 +122,13 @@
       .kpi-trend { font-size: 12px; font-weight: 700; margin-top: 4px; display: inline-block; padding: 2px 8px; border-radius: 12px; }
       .trend-up { background: rgba(52, 199, 89, 0.15); color: var(--color-inc); }
       .trend-down { background: rgba(255, 59, 48, 0.15); color: var(--color-exp); }
-
-      /* Vertical Charts (No Carousel) */
+      
       .charts-stack { display: flex; flex-direction: column; gap: 20px; }
-      .chart-box { 
-          width: 100%; min-height: 280px; 
-          background: var(--bg-panel); border-radius: 24px; padding: 20px; 
-          box-shadow: var(--shadow-card); border: 1px solid var(--border);
-          display: flex; flex-direction: column; 
-      }
+      .chart-box { width: 100%; min-height: 280px; background: var(--bg-panel); border-radius: 24px; padding: 20px; box-shadow: var(--shadow-card); border: 1px solid var(--border); display: flex; flex-direction: column; }
       .chart-head { font-weight: 700; font-size: 16px; margin-bottom: 10px; }
       .chart-canv { flex: 1; position: relative; min-height: 200px; }
 
-      /* --- NAV --- */
+      /* NAVIGATION */
       .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; z-index: 10; }
       .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; gap:8px;}
       .nav-btn.active { color: var(--text-main); background: var(--bg-app); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -164,43 +137,17 @@
       .nav-btn.active svg { opacity: 1; color: var(--accent); fill: var(--accent); }
       .nav-indicator { display: none; }
 
-      /* --- WHEEL PICKER (IOS DRUM) --- */
+      /* WHEEL PICKER (DRUM) */
       .picker-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-      .picker-box {
-          width: 300px; background: var(--bg-panel); border-radius: 24px; padding: 25px;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-          display: flex; flex-direction: column; align-items: center;
-      }
+      .picker-box { width: 300px; background: var(--bg-panel); border-radius: 24px; padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; align-items: center; }
       .picker-title { font-weight: 800; margin-bottom: 20px; color: var(--text-main); font-size: 18px; text-align: center; }
-      
-      .wheel-container {
-          width: 100%; height: 200px; position: relative; overflow: hidden;
-          mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-          -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
-          touch-action: none; /* Control scroll manually */
-      }
-      /* The selection Lens */
-      .wheel-highlight {
-          position: absolute; top: 50%; left: 0; width: 100%; height: 44px; transform: translateY(-50%);
-          border-top: 1px solid var(--accent); border-bottom: 1px solid var(--accent);
-          background: rgba(var(--accent), 0.05); pointer-events: none; z-index: 0;
-          border-radius: 8px;
-      }
-      .wheel-scroller {
-          list-style: none; padding: 0; margin: 0;
-          transform-style: preserve-3d;
-      }
-      .wheel-item {
-          height: 44px; display: flex; align-items: center; justify-content: center;
-          font-size: 17px; font-weight: 500; color: var(--text-sub);
-          transition: transform 0.1s, opacity 0.1s, color 0.1s;
-          cursor: pointer;
-      }
-      .wheel-item.active {
-          color: var(--text-main); font-weight: 800; transform: scale(1.15); opacity: 1;
-      }
-      
-      /* Modals */
+      .wheel-container { width: 100%; height: 200px; position: relative; overflow: hidden; mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent); touch-action: none; }
+      .wheel-highlight { position: absolute; top: 50%; left: 0; width: 100%; height: 44px; transform: translateY(-50%); border-top: 1px solid var(--accent); border-bottom: 1px solid var(--accent); background: rgba(var(--accent), 0.05); pointer-events: none; z-index: 0; border-radius: 8px; }
+      .wheel-scroller { list-style: none; padding: 0; margin: 0; transform-style: preserve-3d; }
+      .wheel-item { height: 44px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 500; color: var(--text-sub); transition: transform 0.1s, opacity 0.1s, color 0.1s; cursor: pointer; }
+      .wheel-item.active { color: var(--text-main); font-weight: 800; transform: scale(1.15); opacity: 1; }
+
+      /* MODALS */
       .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
       .modal-box { background: var(--bg-panel); padding: 25px; border-radius: 24px; width: 320px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.3); transform: scale(0.95); animation: popIn 0.2s forwards; }
       
@@ -214,7 +161,7 @@
       .toast.show { opacity: 1; transform: translate(-50%, -10px); }
       .toast.error { background: var(--danger); }
 
-      /* MOBILE ADAPTATION */
+      /* MOBILE ADAPT */
       @media (max-width: 768px) {
         body { padding: 0; }
         .header { padding: 10px 20px 0 20px; margin-bottom: 10px; }
@@ -224,7 +171,6 @@
         .panel-right { min-height: 300px; padding: 0 5px; }
         .list-container { padding: 0 20px 100px 20px; overflow: visible; }
         
-        /* Fixed Bottom Nav */
         .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 24px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 5px; height: 65px; border: 1px solid var(--border); }
         .nav-indicator { display: block; position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc((100% - 10px) / 3); background: var(--bg-app); border-radius: 20px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1; pointer-events: none; }
         [data-theme="dark"] .nav-indicator { background: #334155; }
@@ -348,11 +294,11 @@
         <div class="nav-indicator" id="navInd"></div>
         <button class="nav-btn active" onclick="goToPage(0)">
             <svg viewBox="0 0 24 24"><path d="M21 18V19C21 20.1 20.1 21 19 21H5C3.89 21 3 20.1 3 19V5C3 3.9 3.89 3 5 3H19C20.1 3 21 3.9 21 5V6H12C10.89 6 10 6.9 10 8V16C10 17.1 10.89 18 12 18H21ZM12 16H22V8H12V16ZM16 13.5C15.17 13.5 14.5 12.83 14.5 12C14.5 11.17 15.17 10.5 16 10.5C16.83 10.5 17.5 11.17 17.5 12C17.5 12.83 16.83 13.5 16 13.5Z"/></svg>
-            Доходы
+            МК
         </button>
         <button class="nav-btn" onclick="goToPage(1)">
             <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
-            Расходы
+            Расход
         </button>
         <button class="nav-btn" onclick="goToPage(2)">
             <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg>
@@ -399,9 +345,10 @@
     </div>
 
     <script>
-        // 👇 ВСТАВЬ ССЫЛКУ 👇
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzQn8akGrdj8mjrRSI5IcEoRvd-2J8xoAa56084M27RRQ-3vmQ8gJRKIHAz-1imVHty/exec';
-        
+        // 👇 ВСТАВЬТЕ ССЫЛКУ ИЗ GOOGLE SCRIPT DEPLOY ЗДЕСЬ 👇
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbymyQBfqV_3paY89BmTvPVSp0INVudzeyTD4Eth-v4qsD_PfHJ8LrbqDbt2YcUjJryE/exec';
+        // 👆👆👆
+
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
         const tg = window.Telegram.WebApp;
         let currPageIdx = 0;
@@ -412,17 +359,18 @@
         let availableYears = [];
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
-        // HAPTICS
+        // HAPTICS HELPER
         function haptic(type) {
             if (!tg.HapticFeedback) return;
             if(type==='light') tg.HapticFeedback.impactOccurred('light');
+            else if(type==='medium') tg.HapticFeedback.impactOccurred('medium');
             else if(type==='heavy') tg.HapticFeedback.impactOccurred('heavy');
             else if(type==='err') tg.HapticFeedback.notificationOccurred('error');
             else if(type==='success') tg.HapticFeedback.notificationOccurred('success');
             else if(type==='sel') tg.HapticFeedback.selectionChanged();
         }
 
-        // --- BACKEND ---
+        // --- BACKEND CONNECTION FIX ---
         async function runBackend(action, payload = {}) {
             if (IS_GOOGLE) {
                 return new Promise((resolve, reject) => {
@@ -434,22 +382,37 @@
                     else if(action === 'getAnalyticsData') google.script.run.withSuccessHandler(resolve).getAnalyticsData(payload.year, payload.monthIdx);
                 });
             } else {
+                // FIXED FETCH LOGIC FOR TELEGRAM/GITHUB
                 payload.action = action;
-                const res = await fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
-                return JSON.parse(await res.text());
+                try {
+                    const res = await fetch(GAS_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify(payload)
+                    });
+                    const text = await res.text();
+                    try { return JSON.parse(text); } catch(e) { throw new Error("Server Error: " + text); }
+                } catch(e) { throw e; }
             }
         }
 
+        // INIT
         window.onload = function() {
             if(tg) tg.expand();
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
+            
             setLoading(true);
             runBackend('getInitialConfig').then(res => {
                 config = res; availableYears = res.years;
-                updateFilterUI(); refreshTable('income', true);
+                updateFilterUI(); 
+                refreshTable('income', true);
+                setLoading(false);
+            }).catch(e => {
+                showToast("Ошибка соединения: " + e, true);
                 setLoading(false);
             });
+
             const v = document.getElementById('venus');
             v.addEventListener('animationiteration', () => { if(stopAnim) { v.classList.remove('spinning'); stopAnim=false; } });
             setupSwipes();
@@ -462,20 +425,19 @@
             else { reqs--; if(reqs<=0) { reqs=0; stopAnim=true; } }
         }
 
-        // --- NAVIGATION & PAGE SLIDER ---
+        // --- NAVIGATION ---
         function goToPage(idx) {
             if(idx === currPageIdx) return;
+            haptic('medium'); // Vibrate on tab switch
             currPageIdx = idx;
             const container = document.getElementById('pagesContainer');
             container.style.transform = `translateX(-${idx * 33.333}%)`;
             
-            // Nav Indicators
             const btns = document.querySelectorAll('.nav-btn');
             btns.forEach(b => b.classList.remove('active'));
             btns[idx].classList.add('active');
             document.getElementById('navInd').style.transform = `translateX(${idx * 100}%)`;
             
-            // Logic
             if(idx === 1 && !dataCache.expense) refreshTable('expense');
             if(idx === 2) loadAnalytics();
         }
@@ -487,10 +449,9 @@
             zone.addEventListener('touchend', e => {
                 const diffX = e.changedTouches[0].clientX - startX;
                 const diffY = e.changedTouches[0].clientY - startY;
-                // Threshold 80px, and horizontal dominant
                 if(Math.abs(diffX) > 80 && Math.abs(diffX) > Math.abs(diffY) * 1.5) {
-                    if(diffX < 0 && currPageIdx < 2) { goToPage(currPageIdx+1); haptic('heavy'); }
-                    if(diffX > 0 && currPageIdx > 0) { goToPage(currPageIdx-1); haptic('heavy'); }
+                    if(diffX < 0 && currPageIdx < 2) goToPage(currPageIdx+1);
+                    if(diffX > 0 && currPageIdx > 0) goToPage(currPageIdx-1);
                 }
             }, {passive:true});
         }
@@ -509,7 +470,7 @@
         }
         function setTheme(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('theme', t); if(currPageIdx===2) loadAnalytics(); }
 
-        // --- WHEEL PICKER LOGIC ---
+        // --- WHEEL PICKER (DRUM) LOGIC ---
         let pickerType = null;
         let wheelItems = [];
         function openPicker(type) {
@@ -521,7 +482,6 @@
             const scroller = document.getElementById('wheelScroller');
             scroller.innerHTML = '';
             
-            // Generate items
             let items = [];
             if(type === 'year') items = availableYears.map(y => ({ val: y, label: y }));
             else {
@@ -529,8 +489,7 @@
                 monthNames.forEach((m,i) => items.push({val:i, label:m}));
             }
             
-            // Add padding items for center alignment
-            scroller.innerHTML += '<div style="height:80px"></div>'; 
+            scroller.innerHTML += '<div style="height:80px"></div>'; // Padding top
             items.forEach((item, idx) => {
                 const el = document.createElement('div');
                 el.className = 'wheel-item';
@@ -539,16 +498,14 @@
                 el.onclick = () => scrollToItem(idx);
                 scroller.appendChild(el);
             });
-            scroller.innerHTML += '<div style="height:80px"></div>'; 
+            scroller.innerHTML += '<div style="height:80px"></div>'; // Padding bottom
             
             wheelItems = Array.from(document.querySelectorAll('.wheel-item'));
             
-            // Scroll to current
             let currentVal = type === 'year' ? selYear : selMonth;
             let targetIdx = items.findIndex(i => i.val == currentVal);
             if(targetIdx < 0) targetIdx = 0;
             
-            // Wait for render
             setTimeout(() => {
                 scroller.scrollTop = targetIdx * 44; 
                 highlightWheel();
@@ -562,19 +519,21 @@
         }
 
         let wheelTimeout;
+        let lastScrollIdx = -1;
         function onWheelScroll() {
             const scroller = document.getElementById('wheelScroller');
-            const scrollTop = scroller.scrollTop;
-            const idx = Math.round(scrollTop / 44);
+            const idx = Math.round(scroller.scrollTop / 44);
+            
+            if(idx !== lastScrollIdx) {
+                haptic('sel'); // TICK VIBRATION
+                lastScrollIdx = idx;
+            }
             
             wheelItems.forEach((el, i) => {
-                if(i === idx) {
-                    if(!el.classList.contains('active')) haptic('sel'); // Vibrate on change
-                    el.classList.add('active');
-                } else el.classList.remove('active');
+                if(i === idx) el.classList.add('active');
+                else el.classList.remove('active');
             });
             
-            // Snap logic (debounce)
             clearTimeout(wheelTimeout);
             wheelTimeout = setTimeout(() => {
                 scroller.scrollTo({ top: idx * 44, behavior: 'smooth' });
@@ -582,7 +541,6 @@
         }
 
         function highlightWheel() {
-            // Initial highlight without scroll event
             const scroller = document.getElementById('wheelScroller');
             const idx = Math.round(scroller.scrollTop / 44);
             wheelItems.forEach((el, i) => i === idx ? el.classList.add('active') : el.classList.remove('active'));
@@ -615,6 +573,7 @@
                 dataCache[type] = data; renderList(type, data);
             });
         }
+        
         function renderList(type, data) {
             const list = document.getElementById(type==='income'?'listIncome':'listExpense');
             list.innerHTML = '';
@@ -623,7 +582,7 @@
                 const div = document.createElement('div');
                 div.className = 'record-card';
                 div.id = `row-${row.rowId}`;
-                const shortDate = row.dateStr.slice(0,6);
+                const shortDate = row.dateStr.length >= 10 ? row.dateStr.slice(0, 6) : row.dateStr;
                 const rowJson = JSON.stringify(row).replace(/"/g, '&quot;');
                 div.innerHTML = `<div class="rc-top"><span class="rc-date">${shortDate}</span><span class="rc-name">${row.name}</span></div><div class="rc-bot"><span class="rc-sum">${row.total.toLocaleString()} ₽</span><div class="rc-actions"><button class="btn-mini btn-edit" onclick="openEdit(${rowJson}, '${type}')"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button><button class="btn-mini btn-del" onclick="openDel(${rowJson}, '${type}')"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button></div></div>`;
                 list.appendChild(div);
@@ -638,12 +597,16 @@
             const qty = parseFloat(document.getElementById('qty'+sfx).value);
             const btn = document.getElementById('btnAdd'+sfx);
             
-            if(!name || !price || isNaN(price)) { haptic('err'); btn.classList.add('shake'); setTimeout(()=>btn.classList.remove('shake'), 400); return; }
+            if(!name || !price || isNaN(price)) { 
+                haptic('err'); // ERROR VIBRATION
+                btn.classList.add('shake'); setTimeout(()=>btn.classList.remove('shake'), 400); 
+                return; 
+            }
             haptic('success');
             
             const total = price * qty;
-            const list = type === 'income' ? config.incomeItems : config.expenseItems;
-            if(!list.includes(name)) list.push(name);
+            const listItems = type === 'income' ? config.incomeItems : config.expenseItems;
+            if(!listItems.includes(name)) listItems.push(name);
             
             // Add temp card
             const container = document.getElementById('list'+(type==='income'?'Income':'Expense'));
@@ -654,7 +617,7 @@
             // Clear inputs
             document.getElementById('inpName'+sfx).value=''; document.getElementById('price'+sfx).value=''; document.getElementById('qty'+sfx).value=1; calcTotal(type);
             
-            runBackend('saveTransaction', {type, name, price, qty, total, isNew: !list.includes(name)}).then(res => {
+            runBackend('saveTransaction', {type, name, price, qty, total, isNew: !listItems.includes(name)}).then(res => {
                 if(res.success) { showToast('Добавлено'); refreshTable(type, true); }
                 else { tmp.remove(); showToast(res.message, true); }
             });
@@ -731,14 +694,19 @@
         }
 
         // --- UTILS ---
-        function modVal(id, d) { haptic('light'); const el=document.getElementById(id); let v=parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id.includes('qty') && v<1) v=1; el.value=v; calcTotal(id.includes('Inc')?'income':'expense'); }
+        function modVal(id, d) { 
+            haptic('light'); // TICK ON +/-
+            const el=document.getElementById(id); let v=parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id.includes('qty') && v<1) v=1; el.value=v; calcTotal(id.includes('Inc')?'income':'expense'); 
+        }
         function calcTotal(type) {
+            haptic('selection'); // TICK ON INPUT
             const sfx = type==='income'?'Inc':'Exp';
             const p = parseFloat(document.getElementById('price'+sfx).value)||0;
             const q = parseFloat(document.getElementById('qty'+sfx).value)||0;
             document.getElementById('total'+sfx).innerText = (p*q).toLocaleString() + ' ₽';
         }
         function handleSearch(e, type) {
+            haptic('selection');
             const val = e.target.value.toLowerCase();
             const res = document.getElementById(type==='income'?'resInc':'resExp');
             res.innerHTML = ''; if(!val) { res.style.display='none'; return; }
