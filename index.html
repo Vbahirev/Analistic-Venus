@@ -253,6 +253,7 @@
         .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
         .charts-grid { grid-template-columns: 1fr; gap: 15px; }
 
+        /* ИСПРАВЛЕНИЕ: 4 колонки в меню для нового пункта */
         .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 20px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; padding: 5px; height: 60px; border: 1px solid var(--border); }
         .nav-indicator { display: block; position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc((100% - 10px) / 4); background: var(--bg-app); border-radius: 16px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1; pointer-events: none; }
         [data-theme="dark"] .nav-indicator { background: #334155; }
@@ -488,7 +489,7 @@
 
     <script>
         // 👇 ВСТАВЬ СЮДА СВОЮ ССЫЛКУ GAS
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzkRJ_zWOz6vLIcXo2LrNp8SM7y8G5OjuNCsUCTwwStDfXIQLM1wydYNJSh9junE_-h/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbz_nYQBiChJ20uHj587t6PBiOLvIdRjcR9dbkUPm_knEP7orieKKTn13qGt4ODGBRfm/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -855,16 +856,40 @@
         function nextMonth() { bookMonth++; if (bookMonth > 11) { bookMonth = 0; bookYear++; } updateBookingFilterUI(); loadBookingsData(); }
 
         function loadBookingsData() {
-            if (monthlyBookingsCache.year === bookYear && monthlyBookingsCache.month === bookMonth) { renderCalendar(monthlyBookingsCache.dates); return; }
+            if (monthlyBookingsCache.year === bookYear && monthlyBookingsCache.month === bookMonth) { 
+                renderCalendar(monthlyBookingsCache.dates); 
+                return; 
+            }
+
             setLoading(true);
-            runBackend('getMonthlyBookings', { year: bookYear, month: bookMonth }).then(res => {
+            
+            runBackend('getMonthlyBookings', { year: bookYear, month: bookMonth })
+            .then(res => {
                 setLoading(false);
-                monthlyBookingsCache = { year: bookYear, month: bookMonth, dates: res.dates, details: res.details };
-                renderCalendar(res.dates);
-            }).catch(e => { showToast("Ошибка загрузки бронирований: " + e, true); setLoading(false); });
+                
+                // 1. ЗАЩИТА ОТ ОШИБКИ СЕРВЕРА (если скрипт не обновлен)
+                if (res && res.success === false) {
+                    showToast("Обновите скрипт (Deploy New Version)!", true);
+                    return; 
+                }
+
+                // 2. ЗАЩИТА ОТ ПУСТЫХ ДАННЫХ
+                const dates = (res && res.dates) ? res.dates : [];
+                const details = (res && res.details) ? res.details : [];
+
+                monthlyBookingsCache = { year: bookYear, month: bookMonth, dates: dates, details: details };
+                renderCalendar(dates);
+            })
+            .catch(e => { 
+                showToast("Ошибка связи: " + e, true); 
+                setLoading(false); 
+            });
         }
 
         function renderCalendar(bookedDays) {
+            // ЗАЩИТА: Проверяем, что bookedDays - это массив
+            if (!Array.isArray(bookedDays)) bookedDays = [];
+
             const calendarEl = document.getElementById('calendar'); calendarEl.innerHTML = '';
             const today = new Date();
             const currentMonthDate = new Date(bookYear, bookMonth, 1);
