@@ -51,7 +51,7 @@
       
       * { -webkit-tap-highlight-color: transparent; }
       
-      /* --- ПРОСТАЯ И НАДЕЖНАЯ АНИМАЦИЯ --- */
+      /* --- АНИМАЦИЯ --- */
       ::view-transition-old(root),
       ::view-transition-new(root) {
           animation: none;
@@ -59,7 +59,6 @@
           position: absolute;
           width: 100%; height: 100%; top: 0; left: 0;
       }
-
       ::view-transition-new(root) { z-index: 9999; }
       ::view-transition-old(root) { z-index: 1; }
       
@@ -68,16 +67,14 @@
       ::-webkit-scrollbar-thumb { background-color: var(--scroll-thumb); border-radius: 10px; }
       
       body { 
-          margin: 0;
-          padding: 20px; 
+          margin: 0; padding: 20px; 
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
           background-color: var(--bg-app); 
           color: var(--text-main); 
           height: 100vh; height: 100dvh; 
           box-sizing: border-box; 
           overflow: hidden; 
-          display:flex;
-          flex-direction:column;
+          display:flex; flex-direction:column;
           -webkit-font-smoothing: antialiased;
           font-weight: 500;
       }
@@ -103,23 +100,15 @@
 
       /* CONTENT & ANIMATIONS */
       .content-area { flex: 1; position: relative; overflow: hidden; border-radius: var(--radius); display: flex; }
-      
       .tab-page { display: none; width: 100%; height: 100%; }
       .tab-page.active { display: block; }
       
-      /* Анимации для свайпов (Slide Effect) */
       .anim-next { animation: slideInRight 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
       .anim-prev { animation: slideInLeft 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
       .anim-fade { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-      @keyframes slideInRight {
-          from { transform: translateX(100%); opacity: 0.5; }
-          to { transform: translateX(0); opacity: 1; }
-      }
-      @keyframes slideInLeft {
-          from { transform: translateX(-100%); opacity: 0.5; }
-          to { transform: translateX(0); opacity: 1; }
-      }
+      @keyframes slideInRight { from { transform: translateX(100%); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }
+      @keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0.5; } to { transform: translateX(0); opacity: 1; } }
       
       .split-view { display: flex; height: 100%; gap: 20px; }
       .panel { background: var(--bg-panel); border-radius: var(--radius); box-shadow: var(--shadow-card); overflow: hidden; display: flex; flex-direction: column; border: 1px solid var(--border); }
@@ -160,39 +149,18 @@
 
       .grid-wrapper { flex: 1; overflow-y: auto; padding: 0 10px; }
       
-      /* --- ТАБЛИЦА (С ГОРИЗОНТАЛЬНЫМ СКРОЛЛОМ) --- */
-      table { 
-          width: 100%; border-collapse: separate; 
-          border-spacing: 0 8px; 
-          min-width: 500px; 
-          table-layout: auto; 
-      }
-      
+      table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 500px; table-layout: auto; }
       th { position: sticky; top: 0; background: var(--bg-panel); color: var(--text-sub); font-size: 11px; text-transform: uppercase; text-align: left; padding: 10px 15px; font-weight: 700; z-index: 10; }
-      
-      td { 
-          padding: 16px 10px; background: var(--input-bg); border: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; font-weight: 500; 
-          white-space: normal;
-      }
-      
+      td { padding: 16px 10px; background: var(--input-bg); border: 1px solid var(--border); font-size: 14px; color: var(--text-main); vertical-align: middle; font-weight: 500; white-space: normal; }
       tr td:first-child { border-top-left-radius: 14px; border-bottom-left-radius: 14px; border-right: none; }
       tr td:last-child { border-top-right-radius: 14px; border-bottom-right-radius: 14px; text-align: right; border-left: none; }
       tr td:not(:first-child):not(:last-child) { border-left: none; border-right: none; }
-      
       th:nth-child(1) { width: 70px; } 
-      th:nth-child(2) { width: auto; } 
       th:nth-child(3) { width: 90px; text-align: right; } 
       th:nth-child(4) { width: 90px; text-align: right; } 
-
       td:nth-child(3) { font-weight: 700; text-align: right; }
 
-      .btn-table { 
-          padding: 0; width: 34px; height: 34px; 
-          border-radius: 10px; cursor: pointer; 
-          border: 1px solid var(--border-strong); background: transparent; color: var(--text-sub); 
-          margin-left: 4px; display: inline-flex; align-items: center; justify-content: center;
-          transition: 0.2s;
-      }
+      .btn-table { padding: 0; width: 34px; height: 34px; border-radius: 10px; cursor: pointer; border: 1px solid var(--border-strong); background: transparent; color: var(--text-sub); margin-left: 4px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
       .btn-table svg { width: 16px; height: 16px; fill: currentColor; }
       .btn-edit:hover { border-color: var(--accent); background-color: var(--accent); color: white; }
       .btn-del:hover { border-color: var(--danger); background-color: var(--danger); color: white; }
@@ -242,9 +210,25 @@
       .loader { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.01); z-index:50; display:none; }
       .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px; opacity: 0; transition: 0.3s; z-index: 3000; font-size: 14px; font-weight: 500; box-shadow: 0 10px 20px -3px rgba(0,0,0,0.2); pointer-events: none; }
       .toast.show { opacity: 1; bottom: 100px; }
-      .toast.success { background: var(--success); }
+      .toast.success { background: var(--color-inc); }
       .toast.error { background: var(--danger); }
       
+      /* --- BOOKING STYLES --- */
+      .calendar-wrapper { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+      .day-name { text-align: center; font-size: 11px; font-weight: 700; color: var(--accent); padding-bottom: 10px; }
+      .calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50px; width: 100%; border-radius: 12px; cursor: pointer; transition: background-color 0.2s; position: relative; font-weight: 600; font-size: 15px; }
+      .calendar-day:not(.empty-day):not(.inactive):hover { background: var(--input-bg); }
+      .calendar-day.inactive { color: var(--text-sub); opacity: 0.5; }
+      .calendar-day.today { border: 2px solid var(--accent); color: var(--accent); }
+      .calendar-day.has-bookings::after { content: ''; position: absolute; bottom: 5px; width: 6px; height: 6px; background: var(--color-prof); border-radius: 50%; }
+      .booking-item { background: var(--input-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+      .booking-header { font-weight: 700; margin-bottom: 5px; }
+      .status-btn { padding: 6px 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; margin-top: 10px; transition: 0.2s; white-space: nowrap; }
+      .status-btn.preorder { background: rgba(0, 122, 255, 0.1); color: var(--accent); }
+      .status-btn.confirmed { background: rgba(52, 199, 89, 0.15); color: var(--color-inc); }
+      .status-btn.conducted { background: rgba(88, 86, 214, 0.15); color: var(--color-prof); }
+      .status-btn.cancelled { background: rgba(255, 59, 48, 0.15); color: var(--color-exp); }
+
       @media (max-width: 768px) {
         body { padding: 0; overflow: hidden; }
         .header { padding: 5px 15px 0 15px; margin-bottom: 5px; height: 40px; }
@@ -265,14 +249,12 @@
         #txtTotal { font-size: 20px !important; margin-top: 0; }
         .btn { padding: 12px; margin-top: 10px; font-size: 14px; }
         .search-wrap { margin-bottom: 10px; }
-        
         .grid-wrapper { padding: 0; }
-        
         .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
         .charts-grid { grid-template-columns: 1fr; gap: 15px; }
 
-        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 20px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 5px; height: 60px; border: 1px solid var(--border); }
-        .nav-indicator { display: block; position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc((100% - 10px) / 3); background: var(--bg-app); border-radius: 16px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1; pointer-events: none; }
+        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 20px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; padding: 5px; height: 60px; border: 1px solid var(--border); }
+        .nav-indicator { display: block; position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc((100% - 10px) / 4); background: var(--bg-app); border-radius: 16px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1; pointer-events: none; }
         [data-theme="dark"] .nav-indicator { background: #334155; }
         .nav-btn { background: transparent !important; box-shadow: none !important; flex-direction: column; gap: 4px; font-size: 10px; color: var(--text-sub); transition: color 0.2s; z-index: 10; width: 100%; }
         .nav-btn svg { width: 22px; height: 22px; margin-bottom: 2px; transition: transform 0.2s; }
@@ -319,6 +301,10 @@
         <button class="nav-btn" onclick="switchTab('analytics', 2)">
             <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg>
             Инфо
+        </button>
+        <button class="nav-btn" onclick="switchTab('booking', 3)">
+            <svg viewBox="0 0 24 24"><path d="M19 19H5V8H19M16 1V3H8V1H6V3H5C3.89 3 3 3.89 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.89 20.1 3 19 3H18V1M17 12H12V17H17V12Z"/></svg>
+            Бронь
         </button>
     </div>
 
@@ -395,7 +381,7 @@
                     <div class="kpi-card"><div class="kpi-title">ВЫРУЧКА</div><div class="kpi-val" style="color:var(--color-inc)" id="kpiInc">0</div><div id="trendInc"></div></div>
                     <div class="kpi-card"><div class="kpi-title">РАСХОДЫ</div><div class="kpi-val" style="color:var(--color-exp)" id="kpiExp">0</div><div id="trendExp"></div></div>
                     <div class="kpi-card"><div class="kpi-title">ПРИБЫЛЬ</div><div class="kpi-val" style="color:var(--color-prof)" id="kpiProf">0</div><div id="trendProf"></div></div>
-                    <div class="kpi-card"><div class="kpi-title">ПОСЕТИТЕЛИ</div><div class="kpi-val" style="color:var(--color-vis)" id="kpiVis">0</div><div id="trendVis"></div></div>
+                    <div class="kpi-card"><div class="kpi-title">ПОТЕНЦИАЛ</div><div class="kpi-val" style="color:var(--color-prof)" id="kpiPrepay">0</div><div id="trendPrepay"></div></div>
                 </div>
 
                 <div class="charts-grid">
@@ -405,6 +391,33 @@
                 <div class="charts-grid">
                      <div class="chart-box"><div class="chart-head">Посещаемость</div><div class="chart-canv"><canvas id="chartAttendance"></canvas></div></div>
                      <div class="chart-box" style="min-height:300px"><div class="chart-head">Топ Расходов</div><div id="listExp" class="prog-list"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bookingTab" class="tab-page">
+            <div class="analytics-container" style="padding: 0; display:flex; flex-direction:column;">
+                <div class="charts-grid" style="grid-template-columns: 1fr; gap: 10px; padding: 20px 20px 0 20px; flex-shrink: 0;">
+                    <div class="filters-row" style="margin-bottom: 10px;">
+                        <div class="custom-select-wrapper" onclick="openSheet('year', true)">
+                            <div class="custom-select-trigger"><span id="txtBookingYear">Год</span></div>
+                        </div>
+                        <div class="custom-select-wrapper" onclick="openSheet('month', true)">
+                            <div class="custom-select-trigger"><span id="txtBookingMonth">Месяц</span></div>
+                        </div>
+                    </div>
+                    <div id="calendarHeader" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <button class="qty-btn" onclick="prevMonth()" style="width:40px; height:40px;">&lt;</button>
+                        <h3 id="currentMonthYear" style="margin:0; font-size:18px;"></h3>
+                        <button class="qty-btn" onclick="nextMonth()" style="width:40px; height:40px;">&gt;</button>
+                        <button class="btn" style="width:100px; padding:10px; margin:0; border-radius:10px; font-size:13px;" onclick="openNewBookingModal()">+ МК</button>
+                    </div>
+                </div>
+                
+                <div class="panel" style="margin: 20px; margin-top: 0; flex: 1; min-height: 300px;">
+                    <div id="calendarGrid" class="grid-wrapper" style="padding: 20px;">
+                        <div id="calendar" class="calendar-wrapper"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -425,14 +438,41 @@
             </div>
         </div>
     </div>
+
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-bottom:15px; color:var(--text-main)">Удаление</h3>
-            <p style="color:var(--text-sub); margin-bottom:25px; font-size:14px; line-height:1.5;">Вы уверены, что хотите удалить эту запись? Это действие нельзя будет отменить.</p>
+            <p style="color:var(--text-sub); margin-bottom:25px; font-size:14px; line-height:1.5;">Вы уверены, что хотите удалить эту запись?</p>
             <div style="display:flex; gap:10px;">
                 <button class="btn" style="background:var(--danger); color:white; margin-top:0;" onclick="confirmDelete()">Удалить</button>
                 <button class="btn" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-strong); margin-top:0;" onclick="document.getElementById('deleteModal').style.display='none'">Отмена</button>
             </div>
+        </div>
+    </div>
+
+    <div id="bookingDetailModal" class="modal-overlay">
+        <div class="modal-box" style="width: 400px; max-width: 90vw;">
+            <h3 id="detailModalTitle" style="margin-bottom:15px;">Брони на [Дата]</h3>
+            <div id="bookingListDetail" style="max-height: 400px; overflow-y: auto; margin-bottom: 15px;"></div>
+            <button class="btn" onclick="document.getElementById('bookingDetailModal').style.display='none'">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="newBookingModal" class="modal-overlay">
+        <div class="modal-box" style="width: 360px;">
+            <h3 style="margin-bottom:20px;">Новая Бронь</h3>
+            <label>Дата МК</label><input type="date" id="bookDate" style="margin-bottom: 10px;">
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <div style="flex:1;"><label>Время начала</label><input type="time" id="bookStartTime"></div>
+                <div style="flex:1;"><label>Длительность (ч)</label><input type="number" id="bookDuration" value="1" min="0.5" step="0.5"></div>
+            </div>
+            <label>Название МК</label><input type="text" id="bookMkName" placeholder="Название МК" style="margin-bottom: 10px;">
+            <label>Имя Клиента</label><input type="text" id="bookClientName" placeholder="Имя Клиента" style="margin-bottom: 10px;">
+            <label>Предоплата (внесено)</label><input type="number" id="bookPrepayment" placeholder="0" style="margin-bottom: 10px;">
+            <label>Итоговая Сумма</label><input type="number" id="bookTotal" placeholder="0" style="margin-bottom: 20px;">
+            
+            <button class="btn" onclick="submitNewBooking()">Сохранить Бронь</button>
+            <button class="btn" style="background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-strong); margin-top: 10px;" onclick="document.getElementById('newBookingModal').style.display='none'">Отмена</button>
         </div>
     </div>
 
@@ -447,8 +487,8 @@
     </div>
 
     <script>
-        // 👇 ВСТАВЬ СЮДА ССЫЛКУ
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzKOMjItixU6AyJnIctfpgS_T2gUCEMPghzjk2sFetnpqzHvysoZvb8tJNMf67XCFBZ/exec';
+        // 👇 ВСТАВЬ СЮДА СВОЮ ССЫЛКУ GAS
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzkRJ_zWOz6vLIcXo2LrNp8SM7y8G5OjuNCsUCTwwStDfXIQLM1wydYNJSh9junE_-h/exec';
         // 👆👆👆
 
         const IS_GOOGLE = typeof google !== 'undefined' && google.script && google.script.run;
@@ -459,78 +499,56 @@
         let availableYears = [];
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
         
-        // --- ЛОГИКА СВАЙПОВ + ЗАЩИТА ОТ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ ---
-        const TABS_ORDER = ['income', 'expense', 'analytics'];
-        let touchStartX = 0;
-        let touchStartY = 0; 
-        let touchEndX = 0;
-        let touchEndY = 0;
-        let isSwipeIgnored = false; // Флаг для блокировки свайпа страницы
+        // --- ПЕРЕМЕННЫЕ ДЛЯ БРОНИРОВАНИЯ ---
+        let bookYear = new Date().getFullYear();
+        let bookMonth = new Date().getMonth();
+        let selectedDate = null;
+        let monthlyBookingsCache = { year: null, month: null, dates: [], details: [] };
+        const bookingStatusMap = {
+            'Предзаказ (Внесена предоплата)': { label: 'Предзаказ', color: 'preorder', next: 'Подтвержден (Полная оплата)' },
+            'Подтвержден (Полная оплата)': { label: 'Подтвержден', color: 'confirmed', next: 'Проведен' },
+            'Проведен': { label: 'Проведен', color: 'conducted', next: null },
+            'Отменен': { label: 'Отменен', color: 'cancelled', next: null }
+        };
+
+        const TABS_ORDER = ['income', 'expense', 'analytics', 'booking'];
+        let touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0, isSwipeIgnored = false;
 
         document.addEventListener('touchstart', e => {
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
-            
-            // ПРОВЕРКА: Если мы касаемся таблицы (класс .grid-wrapper) или графика,
-            // мы блокируем свайп страницы, чтобы дать возможность прокрутить контент.
-            if (e.target.closest('.grid-wrapper') || e.target.closest('.chart-canv')) {
-                isSwipeIgnored = true;
-            } else {
-                isSwipeIgnored = false;
-            }
+            if (e.target.closest('.grid-wrapper') || e.target.closest('.chart-canv')) { isSwipeIgnored = true; } else { isSwipeIgnored = false; }
         }, false);
-
         document.addEventListener('touchend', e => {
             touchEndX = e.changedTouches[0].screenX;
             touchEndY = e.changedTouches[0].screenY;
-            
-            if (!isSwipeIgnored) {
-                handleSwipe();
-            }
+            if (!isSwipeIgnored) { handleSwipe(); }
         }, false);
-
         function handleSwipe() {
-            const threshold = 100; // Порог свайпа
+            const threshold = 100;
             const xDiff = touchEndX - touchStartX;
             const yDiff = touchEndY - touchStartY;
-            
-            // 1. Длина
             if (Math.abs(xDiff) < threshold) return;
-            // 2. Вертикальность (если скроллим вниз - отмена)
             if (Math.abs(yDiff) > Math.abs(xDiff)) return;
-
             let currentIdx = TABS_ORDER.indexOf(currTab);
             if (currentIdx === -1) currentIdx = 0;
-
             if (xDiff < 0) {
-                // Свайп влево (СЛЕДУЮЩАЯ)
                 let nextIdx = currentIdx + 1;
                 if (nextIdx >= TABS_ORDER.length) nextIdx = 0; 
                 switchTab(TABS_ORDER[nextIdx], nextIdx, 'next');
             } else {
-                // Свайп вправо (ПРЕДЫДУЩАЯ)
                 let prevIdx = currentIdx - 1;
                 if (prevIdx < 0) prevIdx = TABS_ORDER.length - 1; 
                 switchTab(TABS_ORDER[prevIdx], prevIdx, 'prev');
             }
         }
         
-        // --- ВИБРАЦИЯ (ЭФФЕКТ КНИГИ / FADING IMPULSE) ---
         function triggerBookHaptic() {
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
-                // 1. Сильный импульс (начало перелистывания)
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-                
-                // 2. Слабый импульс через 80мс (страница "легла" / затухание)
-                setTimeout(() => {
-                    window.Telegram.WebApp.HapticFeedback.impactOccurred('soft');
-                }, 80);
-            } else if (navigator.vibrate) {
-                // Аналог для браузера: [сильный, пауза, слабый]
-                navigator.vibrate([20, 50, 10]); 
-            }
+                setTimeout(() => { window.Telegram.WebApp.HapticFeedback.impactOccurred('soft'); }, 80);
+            } else if (navigator.vibrate) { navigator.vibrate([20, 50, 10]); }
         }
-        // ---------------------------------------------
 
         async function runBackend(action, payload = {}) {
             if (IS_GOOGLE) {
@@ -541,17 +559,16 @@
                     else if(action === 'editTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).editTransaction(payload);
                     else if(action === 'deleteTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteTransaction(payload);
                     else if(action === 'getAnalyticsData') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getAnalyticsData(payload.year, payload.monthIdx);
+                    else if (action === 'getMonthlyBookings') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getMonthlyBookings(payload.year, payload.month);
+                    else if (action === 'saveBooking') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveBooking(payload);
+                    else if (action === 'updateBookingStatus') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).updateBookingStatus(payload.bookingId, payload.newStatus);
                     else reject("Unknown Func");
                 });
             } else {
                 if(GAS_URL.includes("ВАШ_")) { alert("ОШИБКА: Вставь ссылку в index.html!"); throw new Error("No URL"); }
                 payload.action = action;
                 try {
-                    const res = await fetch(GAS_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify(payload)
-                    });
+                    const res = await fetch(GAS_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
                     const text = await res.text();
                     try { return JSON.parse(text); } catch(e) { throw new Error("Server Error: " + text); }
                 } catch(e) { throw e; }
@@ -589,45 +606,27 @@
         function toggleTheme(event) {
             const isDark = document.body.getAttribute('data-theme') === 'dark';
             const newTheme = isDark ? 'light' : 'dark';
-            
             if (!document.startViewTransition) { setTheme(newTheme); return; }
-
             const rect = document.getElementById('venus').getBoundingClientRect();
             const x = rect.left + rect.width / 2;
             const y = rect.top + rect.height / 2;
             const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-            const transition = document.startViewTransition(() => {
-                setTheme(newTheme);
-            });
+            const transition = document.startViewTransition(() => { setTheme(newTheme); });
             transition.ready.then(() => {
-                const clipPath = [
-                    `circle(0px at ${x}px ${y}px)`,
-                    `circle(${endRadius}px at ${x}px ${y}px)`
-                ];
-                document.documentElement.animate(
-                   { clipPath: clipPath },
-                   {
-                        duration: 700,
-                        easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
-                        pseudoElement: '::view-transition-new(root)'
-                    }
-                );
+                const clipPath = [ `circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)` ];
+                document.documentElement.animate( { clipPath: clipPath }, { duration: 700, easing: 'cubic-bezier(0.645, 0.045, 0.355, 1)', pseudoElement: '::view-transition-new(root)' } );
             });
         }
         function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); if(currTab === 'analytics') loadAnalytics(); }
 
         function switchTab(t, idx, direction = 'fade') {
             if (currTab === t && !direction) return;
-
             currTab = t;
-            
-            // Включаем "книжную" вибрацию
             triggerBookHaptic();
-
             const btns = document.querySelectorAll('.nav-btn');
             btns.forEach(b => b.classList.remove('active')); 
             if(typeof idx === 'undefined') {
-                if(t==='income') idx=0; else if(t==='expense') idx=1; else idx=2;
+                if(t==='income') idx=0; else if(t==='expense') idx=1; else if(t==='analytics') idx=2; else idx=3;
             }
             if(btns[idx]) btns[idx].classList.add('active');
             const ind = document.getElementById('navInd');
@@ -635,15 +634,18 @@
 
             const splitPage = document.getElementById('splitTab');
             const analyticsPage = document.getElementById('analyticsTab');
+            const bookingPage = document.getElementById('bookingTab');
             let activePage;
-
-            document.querySelectorAll('.tab-page').forEach(p => {
-                p.classList.remove('active', 'anim-next', 'anim-prev', 'anim-fade');
-            });
-
+            
+            document.querySelectorAll('.tab-page').forEach(p => { p.classList.remove('active', 'anim-next', 'anim-prev', 'anim-fade'); });
+            
             if(t === 'analytics') {
                 activePage = analyticsPage;
                 if(analyticsNeedsRefresh || !isAnalyticsLoaded) loadAnalytics();
+            } else if (t === 'booking') {
+                activePage = bookingPage;
+                updateBookingFilterUI();
+                loadBookingsData();
             } else {
                 activePage = splitPage;
                 updateUIForTab(t);
@@ -652,16 +654,9 @@
             }
 
             activePage.classList.add('active');
-            
             void activePage.offsetWidth; 
 
-            if (direction === 'next') {
-                activePage.classList.add('anim-next');
-            } else if (direction === 'prev') {
-                activePage.classList.add('anim-prev');
-            } else {
-                activePage.classList.add('anim-fade');
-            }
+            if (direction === 'next') { activePage.classList.add('anim-next'); } else if (direction === 'prev') { activePage.classList.add('anim-prev'); } else { activePage.classList.add('anim-fade'); }
         }
 
         function updateUIForTab(t) {
@@ -678,40 +673,53 @@
             document.getElementById('txtMonth').innerText = (selMonth === 'all') ? 'Весь год' : monthNames[selMonth];
         }
 
-        function openSheet(type) {
+        function openSheet(type, isBooking = false) {
             const sheet = document.getElementById('sheetModal');
             const list = document.getElementById('sheetList');
             const title = document.getElementById('sheetTitle');
             list.innerHTML = '';
             sheet.style.display = 'flex';
+            let targetYear = isBooking ? bookYear : selYear;
+            let targetMonth = isBooking ? bookMonth : selMonth;
+
             if (type === 'year') {
                 title.innerText = 'Выберите год';
                 availableYears.forEach(y => {
                     const div = document.createElement('div');
-                    div.className = `sheet-item ${y == selYear ? 'selected' : ''}`;
+                    div.className = `sheet-item ${y == targetYear ? 'selected' : ''}`;
                     div.innerText = y;
-                    div.onclick = () => { selYear = y; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                    div.onclick = () => {
+                        if (isBooking) { bookYear = y; updateBookingFilterUI(); loadBookingsData(); }
+                        else { selYear = y; updateFilterUI(); loadAnalytics(); }
+                        sheet.style.display = 'none';
+                    };
                     list.appendChild(div);
                 });
             } else {
                 title.innerText = 'Выберите месяц';
                 const divAll = document.createElement('div');
-                divAll.className = `sheet-item ${selMonth === 'all' ? 'selected' : ''}`;
+                divAll.className = `sheet-item ${targetMonth === 'all' ? 'selected' : ''}`;
                 divAll.innerText = 'Весь год';
-                divAll.onclick = () => { selMonth = 'all'; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                divAll.onclick = () => {
+                     if (isBooking) { bookMonth = 0; updateBookingFilterUI(); loadBookingsData(); } 
+                     else { selMonth = 'all'; updateFilterUI(); loadAnalytics(); }
+                     sheet.style.display = 'none';
+                };
                 list.appendChild(divAll);
                 monthNames.forEach((m, i) => {
                     const div = document.createElement('div');
-                    div.className = `sheet-item ${i === selMonth ? 'selected' : ''}`;
+                    div.className = `sheet-item ${i === targetMonth ? 'selected' : ''}`;
                     div.innerText = m;
-                    div.onclick = () => { selMonth = i; updateFilterUI(); sheet.style.display = 'none'; loadAnalytics(); };
+                    div.onclick = () => {
+                        if (isBooking) { bookMonth = i; updateBookingFilterUI(); loadBookingsData(); }
+                        else { selMonth = i; updateFilterUI(); loadAnalytics(); }
+                        sheet.style.display = 'none';
+                    };
                     list.appendChild(div);
                 });
             }
         }
-        function closeSheet(e) {
-            if (e.target.id === 'sheetModal') document.getElementById('sheetModal').style.display = 'none';
-        }
+        function closeSheet(e) { if (e.target.id === 'sheetModal') document.getElementById('sheetModal').style.display = 'none'; }
 
         function renderTableFromCache(data) {
              const tbody = document.getElementById('tableBody'), msg = document.getElementById('emptyMsg');
@@ -723,16 +731,7 @@
                  const shortDate = row.dateStr.length >= 10 ? row.dateStr.slice(0, 6) + row.dateStr.slice(8) : row.dateStr;
                  const iconEdit = `<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
                  const iconDel = `<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>`;
-
-                 html += `<tr id="row-${row.rowId}">
-                    <td style="color:var(--text-sub); white-space:nowrap;">${shortDate}</td>
-                    <td style="font-weight:600; line-height:1.2;">${row.name}</td>
-                    <td style="font-weight:700;">${row.total.toLocaleString()}</td>
-                    <td class="action-cell">
-                        <button class="btn-table btn-edit" onclick="openEdit(${rowJson})">${iconEdit}</button>
-                        <button class="btn-table btn-del" onclick="openDelete(${rowJson})">${iconDel}</button>
-                    </td>
-                 </tr>`;
+                 html += `<tr id="row-${row.rowId}"><td style="color:var(--text-sub); white-space:nowrap;">${shortDate}</td><td style="font-weight:600; line-height:1.2;">${row.name}</td><td style="font-weight:700;">${row.total.toLocaleString()}</td><td class="action-cell"><button class="btn-table btn-edit" onclick="openEdit(${rowJson})">${iconEdit}</button><button class="btn-table btn-del" onclick="openDelete(${rowJson})">${iconDel}</button></td></tr>`;
              });
              tbody.innerHTML = html;
         }
@@ -742,9 +741,7 @@
             const tbody = document.getElementById('tableBody'), msg = document.getElementById('emptyMsg');
             setLoading(true);
             if (!isSilent) { tbody.innerHTML = ''; msg.style.display = 'block'; msg.innerText = 'Загрузка...'; }
-            runBackend('getTableData', {type: currTab}).then(data => {
-                dataCache[currTab] = data; setLoading(false); renderTableFromCache(data); 
-            });
+            runBackend('getTableData', {type: currTab}).then(data => { dataCache[currTab] = data; setLoading(false); renderTableFromCache(data); });
         }
 
         function submitEntry() {
@@ -752,7 +749,6 @@
             const price = parseFloat(document.getElementById('inpPrice').value);
             const qty = parseFloat(document.getElementById('inpQty').value);
             if(!name || !price) return;
-            
             const total = price * qty;
             const list = currTab === 'income' ? config.incomeItems : config.expenseItems;
             const isNew = !list.includes(name);
@@ -762,7 +758,6 @@
             document.getElementById('emptyMsg').style.display = 'none';
             const tempId = 'temp-' + Date.now();
             const shortDate = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'2-digit'});
-            
             tbody.insertAdjacentHTML('afterbegin', `<tr id="${tempId}" style="background: rgba(var(--accent), 0.05);"><td style="color:var(--text-sub);">${shortDate}</td><td style="font-weight:600;">${name}</td><td style="font-weight:700;">${total.toLocaleString()}</td><td class="action-cell" style="text-align:right;"><span style="font-size:12px; color:var(--text-sub);">...</span></td></tr>`);
             document.getElementById('inpName').value = ''; document.getElementById('inpPrice').value = ''; document.getElementById('inpQty').value = 1; calcTotal();
             const btn = document.getElementById('btnAdd'); btn.disabled = true; setLoading(true);
@@ -782,13 +777,7 @@
             const payload = { rowId: id, type: currTab, name: name, price: price, qty: qty };
             document.getElementById('editModal').style.display = 'none';
             const row = document.getElementById('row-' + id);
-            if(row) { 
-                row.cells[1].innerText = name;
-                row.cells[2].innerText = (price * qty).toLocaleString(); 
-                row.style.transition = 'background 0.3s';
-                row.style.background = 'rgba(var(--accent), 0.1)'; 
-                setTimeout(() => row.style.background = 'transparent', 1000);
-            }
+            if(row) { row.cells[1].innerText = name; row.cells[2].innerText = (price * qty).toLocaleString(); row.style.transition = 'background 0.3s'; row.style.background = 'rgba(var(--accent), 0.1)'; setTimeout(() => row.style.background = 'transparent', 1000); }
             setLoading(true);
             runBackend('editTransaction', payload).then(res => {
                 setLoading(false);
@@ -800,8 +789,7 @@
             if(!deleteTargetId) return;
             document.getElementById('deleteModal').style.display = 'none';
             const rowElement = document.getElementById('row-' + deleteTargetId);
-            if (rowElement) { rowElement.style.transition = 'opacity 0.3s'; rowElement.style.opacity = '0';
-            setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
+            if (rowElement) { rowElement.style.transition = 'opacity 0.3s'; rowElement.style.opacity = '0'; setTimeout(() => { if(rowElement) rowElement.remove(); }, 300); }
             setLoading(true);
             runBackend('deleteTransaction', {rowId: deleteTargetId, type: currTab}).then(res => {
                 setLoading(false);
@@ -809,11 +797,15 @@
             });
         }
 
+        // --- ЛОГИКА АНАЛИТИКИ ---
         function loadAnalytics(isSilent = false) {
             setLoading(true);
             runBackend('getAnalyticsData', {year: selYear, monthIdx: selMonth}).then(d => {
                 setLoading(false); isAnalyticsLoaded = true; analyticsNeedsRefresh = false;
-                renderKPI('kpiInc', d.current.income, d.growth.income, '₽', 'trend-up'); renderKPI('kpiExp', d.current.expense, d.growth.expense, '₽', 'trend-down'); renderKPI('kpiProf', d.current.profit, d.growth.profit, '₽', 'trend-up'); renderKPI('kpiVis', d.current.visitors, d.growth.visitors, 'чел', 'trend-up');
+                renderKPI('kpiInc', d.current.income, d.growth.income, '₽', 'trend-up'); 
+                renderKPI('kpiExp', d.current.expense, d.growth.expense, '₽', 'trend-down'); 
+                renderKPI('kpiProf', d.current.profit, d.growth.profit, '₽', 'trend-up'); 
+                renderKPI('kpiPrepay', d.current.prepayment, 0, '₽', 'trend-up'); 
                 renderAreaChart('chartPulse', d.pulse.labels, [{ label:'Доход', data:d.pulse.income, borderColor:'#34C759', bg:'rgba(52, 199, 89, 0.1)' }, { label:'Расход', data:d.pulse.expense, borderColor:'#FF3B30', bg:'rgba(255, 59, 48, 0.1)' }]);
                 renderAreaChart('chartAttendance', d.attendance.labels, [{ label:'Посетители', data:d.attendance.data, borderColor:'#AF52DE', bg:'rgba(175, 82, 222, 0.1)' }]);
                 renderProgressList('listInc', d.pieIncome.labels, d.pieIncome.data, '#34C759');
@@ -842,22 +834,117 @@
             const box = document.getElementById('searchRes'); box.innerHTML = ''; if(!val) { box.style.display='none'; return; }
             const src = currTab==='income' ? config.incomeItems : config.expenseItems;
             const res = src.filter(s => s.toLowerCase().includes(val)).slice(0,5);
-            if(res.length) { box.style.display='block'; res.forEach(r => { const d = document.createElement('div'); d.className='res-item'; d.innerText=r; d.onclick=()=>{ document.getElementById('inpName').value=r; box.style.display='none'; calcTotal(); }; box.appendChild(d); });
-            } else box.style.display='none';
+            if(res.length) { box.style.display='block'; res.forEach(r => { const d = document.createElement('div'); d.className='res-item'; d.innerText=r; d.onclick=()=>{ document.getElementById('inpName').value=r; box.style.display='none'; calcTotal(); }; box.appendChild(d); }); } else box.style.display='none';
         }
-        function modVal(id, d) { const el = document.getElementById(id);
-            let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal();
-        }
+        function modVal(id, d) { const el = document.getElementById(id); let v = parseFloat(el.value)||0; v+=d; if(v<0) v=0; if(id==='inpQty' && v<1) v=1; el.value=v; calcTotal(); }
         function calcTotal() {
             const priceVal = document.getElementById('inpPrice').value, nameVal = document.getElementById('inpName').value.trim();
             const p = parseFloat(priceVal); const q = parseFloat(document.getElementById('inpQty').value);
             document.getElementById('txtTotal').innerText = ((p*q)||0).toLocaleString() + ' ₽'; const btn = document.getElementById('btnAdd');
-            if (!nameVal) { btn.innerText = "Укажите название"; btn.style.opacity = "0.6";
-            } else if (!priceVal || isNaN(p) || p === 0) { btn.innerText = "Укажите цену"; btn.style.opacity = "0.6";
-            } else { btn.innerText = "Добавить запись"; btn.style.opacity = "1"; }
+            if (!nameVal) { btn.innerText = "Укажите название"; btn.style.opacity = "0.6"; } else if (!priceVal || isNaN(p) || p === 0) { btn.innerText = "Укажите цену"; btn.style.opacity = "0.6"; } else { btn.innerText = "Добавить запись"; btn.style.opacity = "1"; }
         }
-        function showToast(m, err) { const t = document.getElementById('toast');
-            t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000);
+        function showToast(m, err) { const t = document.getElementById('toast'); t.innerText=m; t.className = err ? 'toast error show' : 'toast success show'; setTimeout(() => t.className='toast', 3000); }
+
+        // --- ЛОГИКА КАЛЕНДАРЯ ---
+        function updateBookingFilterUI() {
+            document.getElementById('txtBookingYear').innerText = bookYear;
+            document.getElementById('txtBookingMonth').innerText = monthNames[bookMonth];
+            document.getElementById('currentMonthYear').innerText = `${monthNames[bookMonth]} ${bookYear}`;
+        }
+        function prevMonth() { bookMonth--; if (bookMonth < 0) { bookMonth = 11; bookYear--; } updateBookingFilterUI(); loadBookingsData(); }
+        function nextMonth() { bookMonth++; if (bookMonth > 11) { bookMonth = 0; bookYear++; } updateBookingFilterUI(); loadBookingsData(); }
+
+        function loadBookingsData() {
+            if (monthlyBookingsCache.year === bookYear && monthlyBookingsCache.month === bookMonth) { renderCalendar(monthlyBookingsCache.dates); return; }
+            setLoading(true);
+            runBackend('getMonthlyBookings', { year: bookYear, month: bookMonth }).then(res => {
+                setLoading(false);
+                monthlyBookingsCache = { year: bookYear, month: bookMonth, dates: res.dates, details: res.details };
+                renderCalendar(res.dates);
+            }).catch(e => { showToast("Ошибка загрузки бронирований: " + e, true); setLoading(false); });
+        }
+
+        function renderCalendar(bookedDays) {
+            const calendarEl = document.getElementById('calendar'); calendarEl.innerHTML = '';
+            const today = new Date();
+            const currentMonthDate = new Date(bookYear, bookMonth, 1);
+            const firstDay = currentMonthDate.getDay() === 0 ? 6 : currentMonthDate.getDay() - 1; 
+            const daysInMonth = new Date(bookYear, bookMonth + 1, 0).getDate();
+            const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+            dayNames.forEach(d => { calendarEl.insertAdjacentHTML('beforeend', `<div class="day-name">${d}</div>`); });
+            for (let i = 0; i < firstDay; i++) { calendarEl.insertAdjacentHTML('beforeend', `<div class="calendar-day empty-day"></div>`); }
+            for (let day = 1; day <= daysInMonth; day++) {
+                const currentDate = new Date(bookYear, bookMonth, day);
+                const isToday = today.toDateString() === currentDate.toDateString();
+                const isBooked = bookedDays.includes(day);
+                let classes = ''; if (isToday) classes += ' today'; if (isBooked) classes += ' has-bookings';
+                const isoDate = new Date(bookYear, bookMonth, day, 12).toISOString(); 
+                const dayHtml = `<div class="calendar-day${classes}" data-date="${isoDate}" onclick="openBookingDetailModal(this.dataset.date)">${day}</div>`;
+                calendarEl.insertAdjacentHTML('beforeend', dayHtml);
+            }
+        }
+
+        function openBookingDetailModal(dateISO) {
+            selectedDate = dateISO;
+            const date = new Date(dateISO);
+            const dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+            document.getElementById('detailModalTitle').innerText = `Брони на ${dateStr}`;
+            const listEl = document.getElementById('bookingListDetail'); listEl.innerHTML = '';
+            const compareDateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const bookingsForDay = monthlyBookingsCache.details.filter(b => b.date === compareDateStr);
+
+            if (bookingsForDay.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; color:var(--text-sub); padding:20px;">На эту дату записей нет. Вы можете <a href="#" onclick="document.getElementById(\'bookingDetailModal\').style.display=\'none\'; openNewBookingModal(\''+dateISO+'\'); return false;">добавить новую бронь</a>.</div>';
+            } else {
+                bookingsForDay.sort((a, b) => a.time.localeCompare(b.time)).forEach(b => {
+                    const statusInfo = bookingStatusMap[b.status] || { label: b.status, color: 'preorder', next: null };
+                    const nextStatusBtn = statusInfo.next ? `<button class="status-btn ${bookingStatusMap[statusInfo.next].color}" onclick="confirmStatusChange('${b.id}', '${statusInfo.next}')">→ ${bookingStatusMap[statusInfo.next].label}</button>` : '';
+                    const itemHtml = `<div class="booking-item" id="book-item-${b.id}"><div class="booking-header">${b.time} (${b.duration}ч) - ${b.name}</div><div style="font-size:14px; color:var(--text-sub); margin-bottom: 5px;">Клиент: ${b.client}</div><div style="font-size:14px; font-weight:700;">Предоплата: ${b.prepayment.toLocaleString()} ₽ | Итого: ${b.total.toLocaleString()} ₽</div><div style="display:flex; justify-content:flex-end; align-items:center; gap: 8px;"><span style="font-size:13px; font-weight:600;" class="status-btn ${statusInfo.color}">${statusInfo.label}</span>${nextStatusBtn}<button class="status-btn cancelled" onclick="confirmStatusChange('${b.id}', 'Отменен')">Отменить</button></div></div>`;
+                    listEl.insertAdjacentHTML('beforeend', itemHtml);
+                });
+            }
+            document.getElementById('bookingDetailModal').style.display = 'flex';
+        }
+
+        function confirmStatusChange(id, newStatus) { if (confirm(`Вы уверены, что хотите изменить статус брони на "${bookingStatusMap[newStatus].label}"?`)) { changeBookingStatus(id, newStatus); } }
+        function changeBookingStatus(id, newStatus) {
+            setLoading(true);
+            runBackend('updateBookingStatus', { bookingId: id, newStatus: newStatus }).then(res => {
+                setLoading(false);
+                if (res.success) {
+                    showToast(res.message);
+                    monthlyBookingsCache = { year: null, month: null, dates: [], details: [] }; 
+                    loadBookingsData();
+                    analyticsNeedsRefresh = true; 
+                    if(currTab === 'analytics') loadAnalytics();
+                    if (newStatus === 'Проведен' || newStatus === 'Отменен') { document.getElementById('bookingDetailModal').style.display = 'none'; } 
+                    else { openBookingDetailModal(selectedDate); }
+                } else { showToast(res.message, true); }
+            });
+        }
+        function openNewBookingModal(dateISO) {
+            const today = new Date();
+            let defaultDate = today.toISOString().substring(0, 10);
+            if (dateISO && dateISO !== 'null') { defaultDate = new Date(dateISO).toISOString().substring(0, 10); }
+            document.getElementById('bookDate').value = defaultDate; document.getElementById('bookStartTime').value = "10:00"; document.getElementById('bookDuration').value = 1; document.getElementById('bookMkName').value = ''; document.getElementById('bookClientName').value = ''; document.getElementById('bookPrepayment').value = ''; document.getElementById('bookTotal').value = ''; document.getElementById('newBookingModal').style.display = 'flex';
+        }
+        function submitNewBooking() {
+            const date = document.getElementById('bookDate').value;
+            const startTime = document.getElementById('bookStartTime').value;
+            const duration = parseFloat(document.getElementById('bookDuration').value);
+            const mkName = document.getElementById('bookMkName').value.trim();
+            const clientName = document.getElementById('bookClientName').value.trim();
+            const prepayment = parseFloat(document.getElementById('bookPrepayment').value) || 0;
+            const total = parseFloat(document.getElementById('bookTotal').value) || 0;
+            if (!date || !startTime || !duration || !mkName || !clientName) { showToast("Заполните все обязательные поля (кроме сумм)", true); return; }
+            const payload = { date: date, startTime: startTime, duration: duration, mkName: mkName, clientName: clientName, prepayment: prepayment, total: total, status: prepayment > 0 ? 'Предзаказ (Внесена предоплата)' : 'Подтвержден (Полная оплата)' };
+            document.getElementById('newBookingModal').style.display = 'none';
+            setLoading(true);
+            runBackend('saveBooking', payload).then(res => {
+                setLoading(false);
+                if (res.success) { showToast('Бронь успешно добавлена!'); monthlyBookingsCache = { year: null, month: null, dates: [], details: [] }; loadBookingsData(); analyticsNeedsRefresh = true; if(currTab === 'analytics') loadAnalytics(); } 
+                else { showToast(res.message, true); }
+            });
         }
     </script>
 </body>
