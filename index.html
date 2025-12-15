@@ -92,7 +92,7 @@
       @keyframes spinInfinite { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
       /* NAV */
-      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; }
+      .nav { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 14px; margin-bottom: 20px; flex-shrink: 0; box-shadow: var(--shadow-card); border: 1px solid var(--border); position: relative; gap: 6px; }
       .nav-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-sub); border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center; transition: 0.2s; font-size: 14px; z-index: 2; position: relative; display: flex; align-items: center; justify-content: center; gap:8px;}
       .nav-btn:hover { color: var(--text-main); }
       .nav-btn.active { color: var(--text-main); background: var(--bg-app); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -244,6 +244,47 @@
       .toast.show { opacity: 1; bottom: 100px; }
       .toast.success { background: var(--success); }
       .toast.error { background: var(--danger); }
+
+      /* --- КАЛЕНДАРЬ БРОНИ --- */
+      .calendar-wrap { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; height: 100%; }
+      .calendar-box { background: var(--bg-panel); border-radius: 20px; box-shadow: var(--shadow-card); border: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; min-height: 300px; }
+      .calendar-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+      .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+      .calendar-day { padding: 12px 8px; border-radius: 12px; text-align: left; background: var(--input-bg); border: 1px solid var(--border); min-height: 70px; box-sizing: border-box; cursor: pointer; position: relative; transition: 0.15s; }
+      .calendar-day:hover { border-color: var(--accent); }
+      .calendar-day.inactive { opacity: 0.35; cursor: default; }
+      .calendar-day.selected { border-color: var(--accent); box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+      .calendar-day .num { font-weight: 800; font-size: 16px; color: var(--text-main); }
+      .calendar-day .marks { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+      .mark { width: 10px; height: 10px; border-radius: 50%; }
+      .mark.preorder { background: #f59e0b; }
+      .mark.confirmed { background: #34C759; }
+      .mark.customer_cancelled { background: #5856D6; }
+      .calendar-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--text-sub); margin-top: 10px; }
+      .calendar-legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .calendar-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+      .booking-list { background: var(--bg-panel); border-radius: 20px; box-shadow: var(--shadow-card); border: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 14px; height: 100%; box-sizing: border-box; }
+      .booking-item { border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; background: var(--input-bg); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+      .booking-meta { display: flex; flex-direction: column; gap: 4px; }
+      .badge { padding: 4px 8px; border-radius: 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+      .badge.preorder { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+      .badge.confirmed { background: rgba(52, 199, 89, 0.15); color: #1b9444; }
+      .badge.customer_cancelled { background: rgba(88, 86, 214, 0.15); color: #3f3c9d; }
+      .badge.owner_cancelled { background: rgba(255, 59, 48, 0.12); color: #b91c1c; }
+      .badge.completed { background: rgba(0, 122, 255, 0.12); color: #0b64c3; }
+      .booking-actions { display: flex; gap: 8px; align-items: center; }
+      .booking-actions select { width: auto; min-width: 150px; }
+      .summary-box { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-top: 10px; }
+      .summary-pill { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; background: var(--input-bg); display: flex; flex-direction: column; gap: 4px; }
+      .summary-pill .title { font-size: 11px; color: var(--text-sub); letter-spacing: 0.04em; font-weight: 700; text-transform: uppercase; }
+      .summary-pill .value { font-weight: 800; font-size: 18px; color: var(--text-main); }
+
+      .booking-form { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-top: auto; }
+      .booking-form .full { grid-column: span 2; }
+
+      @media (max-width: 1024px) {
+        .calendar-wrap { grid-template-columns: 1fr; }
+      }
       
       @media (max-width: 768px) {
         body { padding: 0; overflow: hidden; }
@@ -271,8 +312,8 @@
         .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
         .charts-grid { grid-template-columns: 1fr; gap: 15px; }
 
-        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 20px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 5px; height: 60px; border: 1px solid var(--border); }
-        .nav-indicator { display: block; position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc((100% - 10px) / 3); background: var(--bg-app); border-radius: 16px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1; pointer-events: none; }
+        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; margin: 0; border-radius: 20px; background: var(--bg-panel); box-shadow: 0 10px 40px rgba(0,0,0,0.15); z-index: 1000; display: grid; grid-template-columns: repeat(4, 1fr); padding: 5px; height: 60px; border: 1px solid var(--border); }
+        .nav-indicator { display: block; position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); width: calc((100% - 10px) / 4); background: var(--bg-app); border-radius: 16px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1; pointer-events: none; }
         [data-theme="dark"] .nav-indicator { background: #334155; }
         .nav-btn { background: transparent !important; box-shadow: none !important; flex-direction: column; gap: 4px; font-size: 10px; color: var(--text-sub); transition: color 0.2s; z-index: 10; width: 100%; }
         .nav-btn svg { width: 22px; height: 22px; margin-bottom: 2px; transition: transform 0.2s; }
@@ -316,7 +357,11 @@
             <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
             Расход
         </button>
-        <button class="nav-btn" onclick="switchTab('analytics', 2)">
+        <button class="nav-btn" onclick="switchTab('calendar', 2)">
+            <svg viewBox="0 0 24 24"><path d="M7 2v2H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-2V2h-2v2H9V2H7zm12 6H5v10h14V8z"/></svg>
+            Календарь
+        </button>
+        <button class="nav-btn" onclick="switchTab('analytics', 3)">
             <svg viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg>
             Инфо
         </button>
@@ -375,6 +420,65 @@
                             <tbody id="tableBody"></tbody>
                         </table>
                         <div id="emptyMsg" style="padding:40px; text-align:center; color:var(--text-sub);">Нажмите "Обновить" для загрузки</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="calendarTab" class="tab-page">
+            <div class="calendar-wrap">
+                <div class="calendar-box">
+                    <div class="calendar-head">
+                        <div>
+                            <h3 style="margin:0">Календарь мастерклассов</h3>
+                            <div style="color:var(--text-sub); font-size:13px">Бронь дат, предзаказы и актуальные окна</div>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            <button class="btn-refresh" onclick="changeMonth(-1)">◀</button>
+                            <div id="monthLabel" style="font-weight:800; min-width:160px; text-align:center;"></div>
+                            <button class="btn-refresh" onclick="changeMonth(1)">▶</button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                    <div class="calendar-legend">
+                        <span><span class="dot" style="background:#f59e0b"></span>Предзаказ</span>
+                        <span><span class="dot" style="background:#34C759"></span>Запланирован</span>
+                        <span><span class="dot" style="background:#5856D6"></span>Удержанная предоплата</span>
+                    </div>
+                </div>
+                <div class="booking-list">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h3 style="margin:0" id="selectedDateTitle">Выберите дату</h3>
+                            <div style="color:var(--text-sub); font-size:13px" id="selectedDateHint">Нет активных записей</div>
+                        </div>
+                        <button class="btn-refresh" onclick="loadBookings()">Обновить</button>
+                    </div>
+
+                    <div class="summary-box">
+                        <div class="summary-pill"><div class="title">Потенциальная прибыль</div><div class="value" id="potentialValue">0 ₽</div></div>
+                        <div class="summary-pill"><div class="title">Фактическая прибыль</div><div class="value" id="actualValue">0 ₽</div></div>
+                    </div>
+
+                    <div id="bookingItems" style="flex:1; display:flex; flex-direction:column; gap:10px; overflow-y:auto; min-height:120px;"></div>
+
+                    <div style="height:1px; background:var(--border);"></div>
+
+                    <h3 style="margin:0">Добавить бронь</h3>
+                    <div class="booking-form">
+                        <div class="full"><label>Клиент</label><input type="text" id="bkName" placeholder="Имя клиента"></div>
+                        <div><label>Начало</label><input type="time" id="bkStart"></div>
+                        <div><label>Длительность (мин)</label><input type="number" id="bkDuration" value="90"></div>
+                        <div><label>Предоплата</label><input type="number" id="bkDeposit" placeholder="0"></div>
+                        <div><label>Статус</label>
+                            <select id="bkStatus">
+                                <option value="preorder">Предзаказ</option>
+                                <option value="confirmed">Запланирован</option>
+                                <option value="customer_cancelled">Отмена клиентом (предоплата удержана)</option>
+                                <option value="completed">Проведён</option>
+                            </select>
+                        </div>
+                        <div class="full"><button class="btn" style="margin-top:0" onclick="addBooking()">Добавить на дату</button></div>
                     </div>
                 </div>
             </div>
@@ -458,9 +562,15 @@
         let selMonth = new Date().getMonth();
         let availableYears = [];
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+        // --- Бронирование ---
+        let bookings = [];
+        let calendarCursor = new Date();
+        let selectedDate = new Date();
+        const reminderCache = new Set();
         
         // --- ЛОГИКА СВАЙПОВ + ЗАЩИТА ОТ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ ---
-        const TABS_ORDER = ['income', 'expense', 'analytics'];
+        const TABS_ORDER = ['income', 'expense', 'calendar', 'analytics'];
         let touchStartX = 0;
         let touchStartY = 0; 
         let touchEndX = 0;
@@ -541,6 +651,9 @@
                     else if(action === 'editTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).editTransaction(payload);
                     else if(action === 'deleteTransaction') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).deleteTransaction(payload);
                     else if(action === 'getAnalyticsData') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getAnalyticsData(payload.year, payload.monthIdx);
+                    else if(action === 'getBookings') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).getBookings();
+                    else if(action === 'saveBooking') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).saveBooking(payload);
+                    else if(action === 'updateBookingStatus') google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).updateBookingStatus(payload);
                     else reject("Unknown Func");
                 });
             } else {
@@ -570,6 +683,7 @@
                 updateFilterUI();
                 refreshTable(true);
                 loadAnalytics(true);
+                loadBookings(true);
                 setLoading(false);
             }).catch(e => {
                 showToast("Error: " + e, true);
@@ -625,16 +739,15 @@
             triggerBookHaptic();
 
             const btns = document.querySelectorAll('.nav-btn');
-            btns.forEach(b => b.classList.remove('active')); 
-            if(typeof idx === 'undefined') {
-                if(t==='income') idx=0; else if(t==='expense') idx=1; else idx=2;
-            }
+            btns.forEach(b => b.classList.remove('active'));
+            if(typeof idx === 'undefined') { idx = TABS_ORDER.indexOf(t); }
             if(btns[idx]) btns[idx].classList.add('active');
             const ind = document.getElementById('navInd');
             if(ind) ind.style.transform = `translateX(${idx * 100}%)`;
 
             const splitPage = document.getElementById('splitTab');
             const analyticsPage = document.getElementById('analyticsTab');
+            const calendarPage = document.getElementById('calendarTab');
             let activePage;
 
             document.querySelectorAll('.tab-page').forEach(p => {
@@ -644,6 +757,9 @@
             if(t === 'analytics') {
                 activePage = analyticsPage;
                 if(analyticsNeedsRefresh || !isAnalyticsLoaded) loadAnalytics();
+            } else if (t === 'calendar') {
+                activePage = calendarPage;
+                renderCalendar();
             } else {
                 activePage = splitPage;
                 updateUIForTab(t);
@@ -836,6 +952,208 @@
             el.innerHTML = ''; if(!data.length) { el.innerHTML='<div style="color:var(--text-sub); font-size:13px">Нет данных</div>'; return; }
             const max = Math.max(...data);
             labels.forEach((lbl, i) => { const val = data[i]; const pct = (val / max) * 100; const html = `<div class="prog-item"><div class="prog-info"><span>${lbl}</span><span>${val.toLocaleString()}</span></div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%; background:${color}"></div></div></div>`; el.insertAdjacentHTML('beforeend', html); });
+        }
+
+        // --- КАЛЕНДАРЬ БРОНИ ---
+        const STATUS_LABELS = {
+            preorder: 'Предзаказ',
+            confirmed: 'Запланирован',
+            customer_cancelled: 'Отмена клиентом',
+            owner_cancelled: 'Отмена мастера',
+            completed: 'Проведён'
+        };
+
+        function loadBookings(isSilent = false) {
+            setLoading(true);
+            runBackend('getBookings').then(res => {
+                bookings = (res && res.bookings) ? res.bookings : [];
+                sanitizeBookings();
+                renderCalendar();
+                checkUpcomingReminders();
+                setLoading(false);
+            }).catch(() => {
+                if(!isSilent) showToast('Работаем с локальными данными календаря', true);
+                if(!bookings.length) bookings = sampleBookings();
+                sanitizeBookings();
+                renderCalendar();
+                setLoading(false);
+            });
+        }
+
+        function sanitizeBookings() {
+            bookings = bookings.map(b => ({
+                id: b.id || Date.now() + Math.random(),
+                date: b.date || getDateKey(new Date()),
+                start: b.start || '10:00',
+                duration: b.duration || 60,
+                deposit: Number(b.deposit) || 0,
+                client: b.client || b.name || 'Без имени',
+                status: b.status || 'preorder'
+            }));
+            if(!selectedDate) selectedDate = new Date();
+        }
+
+        function sampleBookings() {
+            const base = new Date();
+            const plus = d => new Date(base.getFullYear(), base.getMonth(), base.getDate() + d);
+            return [
+                { id: 's1', date: getDateKey(plus(1)), start: '11:00', duration: 90, deposit: 3000, client: 'Анна (семья)', status: 'preorder' },
+                { id: 's2', date: getDateKey(plus(3)), start: '15:00', duration: 120, deposit: 5000, client: 'Корпоратив', status: 'confirmed' },
+                { id: 's3', date: getDateKey(plus(5)), start: '18:00', duration: 60, deposit: 2000, client: 'Вика', status: 'customer_cancelled' }
+            ];
+        }
+
+        function getDateKey(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function changeMonth(delta) {
+            calendarCursor.setMonth(calendarCursor.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            if(!grid) return;
+            const label = document.getElementById('monthLabel');
+            const current = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth(), 1);
+            label.innerText = `${monthNames[current.getMonth()]} ${current.getFullYear()}`;
+
+            const startOffset = (current.getDay() + 6) % 7; // Понедельник - первый
+            const startDate = new Date(current);
+            startDate.setDate(1 - startOffset);
+            grid.innerHTML = '';
+
+            for(let i=0;i<42;i++) {
+                const cellDate = new Date(startDate);
+                cellDate.setDate(startDate.getDate() + i);
+                const isCurrentMonth = cellDate.getMonth() === current.getMonth();
+                const cellKey = getDateKey(cellDate);
+                const dayBookings = getActiveBookingsForDate(cellKey);
+
+                const div = document.createElement('div');
+                div.className = 'calendar-day' + (isCurrentMonth ? '' : ' inactive');
+                if(getDateKey(selectedDate) === cellKey) div.classList.add('selected');
+                div.innerHTML = `<div class="num">${cellDate.getDate()}</div><div class="marks"></div>`;
+
+                const marks = div.querySelector('.marks');
+                const usedStatuses = new Set();
+                dayBookings.forEach(b => {
+                    if(!usedStatuses.has(b.status)) {
+                        const dot = document.createElement('div'); dot.className = 'mark ' + b.status; marks.appendChild(dot); usedStatuses.add(b.status);
+                    }
+                });
+
+                if(isCurrentMonth) {
+                    div.onclick = () => selectDate(cellDate);
+                }
+
+                grid.appendChild(div);
+            }
+            renderBookingsList();
+        }
+
+        function selectDate(dateObj) {
+            selectedDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+            calendarCursor = new Date(selectedDate);
+            renderCalendar();
+        }
+
+        function getActiveBookings() {
+            const todayKey = getDateKey(new Date());
+            return bookings.filter(b => {
+                if(b.status === 'owner_cancelled') return false;
+                const dateOk = b.status === 'customer_cancelled' ? true : (b.date >= todayKey);
+                return dateOk;
+            });
+        }
+
+        function getActiveBookingsForDate(dateKey) {
+            return getActiveBookings().filter(b => b.date === dateKey);
+        }
+
+        function renderBookingsList() {
+            const list = document.getElementById('bookingItems');
+            if(!list) return;
+            const dateKey = getDateKey(selectedDate);
+            const arr = getActiveBookingsForDate(dateKey).sort((a,b) => (a.start||'').localeCompare(b.start||''));
+            const title = document.getElementById('selectedDateTitle');
+            const hint = document.getElementById('selectedDateHint');
+            title.innerText = new Date(selectedDate).toLocaleDateString('ru-RU', { day:'2-digit', month:'long', year:'numeric' });
+            if(!arr.length) { list.innerHTML = '<div style="color:var(--text-sub); font-size:14px;">Записей нет. Можно бронировать окно.</div>'; hint.innerText = 'Свободно'; }
+            else hint.innerText = `${arr.length} запис.`;
+
+            list.innerHTML = '';
+            arr.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'booking-item';
+                div.innerHTML = `<div class="booking-meta"><strong>${b.client}</strong><span style="color:var(--text-sub); font-size:13px;">${b.start} • ${b.duration} мин</span><span style="font-weight:700; color:var(--text-main);">${(b.deposit||0).toLocaleString()} ₽</span></div><div class="booking-actions"><span class="badge ${b.status}">${STATUS_LABELS[b.status] || b.status}</span></div>`;
+
+                const actions = div.querySelector('.booking-actions');
+                const sel = document.createElement('select');
+                ['preorder','confirmed','customer_cancelled','owner_cancelled','completed'].forEach(st => {
+                    const opt = document.createElement('option'); opt.value = st; opt.innerText = STATUS_LABELS[st]; opt.selected = st === b.status; sel.appendChild(opt);
+                });
+                sel.onchange = (e) => changeBookingStatus(b.id, e.target.value);
+                actions.appendChild(sel);
+                list.appendChild(div);
+            });
+            updateBookingSummary();
+        }
+
+        function updateBookingSummary() {
+            const potential = getActiveBookings().filter(b => ['preorder','confirmed'].includes(b.status)).reduce((s,b)=> s + (Number(b.deposit)||0), 0);
+            const actual = bookings.filter(b => ['customer_cancelled','completed'].includes(b.status)).reduce((s,b)=> s + (Number(b.deposit)||0), 0);
+            document.getElementById('potentialValue').innerText = potential.toLocaleString() + ' ₽';
+            document.getElementById('actualValue').innerText = actual.toLocaleString() + ' ₽';
+        }
+
+        function addBooking() {
+            if(!selectedDate) { showToast('Выберите дату', true); return; }
+            const client = document.getElementById('bkName').value.trim();
+            const start = document.getElementById('bkStart').value || '10:00';
+            const duration = parseInt(document.getElementById('bkDuration').value) || 60;
+            const deposit = parseFloat(document.getElementById('bkDeposit').value) || 0;
+            const status = document.getElementById('bkStatus').value;
+            if(!client) { showToast('Укажите клиента', true); return; }
+
+            const newBooking = { id: 'bk-' + Date.now(), client, start, duration, deposit, status, date: getDateKey(selectedDate) };
+            bookings.push(newBooking);
+            renderCalendar();
+            setLoading(true);
+            runBackend('saveBooking', { booking: newBooking }).then(res => {
+                setLoading(false);
+                if(res && res.id) newBooking.id = res.id;
+                showToast('Бронь добавлена');
+                checkUpcomingReminders();
+            }).catch(() => { setLoading(false); showToast('Локальная бронь сохранена (без отправки)', true); });
+        }
+
+        function changeBookingStatus(id, status) {
+            const bk = bookings.find(b => b.id === id);
+            if(!bk) return;
+            bk.status = status;
+            renderCalendar();
+            setLoading(true);
+            runBackend('updateBookingStatus', { id, status }).then(() => { setLoading(false); showToast('Статус обновлен'); checkUpcomingReminders(); }).catch(() => { setLoading(false); showToast('Статус обновлён локально', true); });
+        }
+
+        function checkUpcomingReminders() {
+            const today = new Date();
+            getActiveBookings().forEach(b => {
+                const target = new Date(b.date);
+                const diffDays = Math.floor((target - today) / (1000*60*60*24));
+                if(['preorder','confirmed'].includes(b.status) && (diffDays === 3 || diffDays === 1)) {
+                    const key = `${b.id}-${diffDays}`;
+                    if(!reminderCache.has(key)) {
+                        showToast(`Напоминание: ${STATUS_LABELS[b.status]} ${b.client} через ${diffDays} дн.`);
+                        reminderCache.add(key);
+                    }
+                }
+            });
         }
         function showSearch(e) {
             const val = e.target.value.toLowerCase();
